@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Calendario_Estudiantil.Views.SchedulePage"
+             Title="Calendario">
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Navegación de semana -->
+        <HorizontalStackLayout Grid.Row="0" Spacing="10" Margin="0,0,0,10">
+            <Button Text="◀" Clicked="OnPreviousWeek" WidthRequest="40"/>
+            <Label Text="{Binding CurrentWeekStart, StringFormat='Semana {0:dd/MM}'}" VerticalOptions="Center"/>
+            <Button Text="▶" Clicked="OnNextWeek" WidthRequest="40"/>
+            <Button Text="Hoy" Clicked="OnGoToToday" Margin="10,0,0,0"/>
+        </HorizontalStackLayout>
+
+        <!-- Grid de horarios -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout>
+                <Label Text="📅 Grid en desarrollo"
+                       FontSize="Large"
+                       HorizontalOptions="Center"
+                       Margin="0,50,0,0"/>
+                <Label Text="Las materias aparecerán aquí."
+                       HorizontalOptions="Center"
+                       Margin="0,10,0,0"/>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+
+</ContentPage>

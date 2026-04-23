@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Calendario_Estudiantil.Views.CoursesPage"
+             Title="Carreras">
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Label Grid.Row="0" Text="🎓 Mis Carreras" FontSize="Large" FontAttributes="Bold" Margin="0,0,0,10"/>
+
+        <ScrollView Grid.Row="1">
+            <CollectionView x:Name="CoursesList" EmptyView="No hay carreras aún. Agregá una.">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Margin="0,4" Padding="10" BackgroundColor="{Binding ColorHex, Converter={StaticResource HexToColorConverter}}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <VerticalStackLayout Grid.Column="0">
+                                    <Label Text="{Binding Name}" FontSize="Medium" TextColor="White"/>
+                                </VerticalStackLayout>
+                                <Button Grid.Column="1" Text="🗑" Clicked="OnDeleteCourse" BackgroundColor="Transparent"/>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </ScrollView>
+
+        <Button Grid.Row="2" Text="+ Nueva Carrera" Clicked="OnAddCourse" Margin="0,10,0,0"/>
+    </Grid>
+
+</ContentPage>

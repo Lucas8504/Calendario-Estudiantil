@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Calendario_Estudiantil.Views.TasksPage"
+             Title="Tareas">
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Filtros -->
+        <HorizontalStackLayout Grid.Row="0" Spacing="5" Margin="0,0,0,10">
+            <Button Text="Todos" Clicked="OnFilterAll"/>
+            <Button Text="Hoy" Clicked="OnFilterToday"/>
+            <Button Text="Pendientes" Clicked="OnFilterPending"/>
+        </HorizontalStackLayout>
+
+        <!-- Lista -->
+        <CollectionView Grid.Row="1" x:Name="TasksList" EmptyView="Sin tareas para mostrar.">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Margin="0,4" Padding="10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <VerticalStackLayout Grid.Column="0">
+                                <Label Text="{Binding TaskItem.Title}" FontSize="Medium"/>
+                                <Label Text="{Binding TaskItem.DueDate, StringFormat='Vence: {0:g}'}" FontSize="Caption"/>
+                            </VerticalStackLayout>
+                            <Button Grid.Column="1" Text="✓" Clicked="OnCompleteTask" BackgroundColor="LightGreen"/>
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Button Grid.Row="2" Text="+ Nueva Tarea" Clicked="OnCreateTask" Margin="0,10,0,0"/>
+    </Grid>
+
+</ContentPage>
