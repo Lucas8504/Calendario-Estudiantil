@@ -1,4 +1,4 @@
-﻿namespace Calendario_Estudiantil
+namespace Calendario_Estudiantil
 {
     public partial class AppShell : Shell
     {
