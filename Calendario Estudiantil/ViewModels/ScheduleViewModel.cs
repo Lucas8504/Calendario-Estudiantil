@@ -29,10 +29,15 @@ public partial class ScheduleViewModel : ObservableObject
     [ObservableProperty]
     private bool _isLoading;
 
-    // Horas del día para el grid (7:00 - 22:00)
+    // Constants
     public static readonly int StartHour = 7;
     public static readonly int EndHour = 22;
-    public static readonly int TotalHours = EndHour - StartHour;
+
+    [ObservableProperty]
+    private int _globalMinHour = 7;
+
+    [ObservableProperty]
+    private int _globalMaxHour = 22;
 
     public ScheduleViewModel(ISubjectService subjectService, ICourseService courseService)
     {
@@ -65,7 +70,7 @@ public partial class ScheduleViewModel : ObservableObject
         {
             if (!IsToday || CurrentTime.TotalHours < StartHour || CurrentTime.TotalHours >= EndHour)
                 return -1;
-            return (CurrentTime.TotalHours - StartHour) / TotalHours;
+            return (CurrentTime.TotalHours - StartHour) / (EndHour - StartHour);
         }
     }
 
@@ -77,14 +82,8 @@ public partial class ScheduleViewModel : ObservableObject
 
         try
         {
-            var activeCourse = await _courseService.GetActiveAsync();
-            if (activeCourse == null)
-            {
-                GenerateEmptyWeek();
-                return;
-            }
-
-            var subjects = await _subjectService.GetByCourseAsync(activeCourse.Id);
+            // Cargar todas las materias (sin carrera)
+            var subjects = await _subjectService.GetAllAsync();
 
             // Cargar todos los horarios de las materias
             var allSchedules = new List<ScheduleDisplay>();
@@ -106,27 +105,42 @@ public partial class ScheduleViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Genera las 7 columnas de la semana con sus time slots.
+    /// Genera las columnas de la semana con sus time slots.
+    /// SIEMPRE genera 15 slots por día (7am-10pm) para alineación.
     /// </summary>
     private void GenerateWeekGrid(List<ScheduleDisplay> allSchedules)
     {
         var days = new ObservableCollection<DayColumn>();
 
+        // Verificar qué días tienen clases
+        var daysWithClasses = allSchedules
+            .Select(s => s.Schedule.Day)
+            .Distinct()
+            .ToHashSet();
+
+        // SIEMPRE usar rango fijo 7am-10pm (15 horas)
+        int minHour = StartHour;  // 7
+        int maxHour = EndHour;    // 22
+
         for (int i = 0; i < 7; i++)
         {
+            var dayOfWeek = (DiaSemana)(i + 1);
+
+            // Solo incluir días que tienen clases
+            if (!daysWithClasses.Contains(dayOfWeek))
+                continue;
+
             var date = CurrentWeekStart.AddDays(i);
-            var dayOfWeek = (DiaSemana)(i + 1); // 1=Lunes
             var daySchedules = allSchedules.Where(s => s.Schedule.Day == dayOfWeek).ToList();
 
             var slots = new ObservableCollection<TimeSlot>();
 
-            // Generar slots de cada hora
-            for (int hour = StartHour; hour < EndHour; hour++)
+            // SIEMPRE generar 15 slots (7am a 10pm)
+            for (int hour = minHour; hour < maxHour; hour++)
             {
                 var slotStart = TimeSpan.FromHours(hour);
                 var slotEnd = TimeSpan.FromHours(hour + 1);
 
-                // Buscar si hay alguna materia en este horario
                 var matchingSchedule = daySchedules
                     .FirstOrDefault(s => s.Schedule.StartTime < slotEnd && s.Schedule.EndTime > slotStart);
 
@@ -146,7 +160,8 @@ public partial class ScheduleViewModel : ObservableObject
                 DayName = GetDayName(dayOfWeek),
                 DayNumber = date.Day,
                 IsToday = date.Date == DateTime.Today,
-                TimeSlots = slots
+                TimeSlots = slots,
+                TotalHours = maxHour - minHour  // 15
             });
         }
 
@@ -154,34 +169,17 @@ public partial class ScheduleViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Genera una semana vacía (sin carreras/materias).
+    /// Genera una semana vacía (sin materias).
     /// </summary>
     private void GenerateEmptyWeek()
     {
-        var days = new ObservableCollection<DayColumn>();
-
-        for (int i = 0; i < 7; i++)
-        {
-            var date = CurrentWeekStart.AddDays(i);
-            var slots = new ObservableCollection<TimeSlot>();
-
-            for (int hour = StartHour; hour < EndHour; hour++)
-            {
-                slots.Add(new TimeSlot { Hour = hour, Date = date, HasClass = false });
-            }
-
-            days.Add(new DayColumn
-            {
-                Date = date,
-                DayName = GetDayName((DiaSemana)(i + 1)),
-                DayNumber = date.Day,
-                IsToday = date.Date == DateTime.Today,
-                TimeSlots = slots
-            });
-        }
-
-        WeekDays = days;
+        WeekDays = new ObservableCollection<DayColumn>();
     }
+
+    /// <summary>
+    /// Retorna true si no hay materias agregadas.
+    /// </summary>
+    public bool HasNoSubjects => WeekDays == null || WeekDays.Count == 0;
 
     private string GetDayName(DiaSemana day) => day switch
     {
@@ -238,6 +236,7 @@ public class DayColumn
     public int DayNumber { get; set; }
     public bool IsToday { get; set; }
     public ObservableCollection<TimeSlot> TimeSlots { get; set; } = new();
+    public int TotalHours { get; set; } = 15; // Default 7am-10pm
 }
 
 /// <summary>

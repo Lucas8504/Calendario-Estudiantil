@@ -66,6 +66,38 @@ public partial class SubjectViewModel : ObservableObject
         await LoadSubjectsAsync();
     }
 
+    /// <summary>
+    /// Crea materia sin carrera (modo simple).
+    /// </summary>
+    public async Task CreateSubjectNoCourseAsync(string name, string colorHex = "#512BD4")
+    {
+        if (string.IsNullOrWhiteSpace(name)) return;
+
+        var subject = new Subject
+        {
+            CourseId = 0, // Sin carrera
+            Name = name.Trim(),
+            ColorHex = colorHex
+        };
+
+        await _subjectService.CreateAsync(subject);
+        await LoadSubjectsNoCourseAsync();
+    }
+
+    public async Task LoadSubjectsNoCourseAsync()
+    {
+        IsLoading = true;
+        try
+        {
+            var list = await _subjectService.GetAllAsync();
+            Subjects = new ObservableCollection<Subject>(list);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
     public async Task DeleteSubjectAsync(Subject? subject)
     {
         if (subject == null) return;

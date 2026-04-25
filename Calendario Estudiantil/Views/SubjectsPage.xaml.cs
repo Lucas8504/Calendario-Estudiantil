@@ -1,10 +1,14 @@
 using Calendario_Estudiantil.ViewModels;
+using Calendario_Estudiantil.Models;
 
 namespace Calendario_Estudiantil.Views;
 
 public partial class SubjectsPage : ContentPage
 {
     private readonly SubjectViewModel _viewModel;
+
+    // Colores disponibles
+    private readonly string[] _colors = { "#512BD4", "#E91E63", "#2196F3", "#4CAF50", "#FF9800", "#9C27B0", "#00BCD4", "#795548" };
 
     public SubjectsPage()
     {
@@ -17,21 +21,30 @@ public partial class SubjectsPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.LoadSubjectsAsync();
+        await _viewModel.LoadSubjectsNoCourseAsync();
     }
 
     private async void OnAddSubject(object sender, EventArgs e)
     {
-        if (App.courseService.GetActiveAsync().Result == null)
-        {
-            await DisplayAlert("Atención", "Primero seleccioná una carrera.", "OK");
-            return;
-        }
+        // Paso 1: Nombre
+        var name = await DisplayPromptAsync("Nueva Materia", "Nombre de la materia:", "Crear", "Cancelar", maxLength: 50);
+        if (string.IsNullOrWhiteSpace(name)) return;
 
-        var name = await DisplayPromptAsync("Nueva Materia", "Nombre:");
-        if (!string.IsNullOrWhiteSpace(name))
+        // Paso 2: Selección de color
+        var selectedColor = await DisplayActionSheet("Elegir color:", "Cancelar", null, _colors);
+        if (string.IsNullOrEmpty(selectedColor) || selectedColor == "Cancelar") return;
+
+        // Crear materia (sin carrera)
+        await _viewModel.CreateSubjectNoCourseAsync(name, selectedColor);
+        
+        await DisplayAlert("Materia creada", $"Ahora '{name}' aparece en el calendario.\n\nPara agregar horarios,tocá la materia en la lista.", "OK");
+    }
+
+    private async void OnSubjectTapped(object sender, EventArgs e)
+    {
+        if (sender is Frame frame && frame.BindingContext is Subject subject)
         {
-            await _viewModel.CreateSubjectAsync(name);
+            await Navigation.PushAsync(new SubjectSchedulesPage(subject, App.subjectService));
         }
     }
 }

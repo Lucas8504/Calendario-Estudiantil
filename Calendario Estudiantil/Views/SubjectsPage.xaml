@@ -14,8 +14,23 @@
             <CollectionView x:Name="SubjectsList" EmptyView="Sin materias. Seleccioná una carrera.">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Frame Margin="0,4" Padding="10">
-                            <Label Text="{Binding Name}" FontSize="Medium"/>
+                        <Frame Margin="0,4" Padding="10" BackgroundColor="#F5F5F5">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnSubjectTapped"/>
+                            </Frame.GestureRecognizers>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <!-- Indicador de color -->
+                                <BoxView Grid.Column="0" WidthRequest="6" Margin="0,0,8,0"
+                                        BackgroundColor="{Binding ColorHex}" CornerRadius="3"/>
+                                <StackLayout Grid.Column="1">
+                                    <Label Text="{Binding Name}" FontSize="Medium"/>
+                                    <Label Text="Tocá para agregar horarios" FontSize="Small" TextColor="Gray"/>
+                                </StackLayout>
+                            </Grid>
                         </Frame>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

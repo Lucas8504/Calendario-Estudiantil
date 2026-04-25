@@ -19,13 +19,11 @@
             <Button Text="📅 Calendario" Clicked="OnNavigateSchedule" Margin="0,2"/>
             <Button Text="📋 Tareas" Clicked="OnNavigateTasks" Margin="0,2"/>
             <Button Text="📚 Materias" Clicked="OnNavigateSubjects" Margin="0,2"/>
-            <Button Text="🎓 Carreras" Clicked="OnNavigateCourses" Margin="0,2"/>
         </StackLayout>
     </Shell.FlyoutContent>
 
     <ShellContent Title="Calendario" Route="SchedulePage" ContentTemplate="{DataTemplate local:Views.SchedulePage}"/>
     <ShellContent Title="Tareas" Route="TasksPage" ContentTemplate="{DataTemplate local:Views.TasksPage}"/>
     <ShellContent Title="Materias" Route="SubjectsPage" ContentTemplate="{DataTemplate local:Views.SubjectsPage}"/>
-    <ShellContent Title="Carreras" Route="CoursesPage" ContentTemplate="{DataTemplate local:Views.CoursesPage}"/>
 
 </Shell>
