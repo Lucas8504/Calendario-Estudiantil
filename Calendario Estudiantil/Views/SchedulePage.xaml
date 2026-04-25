@@ -2,15 +2,8 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Calendario_Estudiantil.ViewModels"
-             xmlns:conv="clr-namespace:Calendario_Estudiantil.Converters"
              x:Class="Calendario_Estudiantil.Views.SchedulePage"
              Title="Calendario">
-
-    <ContentPage.Resources>
-        <conv:HexToColorConverter x:Key="HexToColorConverter"/>
-        <conv:BoolToClassColorConverter x:Key="BoolToClassColorConverter"/>
-        <conv:BoolToColorConverter x:Key="BoolToColorConverter"/>
-    </ContentPage.Resources>
 
     <Grid Margin="5">
         <Grid.RowDefinitions>
@@ -22,95 +15,19 @@
         <!-- Navegación de semana -->
         <HorizontalStackLayout Grid.Row="0" Spacing="10" Margin="0,5,0,10" HorizontalOptions="Center">
             <Button Text="◀" Clicked="OnPreviousWeek" WidthRequest="40" HeightRequest="36"/>
-            <Label Text="{Binding CurrentWeekStart, StringFormat='{}{0:dd/MM} - '}" VerticalOptions="Center">
-                <Label.FormattedText>
-                    <FormattedString>
-                        <Span Text="{Binding CurrentWeekStart, StringFormat='Semana del {0:dd/MM}'}" FontSize="16" FontAttributes="Bold"/>
-                    </FormattedString>
-                </Label.FormattedText>
-            </Label>
+            <Label Text="{Binding WeekLabel}" FontSize="16" FontAttributes="Bold" VerticalOptions="Center"/>
             <Button Text="Hoy" Clicked="OnGoToToday" HeightRequest="36"/>
             <Button Text="▶" Clicked="OnNextWeek" WidthRequest="40" HeightRequest="36"/>
         </HorizontalStackLayout>
 
-        <!-- Encabezados de días -->
+        <!-- Encabezados de días (construido dinámicamente) -->
         <ScrollView Grid.Row="1" Orientation="Horizontal">
-            <HorizontalStackLayout BindableLayout.ItemsSource="{Binding WeekDays}">
-                <BindableLayout.ItemTemplate>
-                    <DataTemplate>
-                        <Frame WidthRequest="50" Margin="2" Padding="5"
-                               BackgroundColor="{Binding IsToday, Converter={StaticResource BoolToColorConverter}}"
-                               CornerRadius="8">
-                            <StackLayout HorizontalOptions="Center">
-                                <Label Text="{Binding DayName}" FontSize="12" HorizontalOptions="Center"
-                                       FontAttributes="Bold"/>
-                                <Label Text="{Binding DayNumber}" FontSize="16" HorizontalOptions="Center"
-                                       FontAttributes="Bold" TextColor="#333"/>
-                            </StackLayout>
-                        </Frame>
-                    </DataTemplate>
-                </BindableLayout.ItemTemplate>
-            </HorizontalStackLayout>
+            <HorizontalStackLayout x:Name="HeadersRow" Spacing="2" Padding="0"/>
         </ScrollView>
 
-        <!-- Grid de horarios -->
-        <ScrollView Grid.Row="2" Orientation="Vertical">
-            <ScrollView Orientation="Horizontal">
-                <StackLayout Orientation="Horizontal">
-                
-                <!-- Primera columna: horas (15 horas fijas: 7am-10pm) -->
-                <VerticalStackLayout WidthRequest="50">
-                    <!-- Header -->
-                    <Border BackgroundColor="#EEEEEE" HeightRequest="50" Margin="1">
-                        <Label Text="Hora" HorizontalOptions="Center" VerticalOptions="Center" FontSize="11"/>
-                    </Border>
-                    <!--Filas de horas - fijo 15 rows -->
-                    <StackLayout>
-                        <StackLayout.Children>
-                            <Label Text="07:00" HeightRequest="50" HorizontalOptions="Center" FontSize="11" TextColor="#666"/>
-                            <Label Text="08:00" HeightRequest="50" HorizontalOptions="Center" FontSize="11" TextColor="#666"/>
-                            <Label Text="09:00" HeightRequest="50" HorizontalOptions="Center" FontSize="11" TextColor="#666"/>
-                            <Label Text="10:00" HeightRequest="50" HorizontalOptions="Center" FontSize="11" TextColor="#666"/>
-                            <Label Text="11:00" HeightRequest="50" HorizontalOptions="Center" FontSize="11" TextColor="#666"/>
-                            <Label Text="12:00" HeightRequest="50" HorizontalOptions="Center" FontSize="11" TextColor="#666"/>
-                            <Label Text="13:00" HeightRequest="50" HorizontalOptions="Center" FontSize="11" TextColor="#666"/>
-                            <Label Text="14:00" HeightRequest="50" HorizontalOptions="Center" FontSize="11" TextColor="#666"/>
-                            <Label Text="15:00" HeightRequest="50" HorizontalOptions="Center" FontSize="11" TextColor="#666"/>
-                            <Label Text="16:00" HeightRequest="50" HorizontalOptions="Center" FontSize="11" TextColor="#666"/>
-                            <Label Text="17:00" HeightRequest="50" HorizontalOptions="Center" FontSize="11" TextColor="#666"/>
-                            <Label Text="18:00" HeightRequest="50" HorizontalOptions="Center" FontSize="11" TextColor="#666"/>
-                            <Label Text="19:00" HeightRequest="50" HorizontalOptions="Center" FontSize="11" TextColor="#666"/>
-                            <Label Text="20:00" HeightRequest="50" HorizontalOptions="Center" FontSize="11" TextColor="#666"/>
-                            <Label Text="21:00" HeightRequest="50" HorizontalOptions="Center" FontSize="11" TextColor="#666"/>
-                        </StackLayout.Children>
-                    </StackLayout>
-                </VerticalStackLayout>
-
-                <!-- Columnas de días -->
-                <HorizontalStackLayout BindableLayout.ItemsSource="{Binding WeekDays}">
-                    <BindableLayout.ItemTemplate>
-                        <DataTemplate>
-                            <VerticalStackLayout WidthRequest="55">
-                                <!-- Los slots de tiempo -->
-                                <VerticalStackLayout BindableLayout.ItemsSource="{Binding TimeSlots}">
-                                    <BindableLayout.ItemTemplate>
-<DataTemplate>
-                                        <Border HeightRequest="50" Margin="1" BackgroundColor="#FAFAFA">
-                                            <Grid>
-                                                <Label Text="{Binding Subject.Name}" FontSize="10" TextColor="White"
-                                                       VerticalOptions="Center" HorizontalOptions="Center"
-                                                       HorizontalTextAlignment="Center" IsVisible="{Binding HasClass}" Margin="2"/>
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                    </BindableLayout.ItemTemplate>
-                                </VerticalStackLayout>
-                            </VerticalStackLayout>
-                        </DataTemplate>
-                    </BindableLayout.ItemTemplate>
-                </HorizontalStackLayout>
-            </StackLayout>
-            </ScrollView>
+        <!-- Grid de horarios (construido dinámicamente) -->
+        <ScrollView Grid.Row="2">
+            <StackLayout Orientation="Horizontal" x:Name="GridContainer"/>
         </ScrollView>
 
         <!-- Indicador de carga -->
