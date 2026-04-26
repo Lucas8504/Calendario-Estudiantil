@@ -1,3 +1,4 @@
+using Calendario_Estudiantil.Configuration;
 using Calendario_Estudiantil.ViewModels;
 using Microsoft.Maui.Controls;
 
@@ -34,30 +35,18 @@ public partial class SchedulePage : ContentPage
         var cells = _viewModel.Cells;
         var dayHeaders = _viewModel.DayHeaders;
 
-        // DEBUG: mostrar valores
-        System.Diagnostics.Debug.WriteLine($"=== BUILD GRID ===");
-        System.Diagnostics.Debug.WriteLine($"minHour={minHour}, totalHours={totalHours}, daysCount={daysCount}");
-        System.Diagnostics.Debug.WriteLine($"Cells count={cells.Count}");
-        System.Diagnostics.Debug.WriteLine($"DayHeaders: {string.Join(", ", dayHeaders.Select(h => $"DayIndex={h.DayIndex}"))}");
-        
-        // Contar materias por hora
-        for (int h = minHour; h < minHour + totalHours; h++)
-        {
-            var count = cells.Count(c => c.Hour == h && c.HasClass);
-            if (count > 0)
-                System.Diagnostics.Debug.WriteLine($"Hour {h}:00 has {count} class(es)");
-        }
-
         if (daysCount == 0 || totalHours == 0) return;
 
-        // Medidas fijas
-        const int H = 70;  // columna hora
-        const int D = 90;  // columna día
-        const int R = 55;  // altura fila
+        // Usar constantes de configuración
+        const int H = AppConstants.ScheduleGrid.HourColumnWidth;
+        const int D = AppConstants.ScheduleGrid.DayColumnWidth;
+        const int R = AppConstants.ScheduleGrid.RowHeight;
 
         int totalW = H + (daysCount * D);
         grid.WidthRequest = totalW;
         grid.HeightRequest = (totalHours + 1) * R;
+        grid.Margin = new Thickness(0);
+        grid.Padding = new Thickness(0);
 
         // Columnas: 1 hora + N días
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(H, GridUnitType.Absolute) });
@@ -70,6 +59,7 @@ public partial class SchedulePage : ContentPage
             grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(R, GridUnitType.Absolute) });
 
         // ==================== FILA 0: Headers ====================
+        
         // [0,0] - Esquina "Hora"
         var corner = new Label {
             Text = "Hora",
@@ -111,7 +101,7 @@ public partial class SchedulePage : ContentPage
         for (int hi = 0; hi < totalHours; hi++)
         {
             var hour = minHour + hi;
-            var gridRow = hi + 1; // Fila 1, 2, 3...
+            var gridRow = hi + 1;
 
             // Columna 0: la hora
             var hourLbl = new Label {
@@ -133,15 +123,13 @@ public partial class SchedulePage : ContentPage
             for (int di = 0; di < daysCount; di++)
             {
                 var dh = dayHeaders[di];
-                var gridCol = di + 1; // Columna 1, 2, 3...
+                var gridCol = di + 1;
                 
-                // DEBUG: ver qué valores se usan para buscar
                 var cell = cells.FirstOrDefault(c => c.DayIndex == dh.DayIndex && c.Hour == hour);
-                System.Diagnostics.Debug.WriteLine($"Looking for: DayIndex={dh.DayIndex}, Hour={hour} -> Found={(cell != null)}, HasClass={(cell?.HasClass == true)}, Subject={(cell?.Subject?.Name ?? "null")}");
                 
                 var hasClass = cell != null && cell.HasClass;
-                var bg = hasClass ? Color.FromArgb(cell.Subject.ColorHex) : Color.FromArgb("#FFFFFF");
-                var txt = hasClass ? cell.Subject.Name : "";
+                var bg = hasClass ? Color.FromArgb(cell.Subject!.ColorHex) : Color.FromArgb("#FFFFFF");
+                var txt = hasClass ? cell.Subject!.Name : "";
                 var col = hasClass ? Colors.White : Color.FromArgb("#333333");
                 
                 var cel = new Label {

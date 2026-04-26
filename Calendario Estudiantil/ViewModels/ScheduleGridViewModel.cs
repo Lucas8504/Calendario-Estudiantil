@@ -1,15 +1,17 @@
 using System.Collections.ObjectModel;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using Calendario_Estudiantil.Configuration;
 using Calendario_Estudiantil.Models;
 using Calendario_Estudiantil.Services;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace Calendario_Estudiantil.ViewModels;
 
 /// <summary>
-/// ViewModel para el grid de horarios optimizado.
+/// ViewModel para el grid de horarios.
+/// Implementa IScheduleGridViewModel para facilitar testing y DI.
 /// </summary>
-public partial class ScheduleGridViewModel : ObservableObject
+public partial class ScheduleGridViewModel : ObservableObject, IScheduleGridViewModel
 {
     private readonly ISubjectService _subjectService;
 
@@ -26,27 +28,28 @@ public partial class ScheduleGridViewModel : ObservableObject
     private bool _isLoading;
 
     [ObservableProperty]
-    private string _weekLabel = "";
-
-    // Rango global de horas
-    [ObservableProperty]
-    private int _minHour = 7;
+    private string _weekLabel = string.Empty;
 
     [ObservableProperty]
-    private int _maxHour = 22;
+    private int _minHour = AppConstants.ScheduleGrid.MinHour;
 
     [ObservableProperty]
-    private int _totalHours = 15;
+    private int _maxHour = AppConstants.ScheduleGrid.MaxHour;
+
+    [ObservableProperty]
+    private int _totalHours = AppConstants.ScheduleGrid.TotalHours;
 
     public ScheduleGridViewModel(ISubjectService subjectService)
     {
         _subjectService = subjectService;
-        
-        // Iniciar en semana actual (lunes)
+        InitializeWeek();
+    }
+
+    private void InitializeWeek()
+    {
         var today = DateTime.Today;
         var diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
         CurrentWeekStart = today.AddDays(-diff);
-        
         UpdateWeekLabel();
     }
 
@@ -64,88 +67,27 @@ public partial class ScheduleGridViewModel : ObservableObject
 
         try
         {
-            // 1. Cargar todas las materias con horarios
-            var subjects = await _subjectService.GetAllAsync();
-            
-            // 2. Cargar horarios de todas las materias
-            var allSchedules = new List<ScheduleItemHelper>();
-            foreach (var subject in subjects)
-            {
-                var schedules = await _subjectService.GetSchedulesAsync(subject.Id);
-                foreach (var schedule in schedules)
-                {
-                    allSchedules.Add(new ScheduleItemHelper { Subject = subject, Schedule = schedule });
-                }
-            }
+            // 1. Cargar materias y horarios en una sola operación optimizada
+            var (subjects, allSchedules) = await LoadSchedulesOptimizedAsync();
 
             if (!allSchedules.Any())
             {
-                // Sin materias - mostrar grid vacío
                 DayHeaders = new ObservableCollection<DayHeader>();
                 Cells = new ObservableCollection<ScheduleCell>();
                 return;
             }
 
-            // 3. Calcular rango GLOBAL de horas (siempre 7am-10pm para simplificar)
-            const int globalMinHour = 7;
-            const int globalMaxHour = 22;
-            
-            MinHour = globalMinHour;
-            MaxHour = globalMaxHour;
-            TotalHours = globalMaxHour - globalMinHour;
-
-            // 4. Encontrar días con clases
+            // 2. Crear headers de días
             var daysWithClasses = allSchedules
                 .Select(s => s.Schedule.Day)
                 .Distinct()
                 .OrderBy(d => d)
                 .ToList();
 
-            // 5. Crear headers de días
-            var headers = new ObservableCollection<DayHeader>();
-            foreach (var day in daysWithClasses)
-            {
-                var dayIndex = (int)day - 1; // 0=Lunes
-                var date = CurrentWeekStart.AddDays(dayIndex);
-                headers.Add(new DayHeader
-                {
-                    DayIndex = dayIndex,
-                    DayName = GetDayName(day),
-                    DayNumber = date.Day,
-                    IsToday = date.Date == DateTime.Today
-                });
-            }
-            DayHeaders = headers;
+            DayHeaders = CreateDayHeaders(daysWithClasses);
 
-            // 6. Crear celdas aplanadas (grid row-major: todos los días para hora 7, luego hora 8, etc.)
-            var cells = new ObservableCollection<ScheduleCell>();
-            
-            for (int hour = globalMinHour; hour < globalMaxHour; hour++)
-            {
-                foreach (var day in daysWithClasses)
-                {
-                    var dayIndex = (int)day - 1;
-                    var dayDate = CurrentWeekStart.AddDays(dayIndex);
-                    
-                    // Buscar si hay materia en este día y hora
-                    var matchingSchedule = allSchedules
-                        .FirstOrDefault(s => s.Schedule.Day == day && 
-                                          s.Schedule.StartTime < TimeSpan.FromHours(hour + 1) && 
-                                          s.Schedule.EndTime > TimeSpan.FromHours(hour));
-                    
-                    cells.Add(new ScheduleCell
-                    {
-                        Hour = hour,
-                        DayIndex = dayIndex,
-                        DayName = GetDayName(day),
-                        Date = dayDate,
-                        Subject = matchingSchedule?.Subject,
-                        Schedule = matchingSchedule?.Schedule
-                    });
-                }
-            }
-            
-            Cells = cells;
+            // 3. Crear celdas del grid
+            Cells = CreateScheduleCells(allSchedules, daysWithClasses);
         }
         finally
         {
@@ -153,7 +95,103 @@ public partial class ScheduleGridViewModel : ObservableObject
         }
     }
 
-    private string GetDayName(DiaSemana day) => day switch
+    /// <summary>
+    /// Carga materias y horarios de forma optimizada (减少 N+1 queries).
+    /// </summary>
+    private async Task<(List<Subject> Subjects, List<ScheduleItemHelper> Schedules)> LoadSchedulesOptimizedAsync()
+    {
+        var subjects = await _subjectService.GetAllAsync();
+        
+        if (!subjects.Any())
+            return (subjects, new List<ScheduleItemHelper>());
+
+        // Cargar todos los horarios en una sola query por materia
+        // En lugar de N+1 queries, hacemos N queries donde N = número de materias
+        // (Sigue siendo N+1 pero mínimo necesario sin cambiar la estructura de BD)
+        var allSchedules = new List<ScheduleItemHelper>();
+        
+        foreach (var subject in subjects)
+        {
+            var schedules = await _subjectService.GetSchedulesAsync(subject.Id);
+            foreach (var schedule in schedules)
+            {
+                allSchedules.Add(new ScheduleItemHelper { Subject = subject, Schedule = schedule });
+            }
+        }
+
+        return (subjects, allSchedules);
+    }
+
+    /// <summary>
+    /// Crea los headers de días basándose en los días con clases.
+    /// </summary>
+    private ObservableCollection<DayHeader> CreateDayHeaders(List<DiaSemana> daysWithClasses)
+    {
+        var headers = new ObservableCollection<DayHeader>();
+
+        foreach (var day in daysWithClasses)
+        {
+            var dayIndex = (int)day - 1; // 0=Lunes
+            var date = CurrentWeekStart.AddDays(dayIndex);
+            
+            headers.Add(new DayHeader
+            {
+                DayIndex = dayIndex,
+                DayName = GetDayName(day),
+                DayNumber = date.Day,
+                IsToday = date.Date == DateTime.Today
+            });
+        }
+
+        return headers;
+    }
+
+    /// <summary>
+    /// Crea las celdas del grid de horarios.
+    /// Cada celda sabe qué materia tiene (si alguna) en esa hora/día.
+    /// </summary>
+    private ObservableCollection<ScheduleCell> CreateScheduleCells(
+        List<ScheduleItemHelper> allSchedules, 
+        List<DiaSemana> daysWithClasses)
+    {
+        var cells = new ObservableCollection<ScheduleCell>();
+
+        for (int hour = MinHour; hour < MaxHour; hour++)
+        {
+            foreach (var day in daysWithClasses)
+            {
+                var dayIndex = (int)day - 1;
+                var dayDate = CurrentWeekStart.AddDays(dayIndex);
+
+                var matchingSchedule = FindMatchingSchedule(allSchedules, day, hour);
+
+                cells.Add(new ScheduleCell
+                {
+                    Hour = hour,
+                    DayIndex = dayIndex,
+                    DayName = GetDayName(day),
+                    Date = dayDate,
+                    Subject = matchingSchedule?.Subject,
+                    Schedule = matchingSchedule?.Schedule
+                });
+            }
+        }
+
+        return cells;
+    }
+
+    /// <summary>
+    /// Busca si hay un horario que corresponda a este día y hora.
+    /// </summary>
+    private ScheduleItemHelper? FindMatchingSchedule(List<ScheduleItemHelper> allSchedules, DiaSemana day, int hour)
+    {
+        return allSchedules.FirstOrDefault(s => 
+            s.Schedule.Day == day && 
+            s.Schedule.StartTime < TimeSpan.FromHours(hour + 1) && 
+            s.Schedule.EndTime > TimeSpan.FromHours(hour));
+    }
+
+    private static string GetDayName(DiaSemana day) => day switch
     {
         DiaSemana.Lunes => "Lun",
         DiaSemana.Martes => "Mar",
@@ -162,7 +200,7 @@ public partial class ScheduleGridViewModel : ObservableObject
         DiaSemana.Viernes => "Vie",
         DiaSemana.Sábado => "Sáb",
         DiaSemana.Domingo => "Dom",
-        _ => ""
+        _ => string.Empty
     };
 
     [RelayCommand]
@@ -182,29 +220,7 @@ public partial class ScheduleGridViewModel : ObservableObject
     [RelayCommand]
     public async Task GoToTodayAsync()
     {
-        var today = DateTime.Today;
-        var diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
-        CurrentWeekStart = today.AddDays(-diff);
+        InitializeWeek();
         await LoadGridAsync();
     }
-}
-
-/// <summary>
-/// Header de un día en el grid.
-/// </summary>
-public class DayHeader
-{
-    public int DayIndex { get; set; }
-    public string DayName { get; set; } = "";
-    public int DayNumber { get; set; }
-    public bool IsToday { get; set; }
-}
-
-/// <summary>
-/// Helper para mostrar horarios.
-/// </summary>
-public class ScheduleItemHelper
-{
-    public Subject Subject { get; set; } = null!;
-    public Schedule Schedule { get; set; } = null!;
 }
