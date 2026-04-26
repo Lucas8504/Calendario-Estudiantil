@@ -21,17 +21,17 @@
         </HorizontalStackLayout>
 
         <!-- Encabezados de días (construido dinámicamente) -->
-        <ScrollView Grid.Row="1" Orientation="Horizontal">
+        <ScrollView Grid.Row="1" Orientation="Horizontal" HorizontalScrollBarVisibility="Always">
             <HorizontalStackLayout x:Name="HeadersRow" Spacing="2" Padding="0"/>
         </ScrollView>
 
         <!-- Grid de horarios (construido dinámicamente) -->
-        <ScrollView Grid.Row="2">
-            <StackLayout Orientation="Horizontal" x:Name="GridContainer"/>
+        <ScrollView Grid.Row="2" Orientation="Horizontal" HorizontalScrollBarVisibility="Always">
+            <Grid x:Name="GridContainer"/>
         </ScrollView>
 
         <!-- Indicador de carga -->
-        <ActivityIndicator Grid.Row="2" IsVisible="{Binding IsLoading}" 
+        <ActivityIndicator Grid.Row="2" IsVisible="{Binding IsLoading}"
                            HorizontalOptions="Center" VerticalOptions="Center"/>
     </Grid>
 </ContentPage>

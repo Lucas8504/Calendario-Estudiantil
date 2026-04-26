@@ -86,14 +86,9 @@ public partial class ScheduleGridViewModel : ObservableObject
                 return;
             }
 
-            // 3. Calcular rango GLOBAL de horas
-            var globalMinHour = (int)allSchedules.Min(s => s.Schedule.StartTime.TotalHours);
-            var globalMaxHour = (int)Math.Ceiling(allSchedules.Max(s => s.Schedule.EndTime.TotalHours));
-            
-            // Limitar al rango 7am-10pm
-            if (globalMinHour < 7) globalMinHour = 7;
-            if (globalMaxHour > 22) globalMaxHour = 22;
-            if (globalMaxHour <= globalMinHour) globalMaxHour = globalMinHour + 1;
+            // 3. Calcular rango GLOBAL de horas (siempre 7am-10pm para simplificar)
+            const int globalMinHour = 7;
+            const int globalMaxHour = 22;
             
             MinHour = globalMinHour;
             MaxHour = globalMaxHour;
@@ -135,7 +130,7 @@ public partial class ScheduleGridViewModel : ObservableObject
                     // Buscar si hay materia en este día y hora
                     var matchingSchedule = allSchedules
                         .FirstOrDefault(s => s.Schedule.Day == day && 
-                                          s.Schedule.StartTime <= TimeSpan.FromHours(hour + 1) && 
+                                          s.Schedule.StartTime < TimeSpan.FromHours(hour + 1) && 
                                           s.Schedule.EndTime > TimeSpan.FromHours(hour));
                     
                     cells.Add(new ScheduleCell
