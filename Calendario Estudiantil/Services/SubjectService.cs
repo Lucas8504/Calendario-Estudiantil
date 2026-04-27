@@ -14,7 +14,7 @@ public class SubjectService : ISubjectService
     public Task<List<Subject>> GetByCourseAsync(int courseId)
         => DatabaseService.GetSubjectsByCourseAsync(courseId);
 
-    public Task<Subject?> GetByIdAsync(int id)
+    public Task<Subject> GetByIdAsync(int id)
         => DatabaseService.GetSubjectByIdAsync(id);
 
     public Task<int> CreateAsync(Subject subject)
@@ -23,12 +23,8 @@ public class SubjectService : ISubjectService
     public Task<int> UpdateAsync(Subject subject)
         => DatabaseService.UpdateSubjectAsync(subject);
 
-    public async Task<int> DeleteAsync(Subject subject)
-    {
-        await DatabaseService.DeleteSchedulesBySubjectAsync(subject.Id);
-        await DatabaseService.DeleteTasksBySubjectAsync(subject.Id);
-        return await DatabaseService.DeleteSubjectAsync(subject);
-    }
+    public Task<int> DeleteAsync(Subject subject)
+        => DatabaseService.DeleteSubjectAsync(subject);
 
     public Task<List<Schedule>> GetSchedulesAsync(int subjectId)
         => DatabaseService.GetSchedulesBySubjectAsync(subjectId);

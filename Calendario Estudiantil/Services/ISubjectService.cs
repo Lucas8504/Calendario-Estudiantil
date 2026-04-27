@@ -9,7 +9,7 @@ public interface ISubjectService
 {
     Task<List<Subject>> GetAllAsync();
     Task<List<Subject>> GetByCourseAsync(int courseId);
-    Task<Subject?> GetByIdAsync(int id);
+    Task<Subject> GetByIdAsync(int id);
     Task<int> CreateAsync(Subject subject);
     Task<int> UpdateAsync(Subject subject);
     Task<int> DeleteAsync(Subject subject);

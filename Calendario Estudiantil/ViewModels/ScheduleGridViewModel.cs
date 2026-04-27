@@ -74,10 +74,16 @@ public partial class ScheduleGridViewModel : ObservableObject, IScheduleGridView
             {
                 DayHeaders = new ObservableCollection<DayHeader>();
                 Cells = new ObservableCollection<ScheduleCell>();
+                MinHour = AppConstants.ScheduleGrid.MinHour;
+                MaxHour = AppConstants.ScheduleGrid.MaxHour;
+                TotalHours = AppConstants.ScheduleGrid.TotalHours;
                 return;
             }
 
-            // 2. Crear headers de días
+            // 2. Calcular horas dinámicas (primera a última clase + 1)
+            CalculateDynamicHours(allSchedules);
+
+            // 3. Crear headers de días
             var daysWithClasses = allSchedules
                 .Select(s => s.Schedule.Day)
                 .Distinct()
@@ -86,13 +92,39 @@ public partial class ScheduleGridViewModel : ObservableObject, IScheduleGridView
 
             DayHeaders = CreateDayHeaders(daysWithClasses);
 
-            // 3. Crear celdas del grid
+            // 4. Crear celdas del grid
             Cells = CreateScheduleCells(allSchedules, daysWithClasses);
         }
         finally
         {
             IsLoading = false;
         }
+    }
+
+    /// <summary>
+    /// Calcula las horas mínimo y máximo basándose en los horarios ocupados.
+    /// Muestra desde la primera hora con clase hasta ultima hora + 1.
+    /// </summary>
+    private void CalculateDynamicHours(List<ScheduleItemHelper> allSchedules)
+    {
+        // Obtener la hora de inicio más temprana
+        var earliestStart = allSchedules
+            .Min(s => s.Schedule.StartTime);
+        
+        // Obtener la hora de fin más tardía
+        var latestEnd = allSchedules
+            .Max(s => s.Schedule.EndTime);
+
+        // Primera hora con clase (redondeada hacia abajo)
+        var calculatedMinHour = earliestStart.Hours;
+        
+        // Última hora + 1 (para mostrar la hora de fin)
+        var calculatedMaxHour = latestEnd.Hours + 1;
+
+        // Por seguridad, limites mínimos y máximos
+        MinHour = Math.Max(calculatedMinHour, 6);  // mínimo 6:00
+        MaxHour = Math.Min(calculatedMaxHour, 23); // máximo 23:00 (para mostrar hasta 22:00)
+        TotalHours = MaxHour - MinHour;
     }
 
     /// <summary>

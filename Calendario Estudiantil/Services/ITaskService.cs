@@ -11,7 +11,7 @@ public interface ITaskService
     Task<List<TaskItem>> GetBySubjectAsync(int subjectId);
     Task<List<TaskItem>> GetForTodayAsync();
     Task<List<TaskItem>> GetPendingAsync();
-    Task<TaskItem?> GetByIdAsync(int id);
+    Task<TaskItem> GetByIdAsync(int id);
     Task<int> CreateAsync(TaskItem task);
     Task<int> UpdateAsync(TaskItem task);
     Task<int> UpdateStatusAsync(int taskId, ItemStatus status);

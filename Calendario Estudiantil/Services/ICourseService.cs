@@ -8,7 +8,7 @@ namespace Calendario_Estudiantil.Services;
 public interface ICourseService
 {
     Task<List<Course>> GetAllAsync();
-    Task<Course?> GetByIdAsync(int id);
+    Task<Course> GetByIdAsync(int id);
     Task<Course?> GetActiveAsync();
     Task<int> CreateAsync(Course course);
     Task<int> UpdateAsync(Course course);

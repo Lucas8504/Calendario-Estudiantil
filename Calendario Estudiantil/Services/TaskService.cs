@@ -27,7 +27,7 @@ public class TaskService : ITaskService
     public Task<List<TaskItem>> GetPendingAsync()
         => DatabaseService.GetPendingTasksAsync();
 
-    public Task<TaskItem?> GetByIdAsync(int id)
+    public Task<TaskItem> GetByIdAsync(int id)
         => DatabaseService.GetTaskByIdAsync(id);
 
     public async Task<int> CreateAsync(TaskItem task)
