@@ -43,8 +43,8 @@ public static class DatabaseService
     public static Task<List<Course>> GetAllCoursesAsync()
         => Database.Table<Course>().ToListAsync();
 
-    public static Task<Course?> GetCourseByIdAsync(int id)
-        => Database.Table<Course>().Where(c => c.Id == id).FirstOrDefaultAsync();
+    public static Task<Course> GetCourseByIdAsync(int id)
+        => Database.Table<Course>().Where(c => c.Id == id).FirstOrDefaultAsync()!;
 
     public static Task<int> InsertCourseAsync(Course course)
         => Database.InsertAsync(course);
@@ -63,8 +63,8 @@ public static class DatabaseService
     public static Task<List<Subject>> GetSubjectsByCourseAsync(int courseId)
         => Database.Table<Subject>().Where(s => s.CourseId == courseId).ToListAsync();
 
-    public static Task<Subject?> GetSubjectByIdAsync(int id)
-        => Database.Table<Subject>().Where(s => s.Id == id).FirstOrDefaultAsync();
+    public static Task<Subject> GetSubjectByIdAsync(int id)
+        => Database.Table<Subject>().Where(s => s.Id == id).FirstOrDefaultAsync()!;
 
     public static Task<int> InsertSubjectAsync(Subject subject)
         => Database.InsertAsync(subject);
@@ -122,8 +122,8 @@ public static class DatabaseService
             .ToListAsync();
     }
 
-    public static Task<TaskItem?> GetTaskByIdAsync(int id)
-        => Database.Table<TaskItem>().Where(t => t.Id == id).FirstOrDefaultAsync();
+    public static Task<TaskItem> GetTaskByIdAsync(int id)
+        => Database.Table<TaskItem>().Where(t => t.Id == id).FirstOrDefaultAsync()!;
 
     public static Task<int> InsertTaskAsync(TaskItem task)
         => Database.InsertAsync(task);

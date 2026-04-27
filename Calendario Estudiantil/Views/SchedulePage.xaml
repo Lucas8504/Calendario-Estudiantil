@@ -25,10 +25,16 @@
             <HorizontalStackLayout x:Name="HeadersRow" Spacing="2" Padding="0"/>
         </ScrollView>
 
-        <!-- Grid de horarios (construido dinámicamente) -->
-        <ScrollView Grid.Row="2" Orientation="Horizontal" HorizontalScrollBarVisibility="Always">
-            <Grid x:Name="GridContainer"/>
-        </ScrollView>
+        <!-- Grid de horarios con scroll bidirectional -->
+        <Grid Grid.Row="2">
+            <!-- Scroll vertical para las horas -->
+            <ScrollView Orientation="Vertical" VerticalScrollBarVisibility="Always">
+                <!-- Scroll horizontal para los días -->
+                <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Always">
+                    <Grid x:Name="GridContainer"/>
+                </ScrollView>
+            </ScrollView>
+        </Grid>
 
         <!-- Indicador de carga -->
         <ActivityIndicator Grid.Row="2" IsVisible="{Binding IsLoading}"

@@ -1,4 +1,5 @@
 using Calendario_Estudiantil.Configuration;
+using Calendario_Estudiantil.Models;
 using Calendario_Estudiantil.ViewModels;
 using Microsoft.Maui.Controls;
 
@@ -127,26 +128,93 @@ public partial class SchedulePage : ContentPage
                 
                 var cell = cells.FirstOrDefault(c => c.DayIndex == dh.DayIndex && c.Hour == hour);
                 
-                var hasClass = cell != null && cell.HasClass;
-                var bg = hasClass ? Color.FromArgb(cell.Subject!.ColorHex) : Color.FromArgb("#FFFFFF");
-                var txt = hasClass ? cell.Subject!.Name : "";
-                var col = hasClass ? Colors.White : Color.FromArgb("#333333");
-                
-                var cel = new Label {
-                    Text = txt,
-                    FontSize = 11,
-                    FontAttributes = FontAttributes.Bold,
-                    TextColor = col,
-                    HorizontalTextAlignment = TextAlignment.Center,
-                    VerticalTextAlignment = TextAlignment.Center,
-                    BackgroundColor = bg,
-                    WidthRequest = D,
-                    HeightRequest = R
-                };
-                grid.Children.Add(cel);
-                Grid.SetRow(cel, gridRow);
-                Grid.SetColumn(cel, gridCol);
+                // Usar pattern matching para evitar warnings de nulabilidad
+                if (cell != null && cell.HasClass && cell.Subject != null)
+                {
+                    var subject = cell.Subject;
+                    var bg = Color.FromArgb(subject.ColorHex);
+                    var txt = subject.Name;
+                    
+                    var cel = new Label {
+                        Text = txt,
+                        FontSize = 11,
+                        FontAttributes = FontAttributes.Bold,
+                        TextColor = Colors.White,
+                        HorizontalTextAlignment = TextAlignment.Center,
+                        VerticalTextAlignment = TextAlignment.Center,
+                        BackgroundColor = bg,
+                        WidthRequest = D,
+                        HeightRequest = R
+                    };
+                    
+                    // Agregar interacción tap solo si tiene schedule
+                    var schedule = cell.Schedule;
+                    
+                    if (schedule != null)
+                    {
+                        var gesture = new TapGestureRecognizer();
+                        gesture.Tapped += async (s, e) => {
+                            await ShowSubjectDetailsAsync(subject, schedule, dh.DayName, hour);
+                        };
+                        cel.GestureRecognizers.Add(gesture);
+                    }
+                    
+                    grid.Children.Add(cel);
+                    Grid.SetRow(cel, gridRow);
+                    Grid.SetColumn(cel, gridCol);
+                }
+                else
+                {
+                    // Celda vacía
+                    var cel = new Label {
+                        Text = "",
+                        FontSize = 11,
+                        FontAttributes = FontAttributes.Bold,
+                        TextColor = Color.FromArgb("#333333"),
+                        HorizontalTextAlignment = TextAlignment.Center,
+                        VerticalTextAlignment = TextAlignment.Center,
+                        BackgroundColor = Color.FromArgb("#FFFFFF"),
+                        WidthRequest = D,
+                        HeightRequest = R
+                    };
+                    grid.Children.Add(cel);
+                    Grid.SetRow(cel, gridRow);
+                    Grid.SetColumn(cel, gridCol);
+                }
             }
+        }
+    }
+
+    /// <summary>
+    /// Muestra los detalles de la materia cuando el usuario toca una celda.
+    /// </summary>
+    private async Task ShowSubjectDetailsAsync(Subject subject, Schedule schedule, string dayName, int hour)
+    {
+        var startTime = schedule.StartTime.ToString(@"hh\:mm");
+        var endTime = schedule.EndTime.ToString(@"hh\:mm");
+        
+        // Mostrar info de la materia
+        var message = $"Día: {dayName}\nHora: {startTime} - {endTime}";
+        
+        // Primero mostrar detalles
+        await DisplayAlert(subject.Name, message, "Opciones...");
+        
+        // Luego mostrar acciones
+        var action = await DisplayActionSheet(
+            "¿Qué deseas hacer?",
+            "Cancelar",
+            null,
+            new[] { "Editar materia", "Agregar tarea" });
+        
+        switch (action)
+        {
+            case "Editar materia":
+                // Navegar directamente a la página de horarios de esa materia
+                await Navigation.PushAsync(new SubjectSchedulesPage(subject, App.subjectService));
+                break;
+            case "Agregar tarea":
+                await Navigation.PushAsync(new TasksPage());
+                break;
         }
     }
 
