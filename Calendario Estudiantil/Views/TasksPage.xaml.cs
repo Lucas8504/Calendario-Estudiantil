@@ -48,6 +48,6 @@ public partial class TasksPage : ContentPage
 
     private async void OnCreateTask(object sender, EventArgs e)
     {
-        await DisplayAlert("Tareas", "Formulario en desarrollo.", "OK");
+        await Navigation.PushAsync(new NewTaskPage(App.subjectService, App.taskService));
     }
 }
