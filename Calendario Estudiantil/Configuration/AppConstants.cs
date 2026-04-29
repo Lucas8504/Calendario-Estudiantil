@@ -27,9 +27,9 @@ public static class AppConstants
         public const int TotalHours = MaxHour - MinHour;
 
         /// <summary>
-        /// Ancho de la columna de horas en pixels.
+        /// Ancho de la columna de horas en pixels (15% menos que antes).
         /// </summary>
-        public const int HourColumnWidth = 70;
+        public const int HourColumnWidth = 60;
 
         /// <summary>
         /// Ancho de cada columna de día en pixels.
