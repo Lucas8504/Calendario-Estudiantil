@@ -40,7 +40,8 @@
                 <Label Text="Materia *" FontSize="Medium" FontAttributes="Bold" TextColor="#333333"/>
                 <Frame BackgroundColor="#F5F5F5" BorderColor="#E0E0E0" CornerRadius="8" Padding="5">
                     <Picker x:Name="SubjectPicker" Title="Seleccionar materia" 
-                            BackgroundColor="Transparent"/>
+                            BackgroundColor="Transparent"
+                            ItemDisplayBinding="{Binding Name}"/>
                 </Frame>
             </VerticalStackLayout>
 
