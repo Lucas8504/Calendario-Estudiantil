@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Calendario_Estudiantil.Views.NewSchedulePage"
+             Title="Agregar Horario">
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Título -->
+        <Label Grid.Row="0" Text="Nuevo Horario" FontSize="24" FontAttributes="Bold" Margin="0,0,0,20"/>
+
+        <!-- Día -->
+        <VerticalStackLayout Grid.Row="1" Margin="0,0,0,15">
+            <Label Text="Día de la semana" FontSize="Medium" FontAttributes="Bold"/>
+            <Picker x:Name="DayPicker" Title="Seleccionar día">
+                <Picker.Items>
+                    <x:String>Lunes</x:String>
+                    <x:String>Martes</x:String>
+                    <x:String>Miércoles</x:String>
+                    <x:String>Jueves</x:String>
+                    <x:String>Viernes</x:String>
+                    <x:String>Sábado</x:String>
+                    <x:String>Domingo</x:String>
+                </Picker.Items>
+            </Picker>
+        </VerticalStackLayout>
+
+        <!-- Hora de inicio -->
+        <VerticalStackLayout Grid.Row="2" Margin="0,0,0,15">
+            <Label Text="Hora de inicio" FontSize="Medium" FontAttributes="Bold"/>
+            <TimePicker x:Name="StartTimePicker" Format="HH:mm"/>
+        </VerticalStackLayout>
+
+        <!-- Hora de fin -->
+        <VerticalStackLayout Grid.Row="3" Margin="0,0,0,15">
+            <Label Text="Hora de fin" FontSize="Medium" FontAttributes="Bold"/>
+            <TimePicker x:Name="EndTimePicker" Format="HH:mm"/>
+        </VerticalStackLayout>
+
+        <!-- Botones -->
+        <HorizontalStackLayout Grid.Row="5" Spacing="10" HorizontalOptions="Center">
+            <Button Text="Cancelar" Clicked="OnCancel" WidthRequest="120"/>
+            <Button Text="Agregar" Clicked="OnSave" WidthRequest="120" BackgroundColor="#4CAF50" TextColor="White"/>
+        </HorizontalStackLayout>
+    </Grid>
+</ContentPage>

@@ -39,45 +39,7 @@ public partial class SubjectSchedulesPage : ContentPage
 
     private async void OnAddSchedule(object sender, EventArgs e)
     {
-        // Paso 1: Elegir día
-        var dia = await DisplayActionSheet("Día de clase:", "Cancelar", null, _dias);
-        if (string.IsNullOrEmpty(dia) || dia == "Cancelar") return;
-
-        // Paso 2: Hora de inicio
-        var horaInicio = await DisplayPromptAsync("Hora de inicio", "Ej: 08:00", "Aceptar", "Cancelar");
-        if (string.IsNullOrWhiteSpace(horaInicio)) return;
-        if (!TimeSpan.TryParse(horaInicio, out var startTime))
-        {
-            await DisplayAlert("Error", "Hora inválida. Usá formato 24h: 08:00", "OK");
-            return;
-        }
-
-        // Paso 3: Hora de fin
-        var horaFin = await DisplayPromptAsync("Hora de fin", "Ej: 10:00", "Aceptar", "Cancelar");
-        if (string.IsNullOrWhiteSpace(horaFin)) return;
-        if (!TimeSpan.TryParse(horaFin, out var endTime))
-        {
-            await DisplayAlert("Error", "Hora inválida. Usá formato 24h: 10:00", "OK");
-            return;
-        }
-
-        if (endTime <= startTime)
-        {
-            await DisplayAlert("Error", "La hora de fin debe ser mayor a la de inicio", "OK");
-            return;
-        }
-
-        // Crear schedule
-        var schedule = new Schedule
-        {
-            SubjectId = _subject.Id,
-            Day = (DiaSemana)(Array.IndexOf(_dias, dia) + 1),
-            StartTime = startTime,
-            EndTime = endTime
-        };
-
-        await _subjectService.AddScheduleAsync(schedule);
-        await LoadSchedulesAsync();
+        await Navigation.PushAsync(new NewSchedulePage(_subject, _subjectService));
     }
 
     private async void OnDeleteSchedule(object sender, EventArgs e)
