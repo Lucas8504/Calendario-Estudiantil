@@ -25,7 +25,7 @@ public partial class SchedulePage : ContentPage
 
     private void BuildGridUI()
     {
-        var grid = GridContainer;
+        var grid = GridContainer;       
         grid.Children.Clear();
         grid.RowDefinitions.Clear();
         grid.ColumnDefinitions.Clear();

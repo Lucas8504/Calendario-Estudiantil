@@ -38,6 +38,92 @@ public partial class NewTaskPage : ContentPage
         }
     }
 
+    private async void OnAssignToNextClass(object sender, EventArgs e)
+    {
+        // Validar que haya materia seleccionada
+        if (SubjectPicker.SelectedIndex < 0 || !_subjects.Any())
+        {
+            await DisplayAlert("Error", "Seleccione una materia primero.", "OK");
+            return;
+        }
+
+        var selectedSubject = _subjects[SubjectPicker.SelectedIndex];
+
+        // Obtener horarios de la materia
+        var schedules = await _subjectService.GetSchedulesAsync(selectedSubject.Id);
+
+        if (!schedules.Any())
+        {
+            await DisplayAlert("Info", $"La materia '{selectedSubject.Name}' no tiene horarios configurados.", "OK");
+            return;
+        }
+
+        // Encontrar la próxima clase
+        var today = DateTime.Today;
+        var currentTime = DateTime.Now.TimeOfDay;
+
+        // Buscar desde hoy hasta dentro de 7 días
+        for (int i = 0; i < 7; i++)
+        {
+            var checkDate = today.AddDays(i);
+            var dayOfWeek = GetDiaSemana(checkDate.DayOfWeek);
+            
+            var matchingSchedules = schedules
+                .Where(s => s.Day == dayOfWeek)
+                .OrderBy(s => s.StartTime)
+                .ToList();
+
+            // Si es hoy,需要有未来时间
+            if (i == 0)
+            {
+                matchingSchedules = matchingSchedules
+                    .Where(s => s.StartTime > currentTime)
+                    .ToList();
+            }
+
+            if (matchingSchedules.Any())
+            {
+                // Usar el primer horario encontrado
+                var nextSchedule = matchingSchedules.First();
+                var nextDateTime = checkDate.Date + nextSchedule.StartTime;
+
+                DueDatePicker.Date = nextDateTime.Date;
+                DueTimePicker.Time = nextSchedule.StartTime;
+
+                await DisplayAlert("Asignado", 
+                    $"La tarea vence el {nextDateTime:dd/MM/yyyy} a las {nextSchedule.StartTime:hh\\:mm}\n({GetDayName(nextSchedule.Day)})", 
+                    "OK");
+                return;
+            }
+        }
+
+        await DisplayAlert("Info", "No se encontró ninguna clase programada en los próximos 7 días.", "OK");
+    }
+
+    private DiaSemana GetDiaSemana(DayOfWeek dow) => dow switch
+    {
+        DayOfWeek.Monday => DiaSemana.Lunes,
+        DayOfWeek.Tuesday => DiaSemana.Martes,
+        DayOfWeek.Wednesday => DiaSemana.Miércoles,
+        DayOfWeek.Thursday => DiaSemana.Jueves,
+        DayOfWeek.Friday => DiaSemana.Viernes,
+        DayOfWeek.Saturday => DiaSemana.Sábado,
+        DayOfWeek.Sunday => DiaSemana.Domingo,
+        _ => DiaSemana.Lunes
+    };
+
+    private string GetDayName(DiaSemana day) => day switch
+    {
+        DiaSemana.Lunes => "Lunes",
+        DiaSemana.Martes => "Martes",
+        DiaSemana.Miércoles => "Miércoles",
+        DiaSemana.Jueves => "Jueves",
+        DiaSemana.Viernes => "Viernes",
+        DiaSemana.Sábado => "Sábado",
+        DiaSemana.Domingo => "Domingo",
+        _ => ""
+    };
+
     private async void OnCancel(object sender, EventArgs e)
     {
         await Navigation.PopAsync();

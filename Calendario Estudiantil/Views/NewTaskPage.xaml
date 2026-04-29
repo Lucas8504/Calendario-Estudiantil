@@ -4,67 +4,93 @@
              x:Class="Calendario_Estudiantil.Views.NewTaskPage"
              Title="Nueva Tarea">
 
-    <Grid Margin="15">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+    <ScrollView>
+        <Grid Margin="15">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <!-- Título -->
-        <VerticalStackLayout Grid.Row="0" Margin="0,0,0,15">
-            <Label Text="Título" FontSize="Medium" FontAttributes="Bold"/>
-            <Entry x:Name="TitleEntry" Placeholder="Nombre de la tarea" MaxLength="100"/>
-        </VerticalStackLayout>
+            <!-- Título -->
+            <VerticalStackLayout Grid.Row="0" Margin="0,0,0,15">
+                <Label Text="Título *" FontSize="Medium" FontAttributes="Bold" TextColor="#333333"/>
+                <Frame BackgroundColor="#F5F5F5" BorderColor="#E0E0E0" CornerRadius="8" Padding="10">
+                    <Entry x:Name="TitleEntry" Placeholder="Ej:TP1 Límites" MaxLength="100" 
+                           BackgroundColor="Transparent"/>
+                </Frame>
+            </VerticalStackLayout>
 
-        <!-- Descripción -->
-        <VerticalStackLayout Grid.Row="1" Margin="0,0,0,15">
-            <Label Text="Descripción" FontSize="Medium" FontAttributes="Bold"/>
-            <Editor x:Name="DescriptionEditor" Placeholder="Descripción opcional" HeightRequest="80"/>
-        </VerticalStackLayout>
+            <!-- Descripción -->
+            <VerticalStackLayout Grid.Row="1" Margin="0,0,0,15">
+                <Label Text="Descripción" FontSize="Medium" FontAttributes="Bold" TextColor="#333333"/>
+                <Frame BackgroundColor="#F5F5F5" BorderColor="#E0E0E0" CornerRadius="8" Padding="10">
+                    <Editor x:Name="DescriptionEditor" Placeholder="Notas adicionales (opcional)" 
+                            HeightRequest="80" BackgroundColor="Transparent"/>
+                </Frame>
+            </VerticalStackLayout>
 
-        <!-- Materia -->
-        <VerticalStackLayout Grid.Row="2" Margin="0,0,0,15">
-            <Label Text="Materia" FontSize="Medium" FontAttributes="Bold"/>
-            <Picker x:Name="SubjectPicker" Title="Seleccionar materia"/>
-        </VerticalStackLayout>
+            <!-- Materia -->
+            <VerticalStackLayout Grid.Row="2" Margin="0,0,0,15">
+                <Label Text="Materia *" FontSize="Medium" FontAttributes="Bold" TextColor="#333333"/>
+                <Frame BackgroundColor="#F5F5F5" BorderColor="#E0E0E0" CornerRadius="8" Padding="5">
+                    <Picker x:Name="SubjectPicker" Title="Seleccionar materia" 
+                            BackgroundColor="Transparent"/>
+                </Frame>
+            </VerticalStackLayout>
 
-        <!-- Fecha de vencimiento -->
-        <VerticalStackLayout Grid.Row="3" Margin="0,0,0,15">
-            <Label Text="Fecha de vencimiento" FontSize="Medium" FontAttributes="Bold"/>
-            <Grid>
+            <!-- Fecha de vencimiento -->
+            <VerticalStackLayout Grid.Row="3" Margin="0,0,0,10">
+                <Label Text="Fecha de vencimiento" FontSize="Medium" FontAttributes="Bold" TextColor="#333333"/>
+            </VerticalStackLayout>
+
+            <!-- Date + Time pickers en fila -->
+            <Grid Grid.Row="4" Margin="0,0,0,10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <DatePicker x:Name="DueDatePicker" Grid.Column="0"/>
-                <TimePicker x:Name="DueTimePicker" Grid.Column="1"/>
-            </Grid>
-        </VerticalStackLayout>
-
-        <!-- Notificación -->
-        <VerticalStackLayout Grid.Row="4" Margin="0,0,0,15">
-            <Label Text="Notificar antes (horas)" FontSize="Medium" FontAttributes="Bold"/>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Entry x:Name="NotificationHoursEntry" Grid.Column="0" 
-                       Text="24" Keyboard="Numeric" MaxLength="3"/>
-                <Label Grid.Column="1" Text="horas antes" VerticalOptions="Center" Margin="10,0,0,0"/>
+                
+                <DatePicker x:Name="DueDatePicker" Grid.Column="0" Format="dd/MM/yyyy"/>
+                <TimePicker x:Name="DueTimePicker" Grid.Column="2" Format="HH:mm"/>
             </Grid>
-        </VerticalStackLayout>
 
-        <!-- Botones -->
-        <HorizontalStackLayout Grid.Row="7" Spacing="10" HorizontalOptions="Center">
-            <Button Text="Cancelar" Clicked="OnCancel" WidthRequest="120"/>
-            <Button Text="Crear" Clicked="OnSave" WidthRequest="120" BackgroundColor="#4CAF50"/>
-        </HorizontalStackLayout>
-    </Grid>
+            <!-- Botón asignar a próxima clase -->
+            <Button Grid.Row="5" Text="📅 Asignar a próxima clase" 
+                    Clicked="OnAssignToNextClass" 
+                    BackgroundColor="#E3F2FD" TextColor="#1976D2"
+                    Margin="0,0,0,15"/>
+
+            <!-- Notificación -->
+            <VerticalStackLayout Grid.Row="6" Margin="0,0,0,15">
+                <Label Text="Notificar antes" FontSize="Medium" FontAttributes="Bold" TextColor="#333333"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Frame Grid.Column="0" BackgroundColor="#F5F5F5" BorderColor="#E0E0E0" CornerRadius="8" Padding="10">
+                        <Entry x:Name="NotificationHoursEntry" Text="24" Keyboard="Numeric" MaxLength="3" 
+                               BackgroundColor="Transparent"/>
+                    </Frame>
+                    <Label Grid.Column="1" Text="horas antes" 
+                           VerticalOptions="Center" TextColor="Gray" Margin="10,0,0,0"/>
+                </Grid>
+            </VerticalStackLayout>
+
+            <!-- Botones -->
+            <HorizontalStackLayout Grid.Row="7" Spacing="15" HorizontalOptions="Center" Margin="0,20,0,0">
+                <Button Text="Cancelar" Clicked="OnCancel" WidthRequest="120" 
+                        BackgroundColor="#9E9E9E" TextColor="White"/>
+                <Button Text="Crear" Clicked="OnSave" WidthRequest="120" 
+                        BackgroundColor="#4CAF50" TextColor="White"/>
+            </HorizontalStackLayout>
+        </Grid>
+    </ScrollView>
 </ContentPage>
