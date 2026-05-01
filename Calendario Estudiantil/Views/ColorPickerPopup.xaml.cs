@@ -1,3 +1,4 @@
+using Calendario_Estudiantil.Services;
 using CommunityToolkit.Maui.Views;
 
 namespace Calendario_Estudiantil.Views;
@@ -53,6 +54,28 @@ public partial class ColorPickerPopup : Popup
 
             ColorsGrid.Add(button, col, row);
         }
+    }
+
+    private async void OnRandomColor(object sender, EventArgs e)
+    {
+        // Obtener colores ya usados
+        var subjectService = App.subjectService;
+        var subjects = await subjectService.GetAllAsync();
+        var usedColors = subjects.Select(s => s.ColorHex.ToUpper()).ToHashSet();
+
+        // Filtrar colores disponibles
+        var availableColors = _colors.Where(c => !usedColors.Contains(c.ToUpper())).ToList();
+
+        // Si no hay disponibles, usar cualquiera
+        if (!availableColors.Any())
+            availableColors = _colors.ToList();
+
+        // Elegir color aleatorio
+        var random = new Random();
+        var randomColor = availableColors[random.Next(availableColors.Count)];
+
+        ColorSelected?.Invoke(this, randomColor);
+        Close();
     }
 
     private void OnCancel(object sender, EventArgs e)

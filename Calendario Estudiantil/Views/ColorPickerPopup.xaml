@@ -30,11 +30,27 @@
             </Grid.RowDefinitions>
         </Grid>
         
-        <Button Text="Cancelar" 
-                Clicked="OnCancel"
-                BackgroundColor="#9E9E9E"
-                TextColor="White"
-                HorizontalOptions="Center"
-                WidthRequest="120"/>
+        <Grid ColumnSpacing="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <Button Grid.Column="0"
+                    Text="🎲 Aleatorio"
+                    Clicked="OnRandomColor"
+                    BackgroundColor="#9C27B0"
+                    TextColor="White"
+                    HorizontalOptions="Center"
+                    HeightRequest="44"/>
+            
+            <Button Grid.Column="1"
+                    Text="Cancelar" 
+                    Clicked="OnCancel"
+                    BackgroundColor="#9E9E9E"
+                    TextColor="White"
+                    HorizontalOptions="Center"
+                    HeightRequest="44"/>
+        </Grid>
     </VerticalStackLayout>
 </toolkit:Popup>
