@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="Calendario_Estudiantil.Views.SubjectPopup"
+             Size="300, Auto">
+
+    <VerticalStackLayout Spacing="15" Padding="20">
+        
+        <!-- Título -->
+        <Label x:Name="TitleLabel" 
+               FontSize="20" 
+               FontAttributes="Bold" 
+               TextColor="#333333"
+               HorizontalOptions="Center"/>
+        
+        <!-- Información del horario -->
+        <Frame BackgroundColor="#F5F5F5" 
+                BorderColor="#E0E0E0" 
+                CornerRadius="8" 
+                Padding="15">
+            <VerticalStackLayout Spacing="8">
+                <Label x:Name="DayLabel" 
+                       FontSize="14" 
+                       TextColor="#666666"/>
+                <Label x:Name="TimeLabel" 
+                       FontSize="14" 
+                       TextColor="#666666"/>
+            </VerticalStackLayout>
+        </Frame>
+        
+        <!-- Tareas de la materia -->
+        <VerticalStackLayout>
+            <Label Text="Tareas:" 
+                   FontSize="14" 
+                   FontAttributes="Bold" 
+                   TextColor="#333333"/>
+            <CollectionView x:Name="TasksList" 
+                          HeightRequest="100">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Label Text="{Binding Title}" 
+                               FontSize="13" 
+                               TextColor="#512BD4"
+                               Padding="5"/>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+        
+        <!-- Botones -->
+        <Grid ColumnSpacing="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <Button Grid.Column="0" 
+                    Text="Editar" 
+                    Clicked="OnEdit"
+                    BackgroundColor="#2196F3"
+                    TextColor="White"/>
+            
+            <Button Grid.Column="1" 
+                    Text="Tarea" 
+                    Clicked="OnAddTask"
+                    BackgroundColor="#4CAF50"
+                    TextColor="White"/>
+            
+            <Button Grid.Column="2" 
+                    Text="✕" 
+                    Clicked="OnCancel"
+                    BackgroundColor="#9E9E9E"
+                    TextColor="White"
+                    WidthRequest="40"
+                    HeightRequest="40"/>
+        </Grid>
+        
+    </VerticalStackLayout>
+</toolkit:Popup>

@@ -1,7 +1,8 @@
 using Calendario_Estudiantil.Configuration;
 using Calendario_Estudiantil.Models;
+using Calendario_Estudiantil.Services;
 using Calendario_Estudiantil.ViewModels;
-using Microsoft.Maui.Controls;
+using CommunityToolkit.Maui.Views;
 
 namespace Calendario_Estudiantil.Views;
 
@@ -194,14 +195,25 @@ public partial class SchedulePage : ContentPage
                         HeightRequest = R
                     };
                     
-                    // Agregar interacción tap solo si tiene schedule
+// Agregar interacción tap solo si tiene schedule
                     var schedule = cell.Schedule;
                     
                     if (schedule != null)
                     {
+                        // Capturar cell en una variable local para el closure
+                        var currentCell = cell;
+                        var currentDh = dh;
+                        var currentHour = hour;
+                        
                         var gesture = new TapGestureRecognizer();
-                        gesture.Tapped += async (s, e) => {
-                            await ShowSubjectDetailsAsync(subject, schedule, dh.DayName, hour);
+                        gesture.Tapped += (s, e) => {
+                            // Usar CommunityToolkit Popup en vez de Alert/ActionSheet
+                            var popup = new SubjectPopup(
+                                currentCell.Subject!, 
+                                currentCell.Schedule!, 
+                                App.subjectService,
+                                App.taskService);
+                            this.ShowPopup(popup);
                         };
                         cel.GestureRecognizers.Add(gesture);
                     }

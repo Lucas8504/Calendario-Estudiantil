@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="Calendario_Estudiantil.Views.ColorPickerPopup"
+             Size="320, 500">
+
+    <VerticalStackLayout Spacing="15" Padding="20">
+        <Label Text="Seleccionar un color"
+               FontSize="18"
+               FontAttributes="Bold"
+               HorizontalOptions="Center"/>
+        
+        <Grid x:Name="ColorsGrid" 
+              ColumnSpacing="10" 
+              RowSpacing="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+            </Grid.RowDefinitions>
+        </Grid>
+        
+        <Button Text="Cancelar" 
+                Clicked="OnCancel"
+                BackgroundColor="#9E9E9E"
+                TextColor="White"
+                HorizontalOptions="Center"
+                WidthRequest="120"/>
+    </VerticalStackLayout>
+</toolkit:Popup>

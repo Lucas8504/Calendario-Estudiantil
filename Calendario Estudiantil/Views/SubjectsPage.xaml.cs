@@ -1,12 +1,13 @@
 using Calendario_Estudiantil.ViewModels;
 using Calendario_Estudiantil.Models;
+using CommunityToolkit.Maui.Views;
 
 namespace Calendario_Estudiantil.Views;
 
 public partial class SubjectsPage : ContentPage
 {
     private readonly SubjectViewModel _viewModel;
-
+    
     // Colores disponibles
     private readonly string[] _colors = { "#512BD4", "#E91E63", "#2196F3", "#4CAF50", "#FF9800", "#9C27B0", "#00BCD4", "#795548" };
 
@@ -30,14 +31,17 @@ public partial class SubjectsPage : ContentPage
         var name = await DisplayPromptAsync("Nueva Materia", "Nombre de la materia:", "Crear", "Cancelar", maxLength: 50);
         if (string.IsNullOrWhiteSpace(name)) return;
 
-        // Paso 2: Selección de color
-        var selectedColor = await DisplayActionSheet("Elegir color:", "Cancelar", null, _colors);
-        if (string.IsNullOrEmpty(selectedColor) || selectedColor == "Cancelar") return;
-
-        // Crear materia (sin carrera)
-        await _viewModel.CreateSubjectNoCourseAsync(name, selectedColor);
+        // Paso 2: Selección de color con Popup visual
+        var popup = new ColorPickerPopup();
+        popup.ColorSelected += async (s, color) =>
+        {
+            // Crear materia (sin carrera)
+            await _viewModel.CreateSubjectNoCourseAsync(name, color);
+            
+            await DisplayAlert("Materia creada", $"Ahora '{name}' aparece en el calendario.\n\nPara agregar horarios,tocá la materia en la lista.", "OK");
+        };
         
-        await DisplayAlert("Materia creada", $"Ahora '{name}' aparece en el calendario.\n\nPara agregar horarios,tocá la materia en la lista.", "OK");
+        this.ShowPopup(popup);
     }
 
     private async void OnSubjectTapped(object sender, EventArgs e)
