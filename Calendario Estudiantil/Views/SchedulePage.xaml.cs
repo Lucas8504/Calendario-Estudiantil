@@ -241,7 +241,7 @@ public partial class SchedulePage : ContentPage
         }
     }
 
-    /// <summary>
+/// <summary>
     /// Muestra los detalles de la materia cuando el usuario toca una celda.
     /// </summary>
     private async Task ShowSubjectDetailsAsync(Subject subject, Schedule schedule, string dayName, int hour)
@@ -249,15 +249,9 @@ public partial class SchedulePage : ContentPage
         var startTime = schedule.StartTime.ToString(@"hh\:mm");
         var endTime = schedule.EndTime.ToString(@"hh\:mm");
         
-        // Mostrar info de la materia
-        var message = $"Día: {dayName}\nHora: {startTime} - {endTime}";
-        
-        // Primero mostrar detalles
-        await DisplayAlert(subject.Name, message, "Opciones...");
-        
-        // Luego mostrar acciones
+        // Mostrar directamente el ActionSheet con la información en el título
         var action = await DisplayActionSheet(
-            "¿Qué deseas hacer?",
+            $"{subject.Name} - {dayName} {startTime}-{endTime}",
             "Cancelar",
             null,
             new[] { "Editar materia", "Agregar tarea" });
@@ -265,11 +259,10 @@ public partial class SchedulePage : ContentPage
         switch (action)
         {
             case "Editar materia":
-                // Navegar directamente a la página de horarios de esa materia
                 await Navigation.PushAsync(new SubjectSchedulesPage(subject, App.subjectService));
                 break;
             case "Agregar tarea":
-                await Navigation.PushAsync(new TasksPage());
+                await Navigation.PushAsync(new NewTaskPage(App.subjectService, App.taskService));
                 break;
         }
     }
