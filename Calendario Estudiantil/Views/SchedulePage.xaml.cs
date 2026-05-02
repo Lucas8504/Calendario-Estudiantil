@@ -11,15 +11,25 @@ namespace Calendario_Estudiantil.Views;
 public partial class SchedulePage : ContentPage
 {
     private readonly ScheduleGridViewModel _viewModel;
+    private readonly ISubjectService _subjectService;
+    private readonly ITaskService _taskService;
 
     public SchedulePage()
     {
         InitializeComponent();
         
-        // Resolver IDatabaseService desde el DI container
+        // Resolver servicios desde el DI container
         var databaseService = IPlatformApplication.Current?.Services
             .GetRequiredService<IDatabaseService>()
             ?? throw new InvalidOperationException("IDatabaseService no disponible");
+        
+        _subjectService = IPlatformApplication.Current?.Services
+            .GetRequiredService<ISubjectService>()
+            ?? throw new InvalidOperationException("ISubjectService no disponible");
+        
+        _taskService = IPlatformApplication.Current?.Services
+            .GetRequiredService<ITaskService>()
+            ?? throw new InvalidOperationException("ITaskService no disponible");
         
         _viewModel = new ScheduleGridViewModel(databaseService);
         BindingContext = _viewModel;
@@ -279,10 +289,10 @@ public partial class SchedulePage : ContentPage
         switch (action)
         {
             case "Editar materia":
-                await Navigation.PushAsync(new SubjectSchedulesPage(subject, App.subjectService));
+                await Navigation.PushAsync(new SubjectSchedulesPage(subject, _subjectService));
                 break;
             case "Agregar tarea":
-                await Navigation.PushAsync(new NewTaskPage(App.subjectService, App.taskService));
+                await Navigation.PushAsync(new NewTaskPage(_subjectService, _taskService));
                 break;
         }
     }

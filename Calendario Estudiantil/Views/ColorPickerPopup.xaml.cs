@@ -5,6 +5,7 @@ namespace Calendario_Estudiantil.Views;
 
 public partial class ColorPickerPopup : Popup
 {
+    private readonly ISubjectService _subjectService;
     private readonly string[] _colors = {
         // Rojos/Naranjas
         "#F44336", "#E91E63", "#FF5722", "#FF9800",
@@ -22,8 +23,9 @@ public partial class ColorPickerPopup : Popup
 
     public event EventHandler<string>? ColorSelected;
 
-    public ColorPickerPopup()
+    public ColorPickerPopup(ISubjectService subjectService)
     {
+        _subjectService = subjectService;
         InitializeComponent();
         LoadColors();
     }
@@ -59,8 +61,7 @@ public partial class ColorPickerPopup : Popup
     private async void OnRandomColor(object sender, EventArgs e)
     {
         // Obtener colores ya usados
-        var subjectService = App.subjectService;
-        var subjects = await subjectService.GetAllAsync();
+        var subjects = await _subjectService.GetAllAsync();
         var usedColors = subjects.Select(s => s.ColorHex.ToUpper()).ToHashSet();
 
         // Filtrar colores disponibles
