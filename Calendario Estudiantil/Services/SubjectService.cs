@@ -8,30 +8,37 @@ namespace Calendario_Estudiantil.Services;
 /// </summary>
 public class SubjectService : ISubjectService
 {
+    private readonly IDatabaseService _databaseService;
+
+    public SubjectService(IDatabaseService databaseService)
+    {
+        _databaseService = databaseService;
+    }
+
     public Task<List<Subject>> GetAllAsync()
-        => DatabaseService.GetAllSubjectsAsync();
+        => _databaseService.GetAllSubjectsAsync();
 
     public Task<List<Subject>> GetByCourseAsync(int courseId)
-        => DatabaseService.GetSubjectsByCourseAsync(courseId);
+        => _databaseService.GetSubjectsByCourseAsync(courseId);
 
     public Task<Subject> GetByIdAsync(int id)
-        => DatabaseService.GetSubjectByIdAsync(id);
+        => _databaseService.GetSubjectByIdAsync(id);
 
     public Task<int> CreateAsync(Subject subject)
-        => DatabaseService.InsertSubjectAsync(subject);
+        => _databaseService.InsertSubjectAsync(subject);
 
     public Task<int> UpdateAsync(Subject subject)
-        => DatabaseService.UpdateSubjectAsync(subject);
+        => _databaseService.UpdateSubjectAsync(subject);
 
     public Task<int> DeleteAsync(Subject subject)
-        => DatabaseService.DeleteSubjectAsync(subject);
+        => _databaseService.DeleteSubjectAsync(subject);
 
     public Task<List<Schedule>> GetSchedulesAsync(int subjectId)
-        => DatabaseService.GetSchedulesBySubjectAsync(subjectId);
+        => _databaseService.GetSchedulesBySubjectAsync(subjectId);
 
     public Task<int> AddScheduleAsync(Schedule schedule)
-        => DatabaseService.InsertScheduleAsync(schedule);
+        => _databaseService.InsertScheduleAsync(schedule);
 
     public Task<int> DeleteScheduleAsync(Schedule schedule)
-        => DatabaseService.DeleteScheduleAsync(schedule);
+        => _databaseService.DeleteScheduleAsync(schedule);
 }

@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Logging;
 using CommunityToolkit.Maui;
+using Calendario_Estudiantil.Services;
+using Calendario_Estudiantil.Data;
 
 namespace Calendario_Estudiantil
 {
@@ -18,8 +20,22 @@ namespace Calendario_Estudiantil
                 });
 
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
+
+            // ==================== REGISTRO DE SERVICIOS (DI) ====================
+            
+            // Base de datos (Singleton - una sola instancia para toda la app)
+            builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
+            
+            // Servicios de negocio (Singleton para mantener estado)
+            builder.Services.AddSingleton<INotificationService, NotificationService>();
+            builder.Services.AddSingleton<ICourseService, CourseService>();
+            builder.Services.AddSingleton<ISubjectService, SubjectService>();
+            builder.Services.AddSingleton<ITaskService, TaskService>();
+
+            // App principal (para que MAUI resuelva las dependencias)
+            builder.Services.AddSingleton<App>();
 
             return builder.Build();
         }

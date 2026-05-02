@@ -9,30 +9,32 @@ namespace Calendario_Estudiantil.Services;
 public class TaskService : ITaskService
 {
     private readonly INotificationService _notificationService;
+    private readonly IDatabaseService _databaseService;
 
-    public TaskService(INotificationService notificationService)
+    public TaskService(INotificationService notificationService, IDatabaseService databaseService)
     {
         _notificationService = notificationService;
+        _databaseService = databaseService;
     }
 
     public Task<List<TaskItem>> GetAllAsync()
-        => DatabaseService.GetAllTasksAsync();
+        => _databaseService.GetAllTasksAsync();
 
     public Task<List<TaskItem>> GetBySubjectAsync(int subjectId)
-        => DatabaseService.GetTasksBySubjectAsync(subjectId);
+        => _databaseService.GetTasksBySubjectAsync(subjectId);
 
     public Task<List<TaskItem>> GetForTodayAsync()
-        => DatabaseService.GetTasksForTodayAsync();
+        => _databaseService.GetTasksForTodayAsync();
 
     public Task<List<TaskItem>> GetPendingAsync()
-        => DatabaseService.GetPendingTasksAsync();
+        => _databaseService.GetPendingTasksAsync();
 
     public Task<TaskItem> GetByIdAsync(int id)
-        => DatabaseService.GetTaskByIdAsync(id);
+        => _databaseService.GetTaskByIdAsync(id);
 
     public async Task<int> CreateAsync(TaskItem task)
     {
-        var id = await DatabaseService.InsertTaskAsync(task);
+        var id = await _databaseService.InsertTaskAsync(task);
         if (task.Status == ItemStatus.Pending)
         {
             task.Id = id;
@@ -42,15 +44,15 @@ public class TaskService : ITaskService
     }
 
     public Task<int> UpdateAsync(TaskItem task)
-        => DatabaseService.UpdateTaskAsync(task);
+        => _databaseService.UpdateTaskAsync(task);
 
     public async Task<int> UpdateStatusAsync(int taskId, ItemStatus status)
     {
-        var task = await DatabaseService.GetTaskByIdAsync(taskId);
+        var task = await _databaseService.GetTaskByIdAsync(taskId);
         if (task == null) return -1;
 
         task.Status = status;
-        await DatabaseService.UpdateTaskAsync(task);
+        await _databaseService.UpdateTaskAsync(task);
 
         if (status == ItemStatus.Completed)
             await CancelNotificationAsync(taskId);
@@ -61,21 +63,21 @@ public class TaskService : ITaskService
     public async Task<int> DeleteAsync(TaskItem task)
     {
         await CancelNotificationAsync(task.Id);
-        await DatabaseService.DeleteSubtasksByTaskAsync(task.Id);
-        return await DatabaseService.DeleteTaskAsync(task);
+        await _databaseService.DeleteSubtasksByTaskAsync(task.Id);
+        return await _databaseService.DeleteTaskAsync(task);
     }
 
     public Task<List<Subtask>> GetSubtasksAsync(int taskItemId)
-        => DatabaseService.GetSubtasksByTaskAsync(taskItemId);
+        => _databaseService.GetSubtasksByTaskAsync(taskItemId);
 
     public Task<int> AddSubtaskAsync(Subtask subtask)
-        => DatabaseService.InsertSubtaskAsync(subtask);
+        => _databaseService.InsertSubtaskAsync(subtask);
 
     public Task<int> UpdateSubtaskAsync(Subtask subtask)
-        => DatabaseService.UpdateSubtaskAsync(subtask);
+        => _databaseService.UpdateSubtaskAsync(subtask);
 
     public Task<int> DeleteSubtaskAsync(Subtask subtask)
-        => DatabaseService.DeleteSubtaskAsync(subtask);
+        => _databaseService.DeleteSubtaskAsync(subtask);
 
     public async Task ScheduleNotificationAsync(TaskItem task)
     {

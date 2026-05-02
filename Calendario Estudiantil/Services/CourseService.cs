@@ -8,28 +8,35 @@ namespace Calendario_Estudiantil.Services;
 /// </summary>
 public class CourseService : ICourseService
 {
+    private readonly IDatabaseService _databaseService;
+
+    public CourseService(IDatabaseService databaseService)
+    {
+        _databaseService = databaseService;
+    }
+
     public Task<List<Course>> GetAllAsync()
-        => DatabaseService.GetAllCoursesAsync();
+        => _databaseService.GetAllCoursesAsync();
 
     public Task<Course> GetByIdAsync(int id)
-        => DatabaseService.GetCourseByIdAsync(id);
+        => _databaseService.GetCourseByIdAsync(id);
 
     public async Task<Course?> GetActiveAsync()
     {
-        var activeId = await DatabaseService.GetActiveCourseIdAsync();
+        var activeId = await _databaseService.GetActiveCourseIdAsync();
         if (activeId == -1) return null;
-        return await DatabaseService.GetCourseByIdAsync(activeId);
+        return await _databaseService.GetCourseByIdAsync(activeId);
     }
 
     public Task<int> CreateAsync(Course course)
-        => DatabaseService.InsertCourseAsync(course);
+        => _databaseService.InsertCourseAsync(course);
 
     public Task<int> UpdateAsync(Course course)
-        => DatabaseService.UpdateCourseAsync(course);
+        => _databaseService.UpdateCourseAsync(course);
 
     public Task<int> DeleteAsync(Course course)
-        => DatabaseService.DeleteCourseAsync(course);
+        => _databaseService.DeleteCourseAsync(course);
 
     public Task SetActiveAsync(int courseId)
-        => DatabaseService.SetActiveCourseIdAsync(courseId);
+        => _databaseService.SetActiveCourseIdAsync(courseId);
 }
