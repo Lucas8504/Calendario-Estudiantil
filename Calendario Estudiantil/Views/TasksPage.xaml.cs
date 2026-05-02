@@ -39,38 +39,80 @@ public partial class TasksPage : ContentPage
 
     protected override async void OnAppearing()
     {
-        base.OnAppearing();
-        await _viewModel.LoadTasksAsync();
+        try
+        {
+            base.OnAppearing();
+            await _viewModel.LoadTasksAsync();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudieron cargar las tareas: {ex.Message}", "OK");
+        }
     }
 
     private async void OnFilterAll(object sender, EventArgs e)
     {
-        _viewModel.FilterMode = "Todos";
-        await _viewModel.LoadTasksAsync();
+        try
+        {
+            _viewModel.FilterMode = "Todos";
+            await _viewModel.LoadTasksAsync();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo aplicar el filtro: {ex.Message}", "OK");
+        }
     }
 
     private async void OnFilterToday(object sender, EventArgs e)
     {
-        _viewModel.FilterMode = "Hoy";
-        await _viewModel.LoadTasksAsync();
+        try
+        {
+            _viewModel.FilterMode = "Hoy";
+            await _viewModel.LoadTasksAsync();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo aplicar el filtro: {ex.Message}", "OK");
+        }
     }
 
     private async void OnFilterPending(object sender, EventArgs e)
     {
-        _viewModel.FilterMode = "Pendientes";
-        await _viewModel.LoadTasksAsync();
+        try
+        {
+            _viewModel.FilterMode = "Pendientes";
+            await _viewModel.LoadTasksAsync();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo aplicar el filtro: {ex.Message}", "OK");
+        }
     }
 
     private async void OnCompleteTask(object sender, EventArgs e)
     {
-        if (sender is Button btn && btn.BindingContext is TaskDisplay td)
+        try
         {
-            await _viewModel.CompleteTaskAsync(td);
+            if (sender is Button btn && btn.BindingContext is TaskDisplay td)
+            {
+                await _viewModel.CompleteTaskAsync(td);
+            }
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo completar la tarea: {ex.Message}", "OK");
         }
     }
 
     private async void OnCreateTask(object sender, EventArgs e)
     {
-        await Navigation.PushAsync(new NewTaskPage(_subjectService, _taskService));
+        try
+        {
+            await Navigation.PushAsync(new NewTaskPage(_subjectService, _taskService));
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo abrir la página de nueva tarea: {ex.Message}", "OK");
+        }
     }
 }

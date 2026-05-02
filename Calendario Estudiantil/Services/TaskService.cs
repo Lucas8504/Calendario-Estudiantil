@@ -79,6 +79,12 @@ public class TaskService : ITaskService
     public Task<int> DeleteSubtaskAsync(Subtask subtask)
         => _databaseService.DeleteSubtaskAsync(subtask);
 
+    /// <summary>
+    /// Loads all subtasks for multiple tasks in a single query (prevents N+1).
+    /// </summary>
+    public Task<Dictionary<int, List<Subtask>>> GetSubtasksForTasksAsync(IEnumerable<int> taskIds)
+        => _databaseService.GetSubtasksForTasksAsync(taskIds);
+
     public async Task ScheduleNotificationAsync(TaskItem task)
     {
         var notifyAt = task.DueDate.AddHours(-task.NotificationHours);

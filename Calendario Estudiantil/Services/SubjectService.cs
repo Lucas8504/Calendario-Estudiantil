@@ -41,4 +41,10 @@ public class SubjectService : ISubjectService
 
     public Task<int> DeleteScheduleAsync(Schedule schedule)
         => _databaseService.DeleteScheduleAsync(schedule);
+
+    /// <summary>
+    /// Loads all schedules for multiple subjects in a single query (prevents N+1).
+    /// </summary>
+    public Task<Dictionary<int, List<Schedule>>> GetSchedulesForSubjectsAsync(IEnumerable<int> subjectIds)
+        => _databaseService.GetSchedulesForSubjectsAsync(subjectIds);
 }

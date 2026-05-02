@@ -41,6 +41,7 @@ public interface IDatabaseService
     Task<int> UpdateScheduleAsync(Schedule schedule);
     Task<int> DeleteScheduleAsync(Schedule schedule);
     Task<int> DeleteSchedulesBySubjectAsync(int subjectId);
+    Task<Dictionary<int, List<Schedule>>> GetSchedulesForSubjectsAsync(IEnumerable<int> subjectIds);
 
     // ==================== TaskItem ====================
     Task<List<TaskItem>> GetAllTasksAsync();
@@ -59,6 +60,7 @@ public interface IDatabaseService
     Task<int> UpdateSubtaskAsync(Subtask subtask);
     Task<int> DeleteSubtaskAsync(Subtask subtask);
     Task<int> DeleteSubtasksByTaskAsync(int taskItemId);
+    Task<Dictionary<int, List<Subtask>>> GetSubtasksForTasksAsync(IEnumerable<int> taskIds);
 
     // ==================== Preferencias ====================
     Task<int> GetActiveCourseIdAsync();

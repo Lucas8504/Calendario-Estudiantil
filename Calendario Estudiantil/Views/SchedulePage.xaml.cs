@@ -37,9 +37,16 @@ public partial class SchedulePage : ContentPage
 
     protected override async void OnAppearing()
     {
-        base.OnAppearing();
-        await _viewModel.LoadGridAsync();
-        BuildGridUI();
+        try
+        {
+            base.OnAppearing();
+            await _viewModel.LoadGridAsync();
+            BuildGridUI();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo cargar el calendario: {ex.Message}", "OK");
+        }
     }
 
     private void BuildGridUI()
@@ -224,15 +231,22 @@ public partial class SchedulePage : ContentPage
                         var currentHour = hour;
                         
                         var gesture = new TapGestureRecognizer();
-                        gesture.Tapped += (s, e) => {
-                            // Usar CommunityToolkit Popup en vez de Alert/ActionSheet
-                            var popup = new SubjectPopup(
-                                currentCell.Subject!, 
-                                currentCell.Schedule!, 
-                                App.subjectService,
-                                App.taskService);
-                            this.ShowPopup(popup);
-                        };
+                         gesture.Tapped += (s, e) => {
+                             try
+                             {
+                                 // Usar CommunityToolkit Popup en vez de Alert/ActionSheet
+                                 var popup = new SubjectPopup(
+                                     currentCell.Subject!, 
+                                     currentCell.Schedule!, 
+                                     _subjectService,
+                                     _taskService);
+                                 this.ShowPopup(popup);
+                             }
+                             catch (Exception ex)
+                             {
+                                 DisplayAlert("Error", $"No se pudo abrir el popup: {ex.Message}", "OK");
+                             }
+                         };
                         cel.GestureRecognizers.Add(gesture);
                     }
                     
@@ -276,42 +290,70 @@ public partial class SchedulePage : ContentPage
     /// </summary>
     private async Task ShowSubjectDetailsAsync(Subject subject, Schedule schedule, string dayName, int hour)
     {
-        var startTime = schedule.StartTime.ToString(@"hh\:mm");
-        var endTime = schedule.EndTime.ToString(@"hh\:mm");
-        
-        // Mostrar directamente el ActionSheet con la información en el título
-        var action = await DisplayActionSheet(
-            $"{subject.Name} - {dayName} {startTime}-{endTime}",
-            "Cancelar",
-            null,
-            new[] { "Editar materia", "Agregar tarea" });
-        
-        switch (action)
+        try
         {
-            case "Editar materia":
-                await Navigation.PushAsync(new SubjectSchedulesPage(subject, _subjectService));
-                break;
-            case "Agregar tarea":
-                await Navigation.PushAsync(new NewTaskPage(_subjectService, _taskService));
-                break;
+            var startTime = schedule.StartTime.ToString(@"hh\:mm");
+            var endTime = schedule.EndTime.ToString(@"hh\:mm");
+            
+            // Mostrar directamente el ActionSheet con la información en el título
+            var action = await DisplayActionSheet(
+                $"{subject.Name} - {dayName} {startTime}-{endTime}",
+                "Cancelar",
+                null,
+                new[] { "Editar materia", "Agregar tarea" });
+            
+            switch (action)
+            {
+                case "Editar materia":
+                    await Navigation.PushAsync(new SubjectSchedulesPage(subject, _subjectService));
+                    break;
+                case "Agregar tarea":
+                    await Navigation.PushAsync(new NewTaskPage(_subjectService, _taskService));
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo mostrar los detalles: {ex.Message}", "OK");
         }
     }
 
     private async void OnPreviousWeek(object sender, EventArgs e)
     {
-        await _viewModel.PreviousWeekAsync();
-        BuildGridUI();
+        try
+        {
+            await _viewModel.PreviousWeekAsync();
+            BuildGridUI();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo cambiar a la semana anterior: {ex.Message}", "OK");
+        }
     }
 
     private async void OnNextWeek(object sender, EventArgs e)
     {
-        await _viewModel.NextWeekAsync();
-        BuildGridUI();
+        try
+        {
+            await _viewModel.NextWeekAsync();
+            BuildGridUI();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo cambiar a la semana siguiente: {ex.Message}", "OK");
+        }
     }
 
     private async void OnGoToToday(object sender, EventArgs e)
     {
-        await _viewModel.GoToTodayAsync();
-        BuildGridUI();
+        try
+        {
+            await _viewModel.GoToTodayAsync();
+            BuildGridUI();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo ir a hoy: {ex.Message}", "OK");
+        }
     }
 }

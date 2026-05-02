@@ -84,9 +84,9 @@ public class DatabaseService : IDatabaseService
         var idList = ids.ToList();
         if (!idList.Any()) return new List<Subject>();
         
-        // sqlite-net doesn't support IN queries directly, so we filter in memory
-        var allSubjects = await Database.Table<Subject>().ToListAsync();
-        return allSubjects.Where(s => idList.Contains(s.Id)).ToList();
+        // Use SQL IN clause for better performance (avoid loading all subjects)
+        var idString = string.Join(",", idList);
+        return await Database.QueryAsync<Subject>($"SELECT * FROM Subject WHERE Id IN ({idString})");
     }
 
     public async Task<Subject> GetSubjectByIdAsync(int id)
@@ -126,6 +126,52 @@ public class DatabaseService : IDatabaseService
 
     public Task<int> DeleteSchedulesBySubjectAsync(int subjectId)
         => Database.Table<Schedule>().Where(s => s.SubjectId == subjectId).DeleteAsync();
+
+    // ==================== Batch Loading Methods (N+1 Prevention) ====================
+
+    /// <summary>
+    /// Loads all schedules for multiple subjects in a single query (prevents N+1).
+    /// Returns a dictionary mapping SubjectId -> List of Schedules.
+    /// </summary>
+    public async Task<Dictionary<int, List<Schedule>>> GetSchedulesForSubjectsAsync(IEnumerable<int> subjectIds)
+    {
+        var idList = subjectIds.ToList();
+        if (!idList.Any()) return new Dictionary<int, List<Schedule>>();
+        
+        var idString = string.Join(",", idList);
+        var allSchedules = await Database.QueryAsync<Schedule>($"SELECT * FROM Schedule WHERE SubjectId IN ({idString})");
+        
+        var result = new Dictionary<int, List<Schedule>>();
+        foreach (var schedule in allSchedules)
+        {
+            if (!result.ContainsKey(schedule.SubjectId))
+                result[schedule.SubjectId] = new List<Schedule>();
+            result[schedule.SubjectId].Add(schedule);
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// Loads all subtasks for multiple tasks in a single query (prevents N+1).
+    /// Returns a dictionary mapping TaskItemId -> List of Subtasks.
+    /// </summary>
+    public async Task<Dictionary<int, List<Subtask>>> GetSubtasksForTasksAsync(IEnumerable<int> taskIds)
+    {
+        var idList = taskIds.ToList();
+        if (!idList.Any()) return new Dictionary<int, List<Subtask>>();
+        
+        var idString = string.Join(",", idList);
+        var allSubtasks = await Database.QueryAsync<Subtask>($"SELECT * FROM Subtask WHERE TaskItemId IN ({idString})");
+        
+        var result = new Dictionary<int, List<Subtask>>();
+        foreach (var subtask in allSubtasks)
+        {
+            if (!result.ContainsKey(subtask.TaskItemId))
+                result[subtask.TaskItemId] = new List<Subtask>();
+            result[subtask.TaskItemId].Add(subtask);
+        }
+        return result;
+    }
 
     // ==================== TaskItem ====================
 

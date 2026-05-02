@@ -9,26 +9,12 @@ namespace Calendario_Estudiantil;
 /// </summary>
 public partial class App : Application
 {
-    /// <summary>
-    /// Propiedades estáticas para acceso (migración pendiente a DI completa).
-    /// </summary>
-    public static ICourseService courseService { get; private set; } = null!;
-    public static ISubjectService subjectService { get; private set; } = null!;
-    public static ITaskService taskService { get; private set; } = null!;
-
     public App()
     {
         InitializeComponent();
 
-        // Resolver servicios desde el DI container de MAUI
-        // Esto es necesario porque Application no soporta constructor injection directo
-        var services = IPlatformApplication.Current?.Services 
-            ?? throw new InvalidOperationException("DI container no disponible");
-
-        courseService = services.GetRequiredService<ICourseService>();
-        subjectService = services.GetRequiredService<ISubjectService>();
-        taskService = services.GetRequiredService<ITaskService>();
-
+        // Los servicios se resuelven desde el DI container cuando se necesitan
+        // Las páginas resuelven sus propios servicios en sus constructores
         MainPage = new AppShell();
     }
 

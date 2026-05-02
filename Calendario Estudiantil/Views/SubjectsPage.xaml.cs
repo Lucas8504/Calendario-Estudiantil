@@ -40,34 +40,62 @@ public partial class SubjectsPage : ContentPage
 
     protected override async void OnAppearing()
     {
-        base.OnAppearing();
-        await _viewModel.LoadSubjectsNoCourseAsync();
+        try
+        {
+            base.OnAppearing();
+            await _viewModel.LoadSubjectsNoCourseAsync();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudieron cargar las materias: {ex.Message}", "OK");
+        }
     }
 
     private async void OnAddSubject(object sender, EventArgs e)
     {
-        // Paso 1: Nombre
-        var name = await DisplayPromptAsync("Nueva Materia", "Nombre de la materia:", "Crear", "Cancelar", maxLength: 50);
-        if (string.IsNullOrWhiteSpace(name)) return;
-
-        // Paso 2: Selección de color con Popup visual
-        var popup = new ColorPickerPopup(_subjectService);
-        popup.ColorSelected += async (s, color) =>
+        try
         {
-            // Crear materia (sin carrera)
-            await _viewModel.CreateSubjectNoCourseAsync(name, color);
+            // Paso 1: Nombre
+            var name = await DisplayPromptAsync("Nueva Materia", "Nombre de la materia:", "Crear", "Cancelar", maxLength: 50);
+            if (string.IsNullOrWhiteSpace(name)) return;
+
+            // Paso 2: Selección de color con Popup visual
+            var popup = new ColorPickerPopup(_subjectService);
+            popup.ColorSelected += async (s, color) =>
+            {
+                try
+                {
+                    // Crear materia (sin carrera)
+                    await _viewModel.CreateSubjectNoCourseAsync(name, color);
+                    
+                    await DisplayAlert("Materia creada", $"Ahora '{name}' aparece en el calendario.\n\nPara agregar horarios, tocá la materia en la lista.", "OK");
+                }
+                catch (Exception ex)
+                {
+                    await DisplayAlert("Error", $"No se pudo crear la materia: {ex.Message}", "OK");
+                }
+            };
             
-            await DisplayAlert("Materia creada", $"Ahora '{name}' aparece en el calendario.\n\nPara agregar horarios, tocá la materia en la lista.", "OK");
-        };
-        
-        this.ShowPopup(popup);
+            this.ShowPopup(popup);
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo crear la materia: {ex.Message}", "OK");
+        }
     }
 
     private async void OnSubjectTapped(object sender, EventArgs e)
     {
-        if (sender is Frame frame && frame.BindingContext is Subject subject)
+        try
         {
-            await Navigation.PushAsync(new SubjectSchedulesPage(subject, _subjectService));
+            if (sender is Frame frame && frame.BindingContext is Subject subject)
+            {
+                await Navigation.PushAsync(new SubjectSchedulesPage(subject, _subjectService));
+            }
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo abrir la materia: {ex.Message}", "OK");
         }
     }
 }
