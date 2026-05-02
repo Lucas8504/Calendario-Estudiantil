@@ -79,6 +79,16 @@ public class DatabaseService : IDatabaseService
     public async Task<List<Subject>> GetSubjectsByCourseAsync(int courseId)
         => await Database.Table<Subject>().Where(s => s.CourseId == courseId).ToListAsync();
 
+    public async Task<List<Subject>> GetSubjectsByIdsAsync(IEnumerable<int> ids)
+    {
+        var idList = ids.ToList();
+        if (!idList.Any()) return new List<Subject>();
+        
+        // sqlite-net doesn't support IN queries directly, so we filter in memory
+        var allSubjects = await Database.Table<Subject>().ToListAsync();
+        return allSubjects.Where(s => idList.Contains(s.Id)).ToList();
+    }
+
     public async Task<Subject> GetSubjectByIdAsync(int id)
         => await Database.Table<Subject>().Where(s => s.Id == id).FirstOrDefaultAsync()!;
 
@@ -95,6 +105,9 @@ public class DatabaseService : IDatabaseService
         => Database.Table<Subject>().Where(s => s.CourseId == courseId).DeleteAsync();
 
     // ==================== Schedule ====================
+
+    public async Task<List<Schedule>> GetAllSchedulesAsync()
+        => await Database.Table<Schedule>().ToListAsync();
 
     public async Task<List<Schedule>> GetSchedulesBySubjectAsync(int subjectId)
         => await Database.Table<Schedule>().Where(s => s.SubjectId == subjectId).ToListAsync();

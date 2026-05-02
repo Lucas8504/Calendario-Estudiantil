@@ -1,8 +1,10 @@
 using Calendario_Estudiantil.Configuration;
+using Calendario_Estudiantil.Data;
 using Calendario_Estudiantil.Models;
 using Calendario_Estudiantil.Services;
 using Calendario_Estudiantil.ViewModels;
 using CommunityToolkit.Maui.Views;
+using Microsoft.Maui.Controls;
 
 namespace Calendario_Estudiantil.Views;
 
@@ -13,7 +15,13 @@ public partial class SchedulePage : ContentPage
     public SchedulePage()
     {
         InitializeComponent();
-        _viewModel = new ScheduleGridViewModel(App.subjectService);
+        
+        // Resolver IDatabaseService desde el DI container
+        var databaseService = IPlatformApplication.Current?.Services
+            .GetRequiredService<IDatabaseService>()
+            ?? throw new InvalidOperationException("IDatabaseService no disponible");
+        
+        _viewModel = new ScheduleGridViewModel(databaseService);
         BindingContext = _viewModel;
     }
 

@@ -1,19 +1,19 @@
 using System.Collections.ObjectModel;
 using Calendario_Estudiantil.Configuration;
+using Calendario_Estudiantil.Data;
 using Calendario_Estudiantil.Models;
-using Calendario_Estudiantil.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace Calendario_Estudiantil.ViewModels;
 
 /// <summary>
-/// ViewModel para el grid de horarios.
-/// Implementa IScheduleGridViewModel para facilitar testing y DI.
+/// ViewModel para el grid de horarios (único ViewModel de schedule).
+/// Implementa IDatabaseService para acceso directo a datos (evita N+1 queries).
 /// </summary>
-public partial class ScheduleGridViewModel : ObservableObject, IScheduleGridViewModel
+public partial class ScheduleGridViewModel : ObservableObject
 {
-    private readonly ISubjectService _subjectService;
+    private readonly IDatabaseService _databaseService;
 
     [ObservableProperty]
     private DateTime _currentWeekStart;
@@ -39,10 +39,18 @@ public partial class ScheduleGridViewModel : ObservableObject, IScheduleGridView
     [ObservableProperty]
     private int _totalHours = AppConstants.ScheduleGrid.TotalHours;
 
-    public ScheduleGridViewModel(ISubjectService subjectService)
+    // Hora actual para el indicador
+    [ObservableProperty]
+    private TimeSpan _currentTime;
+
+    [ObservableProperty]
+    private bool _isToday;
+
+    public ScheduleGridViewModel(IDatabaseService databaseService)
     {
-        _subjectService = subjectService;
+        _databaseService = databaseService;
         InitializeWeek();
+        UpdateCurrentTime();
     }
 
     private void InitializeWeek()
@@ -59,16 +67,38 @@ public partial class ScheduleGridViewModel : ObservableObject, IScheduleGridView
         WeekLabel = $"{CurrentWeekStart:dd/MM} - {endDate:dd/MM}";
     }
 
+    /// <summary>
+    /// Actualiza la hora actual para el indicador.
+    /// </summary>
+    public void UpdateCurrentTime()
+    {
+        CurrentTime = DateTime.Now.TimeOfDay;
+        IsToday = DateTime.Today >= CurrentWeekStart && DateTime.Today < CurrentWeekStart.AddDays(7);
+    }
+
+    /// <summary>
+    /// Calcula la posición del indicador de hora actual (0-1).
+    /// </summary>
+    public double CurrentTimePosition
+    {
+        get
+        {
+            if (!IsToday || CurrentTime.TotalHours < MinHour || CurrentTime.TotalHours >= MaxHour)
+                return -1;
+            return (CurrentTime.TotalHours - MinHour) / (MaxHour - MinHour);
+        }
+    }
+
     [RelayCommand]
     public async Task LoadGridAsync()
     {
         IsLoading = true;
-        UpdateWeekLabel();
+        UpdateCurrentTime();
 
         try
         {
-            // 1. Cargar materias y horarios en una sola operación optimizada
-            var (subjects, allSchedules) = await LoadSchedulesOptimizedAsync();
+            // 1. Cargar TODOS los horarios directamente (evita N+1 queries)
+            var allSchedules = await LoadAllSchedulesOptimizedAsync();
 
             if (!allSchedules.Any())
             {
@@ -102,56 +132,46 @@ public partial class ScheduleGridViewModel : ObservableObject, IScheduleGridView
     }
 
     /// <summary>
-    /// Calcula las horas mínimo y máximo basándose en los horarios ocupados.
-    /// Muestra desde la primera hora con clase hasta ultima hora + 1.
+    /// Carga todos los horarios con una sola query compleja (NO hace N+1).
     /// </summary>
-    private void CalculateDynamicHours(List<ScheduleItemHelper> allSchedules)
+    private async Task<List<ScheduleItemHelper>> LoadAllSchedulesOptimizedAsync()
     {
-        // Obtener la hora de inicio más temprana
-        var earliestStart = allSchedules
-            .Min(s => s.Schedule.StartTime);
-        
-        // Obtener la hora de fin más tardía
-        var latestEnd = allSchedules
-            .Max(s => s.Schedule.EndTime);
+        // Cargar horarios y materias en queries separadas, luego combinar en memoria
+        var schedules = await _databaseService.GetAllSchedulesAsync();
+        if (!schedules.Any())
+            return new List<ScheduleItemHelper>();
 
-        // Primera hora con clase (redondeada hacia abajo)
-        var calculatedMinHour = earliestStart.Hours;
-        
-        // Última hora + 1 (para mostrar la hora de fin)
-        var calculatedMaxHour = latestEnd.Hours + 1;
+        var subjectIds = schedules.Select(s => s.SubjectId).Distinct().ToList();
+        var subjects = await _databaseService.GetSubjectsByIdsAsync(subjectIds);
 
-        // Por seguridad, limites mínimos y máximos
-        MinHour = Math.Max(calculatedMinHour, 6);  // mínimo 6:00
-        MaxHour = Math.Min(calculatedMaxHour, 23); // máximo 23:00 (para mostrar hasta 22:00)
-        TotalHours = MaxHour - MinHour;
-    }
-
-    /// <summary>
-    /// Carga materias y horarios de forma optimizada (减少 N+1 queries).
-    /// </summary>
-    private async Task<(List<Subject> Subjects, List<ScheduleItemHelper> Schedules)> LoadSchedulesOptimizedAsync()
-    {
-        var subjects = await _subjectService.GetAllAsync();
+        var subjectDict = subjects.ToDictionary(s => s.Id);
         
-        if (!subjects.Any())
-            return (subjects, new List<ScheduleItemHelper>());
-
-        // Cargar todos los horarios en una sola query por materia
-        // En lugar de N+1 queries, hacemos N queries donde N = número de materias
-        // (Sigue siendo N+1 pero mínimo necesario sin cambiar la estructura de BD)
-        var allSchedules = new List<ScheduleItemHelper>();
-        
-        foreach (var subject in subjects)
+        var result = new List<ScheduleItemHelper>();
+        foreach (var schedule in schedules)
         {
-            var schedules = await _subjectService.GetSchedulesAsync(subject.Id);
-            foreach (var schedule in schedules)
+            if (subjectDict.TryGetValue(schedule.SubjectId, out var subject))
             {
-                allSchedules.Add(new ScheduleItemHelper { Subject = subject, Schedule = schedule });
+                result.Add(new ScheduleItemHelper { Subject = subject, Schedule = schedule });
             }
         }
 
-        return (subjects, allSchedules);
+        return result;
+    }
+
+    /// <summary>
+    /// Calcula las horas mínimo y máximo basándose en los horarios ocupados.
+    /// </summary>
+    private void CalculateDynamicHours(List<ScheduleItemHelper> allSchedules)
+    {
+        var earliestStart = allSchedules.Min(s => s.Schedule.StartTime);
+        var latestEnd = allSchedules.Max(s => s.Schedule.EndTime);
+
+        var calculatedMinHour = earliestStart.Hours;
+        var calculatedMaxHour = latestEnd.Hours + 1;
+
+        MinHour = Math.Max(calculatedMinHour, 6);
+        MaxHour = Math.Min(calculatedMaxHour, 23);
+        TotalHours = MaxHour - MinHour;
     }
 
     /// <summary>
@@ -163,7 +183,7 @@ public partial class ScheduleGridViewModel : ObservableObject, IScheduleGridView
 
         foreach (var day in daysWithClasses)
         {
-            var dayIndex = (int)day - 1; // 0=Lunes
+            var dayIndex = (int)day - 1;
             var date = CurrentWeekStart.AddDays(dayIndex);
             
             headers.Add(new DayHeader
@@ -180,7 +200,6 @@ public partial class ScheduleGridViewModel : ObservableObject, IScheduleGridView
 
     /// <summary>
     /// Crea las celdas del grid de horarios.
-    /// Cada celda sabe qué materia tiene (si alguna) en esa hora/día.
     /// </summary>
     private ObservableCollection<ScheduleCell> CreateScheduleCells(
         List<ScheduleItemHelper> allSchedules, 

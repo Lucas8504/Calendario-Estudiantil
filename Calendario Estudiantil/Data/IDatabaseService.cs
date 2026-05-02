@@ -26,6 +26,7 @@ public interface IDatabaseService
     // ==================== Subject ====================
     Task<List<Subject>> GetAllSubjectsAsync();
     Task<List<Subject>> GetSubjectsByCourseAsync(int courseId);
+    Task<List<Subject>> GetSubjectsByIdsAsync(IEnumerable<int> ids);
     Task<Subject> GetSubjectByIdAsync(int id);
     Task<int> InsertSubjectAsync(Subject subject);
     Task<int> UpdateSubjectAsync(Subject subject);
@@ -33,6 +34,7 @@ public interface IDatabaseService
     Task<int> DeleteSubjectsByCourseAsync(int courseId);
 
     // ==================== Schedule ====================
+    Task<List<Schedule>> GetAllSchedulesAsync();
     Task<List<Schedule>> GetSchedulesBySubjectAsync(int subjectId);
     Task<List<Schedule>> GetSchedulesByDayAsync(DiaSemana day);
     Task<int> InsertScheduleAsync(Schedule schedule);
