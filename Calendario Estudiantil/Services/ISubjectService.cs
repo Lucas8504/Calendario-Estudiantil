@@ -15,5 +15,6 @@ public interface ISubjectService
     Task<int> DeleteAsync(Subject subject);
     Task<List<Schedule>> GetSchedulesAsync(int subjectId);
     Task<int> AddScheduleAsync(Schedule schedule);
+    Task<int> UpdateScheduleAsync(Schedule schedule);
     Task<int> DeleteScheduleAsync(Schedule schedule);
 }

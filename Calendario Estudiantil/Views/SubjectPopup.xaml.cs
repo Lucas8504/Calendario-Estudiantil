@@ -50,10 +50,10 @@ public partial class SubjectPopup : Popup
 
     private void OnEdit(object sender, EventArgs e)
     {
-        // Cerrar popup y navegar a SubjectSchedulesPage
+        // Cerrar popup y navegar a NewSchedulePage para editar el horario actual
         Close();
         Application.Current?.MainPage?.Navigation.PushAsync(
-            new SubjectSchedulesPage(_subject, _subjectService));
+            new NewSchedulePage(_subject, _schedule, _subjectService));
     }
 
     private void OnAddTask(object sender, EventArgs e)

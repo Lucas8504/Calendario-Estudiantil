@@ -39,6 +39,9 @@ public class SubjectService : ISubjectService
     public Task<int> AddScheduleAsync(Schedule schedule)
         => _databaseService.InsertScheduleAsync(schedule);
 
+    public Task<int> UpdateScheduleAsync(Schedule schedule)
+        => _databaseService.UpdateScheduleAsync(schedule);
+
     public Task<int> DeleteScheduleAsync(Schedule schedule)
         => _databaseService.DeleteScheduleAsync(schedule);
 
