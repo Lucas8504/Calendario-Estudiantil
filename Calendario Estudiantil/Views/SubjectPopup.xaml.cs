@@ -58,10 +58,10 @@ public partial class SubjectPopup : Popup
 
     private void OnAddTask(object sender, EventArgs e)
     {
-        // Cerrar popup y navegar a NewTaskPage
+        // Cerrar popup y navegar a NewTaskPage con la materia pre-seleccionada
         Close();
         Application.Current?.MainPage?.Navigation.PushAsync(
-            new NewTaskPage(_subjectService, _taskService));
+            new NewTaskPage(_subjectService, _taskService, _subject));
     }
 
     private void OnCancel(object sender, EventArgs e)

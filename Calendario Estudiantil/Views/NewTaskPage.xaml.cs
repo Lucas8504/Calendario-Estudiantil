@@ -7,13 +7,15 @@ public partial class NewTaskPage : ContentPage
 {
     private readonly ISubjectService _subjectService;
     private readonly ITaskService _taskService;
+    private readonly Subject? _preselectedSubject;
     private List<Subject> _subjects = new();
 
-    public NewTaskPage(ISubjectService subjectService, ITaskService taskService)
+    public NewTaskPage(ISubjectService subjectService, ITaskService taskService, Subject? preselectedSubject = null)
     {
         InitializeComponent();
         _subjectService = subjectService;
         _taskService = taskService;
+        _preselectedSubject = preselectedSubject;
         
         // Inicializar fecha por defecto: mañana a las 08:00
         DueDatePicker.Date = DateTime.Today.AddDays(1);
@@ -34,7 +36,16 @@ public partial class NewTaskPage : ContentPage
         SubjectPicker.ItemsSource = _subjects;
         if (_subjects.Any())
         {
-            SubjectPicker.SelectedIndex = 0;
+            // Si hay materia pre-seleccionada, buscarla y seleccionarla
+            if (_preselectedSubject != null)
+            {
+                var index = _subjects.FindIndex(s => s.Id == _preselectedSubject.Id);
+                SubjectPicker.SelectedIndex = index >= 0 ? index : 0;
+            }
+            else
+            {
+                SubjectPicker.SelectedIndex = 0;
+            }
         }
     }
 
