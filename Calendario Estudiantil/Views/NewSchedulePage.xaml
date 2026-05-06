@@ -5,6 +5,8 @@
              Title="Agregar Horario">
 
     <Grid Margin="15">
+        <!-- Trampa de foco invisible para evitar que el Picker se abra solo -->
+        <Entry x:Name="FocusStealer" HeightRequest="0" Opacity="0" IsReadOnly="True"/>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -17,20 +19,12 @@
         <!-- Título -->
         <Label Grid.Row="0" x:Name="PageTitle" Text="Nuevo Horario" FontSize="24" FontAttributes="Bold" Margin="0,0,0,20"/>
 
-        <!-- Día -->
+        <!-- Día (Cuadrícula de botones) -->
         <VerticalStackLayout Grid.Row="1" Margin="0,0,0,15">
-            <Label Text="Día de la semana" FontSize="Medium" FontAttributes="Bold"/>
-            <Picker x:Name="DayPicker" Title="Seleccionar día">
-                <Picker.Items>
-                    <x:String>Lunes</x:String>
-                    <x:String>Martes</x:String>
-                    <x:String>Miércoles</x:String>
-                    <x:String>Jueves</x:String>
-                    <x:String>Viernes</x:String>
-                    <x:String>Sábado</x:String>
-                    <x:String>Domingo</x:String>
-                </Picker.Items>
-            </Picker>
+            <Label Text="Día de la semana" FontSize="Medium" FontAttributes="Bold" Margin="0,0,0,10"/>
+            <FlexLayout x:Name="DayGrid" Wrap="Wrap" JustifyContent="SpaceBetween" AlignItems="Stretch">
+                <!-- Los botones se generan en el code-behind -->
+            </FlexLayout>
         </VerticalStackLayout>
 
         <!-- Hora de inicio -->
