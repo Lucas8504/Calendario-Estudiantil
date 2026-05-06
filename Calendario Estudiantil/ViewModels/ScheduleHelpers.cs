@@ -28,6 +28,8 @@ public class DayHeader
 public class ScheduleCell
 {
     public int Hour { get; set; }
+    public TimeSpan StartTime { get; set; }
+    public TimeSpan EndTime { get; set; }
     public int DayIndex { get; set; }
     public string DayName { get; set; } = string.Empty;
     public DateTime Date { get; set; }

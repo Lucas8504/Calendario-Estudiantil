@@ -46,6 +46,9 @@ public partial class ScheduleGridViewModel : ObservableObject
     [ObservableProperty]
     private bool _isToday;
 
+    // Marcas de tiempo para la columna "regla" (inicio/fin de materias)
+    public List<TimeMark> TimeMarks { get; set; } = new();
+
     public ScheduleGridViewModel(IDatabaseService databaseService)
     {
         _databaseService = databaseService;
@@ -107,11 +110,16 @@ public partial class ScheduleGridViewModel : ObservableObject
                 MinHour = AppConstants.ScheduleGrid.MinHour;
                 MaxHour = AppConstants.ScheduleGrid.MaxHour;
                 TotalHours = AppConstants.ScheduleGrid.TotalHours;
+                TimeMarks = new List<TimeMark>();
                 return;
             }
 
-            // 2. Calcular horas dinámicas (primera a última clase + 1)
-            CalculateDynamicHours(allSchedules);
+            // 2. Calcular marcas de tiempo dinámicas (inicio/fin de materias)
+            TimeMarks = CalculateTimeMarks(allSchedules);
+
+            // Actualizar min/max basados en las marcas para compatibilidad
+            MinHour = (int)TimeMarks.First().Time.TotalHours;
+            MaxHour = (int)TimeMarks.Last().Time.TotalHours + 1;
 
             // 3. Crear headers de días
             var daysWithClasses = allSchedules
@@ -123,7 +131,7 @@ public partial class ScheduleGridViewModel : ObservableObject
             DayHeaders = CreateDayHeaders(daysWithClasses);
 
             // 4. Crear celdas del grid
-            Cells = CreateScheduleCells(allSchedules, daysWithClasses);
+            Cells = CreateScheduleCells(allSchedules, daysWithClasses, TimeMarks);
         }
         finally
         {
@@ -159,19 +167,45 @@ public partial class ScheduleGridViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Calcula las horas mínimo y máximo basándose en los horarios ocupados.
+    /// Calcula las marcas de tiempo para la columna "regla".
+    /// Incluye horas de inicio, fin y horas enteras intermedias para legibilidad.
     /// </summary>
-    private void CalculateDynamicHours(List<ScheduleItemHelper> allSchedules)
+    private List<TimeMark> CalculateTimeMarks(List<ScheduleItemHelper> allSchedules)
     {
-        var earliestStart = allSchedules.Min(s => s.Schedule.StartTime);
-        var latestEnd = allSchedules.Max(s => s.Schedule.EndTime);
+        var marks = new HashSet<TimeSpan>();
 
-        var calculatedMinHour = earliestStart.Hours;
-        var calculatedMaxHour = latestEnd.Hours + 1;
+        // Agregar inicios y fines
+        foreach (var s in allSchedules)
+        {
+            marks.Add(s.Schedule.StartTime);
+            marks.Add(s.Schedule.EndTime);
+        }
 
-        MinHour = Math.Max(calculatedMinHour, 6);
-        MaxHour = Math.Min(calculatedMaxHour, 23);
-        TotalHours = MaxHour - MinHour;
+        // Agregar horas enteras intermedias para que la regla sea legible
+        var min = marks.Min();
+        var max = marks.Max();
+
+        for (int h = min.Hours; h <= max.Hours; h++)
+        {
+            marks.Add(TimeSpan.FromHours(h));
+            // Opcional: agregar medias horas si hay clases que terminan ahí
+            if (allSchedules.Any(s => s.Schedule.StartTime.Minutes == 30 || s.Schedule.EndTime.Minutes == 30))
+            {
+                 marks.Add(TimeSpan.FromHours(h) + TimeSpan.FromMinutes(30));
+            }
+        }
+
+        return marks
+            .Where(t => t >= min && t <= max)
+            .Distinct()
+            .OrderBy(t => t)
+            .Select(t => new TimeMark 
+            { 
+                Time = t, 
+                Label = t.Minutes == 0 ? $"{t.Hours:D2}:00" : $"{t.Hours:D2}:{t.Minutes:D2}",
+                IsWholeHour = t.Minutes == 0
+            })
+            .ToList();
     }
 
     /// <summary>
@@ -200,22 +234,37 @@ public partial class ScheduleGridViewModel : ObservableObject
 
     /// <summary>
     /// Crea las celdas del grid de horarios.
+    /// Ahora usa TimeMarks para determinar las filas.
     /// </summary>
     private ObservableCollection<ScheduleCell> CreateScheduleCells(
         List<ScheduleItemHelper> allSchedules, 
-        List<DiaSemana> daysWithClasses)
+        List<DiaSemana> daysWithClasses,
+        List<TimeMark> timeMarks)
     {
         var cells = new ObservableCollection<ScheduleCell>();
 
-        for (int hour = MinHour; hour < MaxHour; hour++)
+        // Crear celdas para cada intervalo entre marcas de tiempo
+        for (int i = 0; i < timeMarks.Count - 1; i++)
         {
+            var startMark = timeMarks[i];
+            var endMark = timeMarks[i + 1];
+            var hour = startMark.Time.Hours;
+
             foreach (var day in daysWithClasses)
             {
                 var dayIndex = (int)day - 1;
                 var dayDate = CurrentWeekStart.AddDays(dayIndex);
 
-                var matchingSchedule = FindMatchingSchedule(allSchedules, day, hour);
+                // Buscar si hay una clase que ocupe este intervalo
+                var matchingSchedule = allSchedules.FirstOrDefault(s => 
+                    s.Schedule.Day == day && 
+                    s.Schedule.StartTime <= startMark.Time && 
+                    s.Schedule.EndTime >= endMark.Time);
 
+                // Solo agregamos la celda si es el inicio de la clase o si es una celda vacía
+                // Para evitar duplicados visuales, manejamos la lógica en el UI o aquí.
+                // Simplificación: agregamos todas las celdas y el UI decide cómo pintar.
+                
                 cells.Add(new ScheduleCell
                 {
                     Hour = hour,
@@ -223,7 +272,9 @@ public partial class ScheduleGridViewModel : ObservableObject
                     DayName = GetDayName(day),
                     Date = dayDate,
                     Subject = matchingSchedule?.Subject,
-                    Schedule = matchingSchedule?.Schedule
+                    Schedule = matchingSchedule?.Schedule,
+                    StartTime = startMark.Time,
+                    EndTime = endMark.Time
                 });
             }
         }
@@ -274,4 +325,14 @@ public partial class ScheduleGridViewModel : ObservableObject
         InitializeWeek();
         await LoadGridAsync();
     }
+}
+
+/// <summary>
+/// Representa una marca en la "regla" de horarios.
+/// </summary>
+public class TimeMark
+{
+    public TimeSpan Time { get; set; }
+    public string Label { get; set; } = string.Empty;
+    public bool IsWholeHour { get; set; }
 }
