@@ -40,48 +40,19 @@
                 </Frame>
             </Grid>
 
-            <!-- Información del horario con botón de editar -->
+            <!-- Información del horario -->
             <Frame BackgroundColor="#F5F5F5"
                    BorderColor="#E0E0E0"
                    CornerRadius="8"
                    Padding="15">
-                <Grid ColumnSpacing="10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Texto del horario (columna izquierda) -->
-                    <VerticalStackLayout Spacing="8" Grid.Column="0">
-                        <Label x:Name="DayLabel"
-                               FontSize="14"
-                               TextColor="#666666"/>
-                        <Label x:Name="TimeLabel"
-                               FontSize="14"
-                               TextColor="#666666"/>
-                    </VerticalStackLayout>
-
-                    <!-- Botón de editar como ícono (columna derecha) -->
-                    <Frame Grid.Column="1"
-                           BackgroundColor="Transparent"
-                           BorderColor="#CCCCCC"
-                           Padding="4"
-                           CornerRadius="4"
-                           HasShadow="False"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center">
-                        <Label Text="✏️"
-                               FontSize="14"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center"
-                               HorizontalTextAlignment="Center"
-                               VerticalTextAlignment="Center">
-                            <Label.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnEdit"/>
-                            </Label.GestureRecognizers>
-                        </Label>
-                    </Frame>
-                </Grid>
+                <VerticalStackLayout Spacing="8">
+                    <Label x:Name="DayLabel"
+                           FontSize="14"
+                           TextColor="#666666"/>
+                    <Label x:Name="TimeLabel"
+                           FontSize="14"
+                           TextColor="#666666"/>
+                </VerticalStackLayout>
             </Frame>
 
             <!-- Tareas de la materia -->

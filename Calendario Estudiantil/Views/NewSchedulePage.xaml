@@ -4,45 +4,78 @@
              x:Class="Calendario_Estudiantil.Views.NewSchedulePage"
              Title="Agregar Horario">
 
-    <Grid Margin="15">
-        <!-- Trampa de foco invisible para evitar que el Picker se abra solo -->
-        <Entry x:Name="FocusStealer" HeightRequest="0" Opacity="0" IsReadOnly="True"/>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+    <ScrollView>
+        <Grid Margin="20" RowSpacing="18">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>  <!-- 0: Título -->
+                <RowDefinition Height="Auto"/>  <!-- 1: Nombre materia -->
+                <RowDefinition Height="Auto"/>  <!-- 2: Color materia -->
+                <RowDefinition Height="Auto"/>  <!-- 3: Día -->
+                <RowDefinition Height="Auto"/>  <!-- 4: Hora inicio -->
+                <RowDefinition Height="Auto"/>  <!-- 5: Hora fin -->
+                <RowDefinition Height="*"/>     <!-- 6: spacer -->
+                <RowDefinition Height="Auto"/>  <!-- 7: Botones -->
+            </Grid.RowDefinitions>
 
-        <!-- Título -->
-        <Label Grid.Row="0" x:Name="PageTitle" Text="Nuevo Horario" FontSize="24" FontAttributes="Bold" Margin="0,0,0,20"/>
+            <!-- Título -->
+            <Label x:Name="PageTitle" Grid.Row="0"
+                   Text="Nuevo Horario" FontSize="24" FontAttributes="Bold"/>
 
-        <!-- Día (Cuadrícula de botones) -->
-        <VerticalStackLayout Grid.Row="1" Margin="0,0,0,15">
-            <Label Text="Día de la semana" FontSize="Medium" FontAttributes="Bold" Margin="0,0,0,10"/>
-            <FlexLayout x:Name="DayGrid" Wrap="Wrap" JustifyContent="SpaceBetween" AlignItems="Stretch">
-                <!-- Los botones se generan en el code-behind -->
-            </FlexLayout>
-        </VerticalStackLayout>
+            <!-- Nombre de la materia -->
+            <VerticalStackLayout Grid.Row="1">
+                <Label Text="Nombre de la materia" FontSize="Medium" FontAttributes="Bold" Margin="0,0,0,6"/>
+                <Entry x:Name="SubjectNameEntry" Placeholder="Ej: Matemáticas"
+                       FontSize="16" MaxLength="50"/>
+            </VerticalStackLayout>
 
-        <!-- Hora de inicio -->
-        <VerticalStackLayout Grid.Row="2" Margin="0,0,0,15">
-            <Label Text="Hora de inicio" FontSize="Medium" FontAttributes="Bold"/>
-            <TimePicker x:Name="StartTimePicker" Format="HH:mm"/>
-        </VerticalStackLayout>
+            <!-- Color de la materia -->
+            <VerticalStackLayout Grid.Row="2">
+                <Label Text="Color de la materia" FontSize="Medium" FontAttributes="Bold" Margin="0,0,0,6"/>
+                <HorizontalStackLayout Spacing="12">
+                    <Frame x:Name="ColorPreview" WidthRequest="44" HeightRequest="44"
+                           CornerRadius="8" Padding="0" HasShadow="False"
+                           BorderColor="#CCCCCC" VerticalOptions="Start">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnColorTapped"/>
+                        </Frame.GestureRecognizers>
+                    </Frame>
+                    <Button Text="🎲 Cambiar color" Clicked="OnColorTapped"
+                            BackgroundColor="#F0F0F0" TextColor="#333333"
+                            BorderColor="#CCCCCC" BorderWidth="1"
+                            CornerRadius="8" HeightRequest="44"
+                            VerticalOptions="Start"/>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
 
-        <!-- Hora de fin -->
-        <VerticalStackLayout Grid.Row="3" Margin="0,0,0,15">
-            <Label Text="Hora de fin" FontSize="Medium" FontAttributes="Bold"/>
-            <TimePicker x:Name="EndTimePicker" Format="HH:mm"/>
-        </VerticalStackLayout>
+            <!-- Día (Cuadrícula de botones) -->
+            <VerticalStackLayout Grid.Row="3">
+                <Label Text="Día de la semana" FontSize="Medium" FontAttributes="Bold" Margin="0,0,0,8"/>
+                <FlexLayout x:Name="DayGrid" Wrap="Wrap" JustifyContent="SpaceBetween" AlignItems="Stretch">
+                    <!-- Los botones se generan en el code-behind -->
+                </FlexLayout>
+            </VerticalStackLayout>
 
-        <!-- Botones -->
-        <HorizontalStackLayout Grid.Row="5" Spacing="10" HorizontalOptions="Center">
-            <Button Text="Cancelar" Clicked="OnCancel" WidthRequest="120"/>
-            <Button x:Name="SaveButton" Text="Agregar" Clicked="OnSave" WidthRequest="120" BackgroundColor="#4CAF50" TextColor="White"/>
-        </HorizontalStackLayout>
-    </Grid>
+            <!-- Hora de inicio -->
+            <VerticalStackLayout Grid.Row="4">
+                <Label Text="Hora de inicio" FontSize="Medium" FontAttributes="Bold" Margin="0,0,0,6"/>
+                <TimePicker x:Name="StartTimePicker" Format="HH:mm"/>
+            </VerticalStackLayout>
+
+            <!-- Hora de fin -->
+            <VerticalStackLayout Grid.Row="5">
+                <Label Text="Hora de fin" FontSize="Medium" FontAttributes="Bold" Margin="0,0,0,6"/>
+                <TimePicker x:Name="EndTimePicker" Format="HH:mm"/>
+            </VerticalStackLayout>
+
+            <!-- Botones -->
+            <HorizontalStackLayout Grid.Row="7" Spacing="12" HorizontalOptions="Center">
+                <Button Text="Cancelar" Clicked="OnCancel"
+                        WidthRequest="130" HeightRequest="44"
+                        BackgroundColor="#9E9E9E" TextColor="White"/>
+                <Button x:Name="SaveButton" Text="Agregar" Clicked="OnSave"
+                        WidthRequest="130" HeightRequest="44"
+                        BackgroundColor="#4CAF50" TextColor="White"/>
+            </HorizontalStackLayout>
+        </Grid>
+    </ScrollView>
 </ContentPage>

@@ -36,51 +36,12 @@ public partial class SubjectPopup : Popup
         TasksList.ItemsSource = new ObservableCollection<TaskItem>(tasks);
     }
 
-    private async void OnEditSubject(object sender, EventArgs e)
+    private void OnEditSubject(object sender, EventArgs e)
     {
-        try
-        {
-            var page = Application.Current?.MainPage;
-            if (page == null) return;
-
-            // Paso 1: Pedir nuevo nombre (pre-cargado con el actual)
-            var newName = await page.DisplayPromptAsync(
-                "Editar materia",
-                "Nuevo nombre:",
-                "Siguiente",
-                "Cancelar",
-                initialValue: _subject.Name,
-                maxLength: 50);
-
-            if (string.IsNullOrWhiteSpace(newName)) return;
-
-            // Paso 2: Seleccionar nuevo color
-            var popup = new ColorPickerPopup(_subjectService);
-            popup.ColorSelected += async (s, color) =>
-            {
-                try
-                {
-                    _subject.Name = newName;
-                    _subject.ColorHex = color;
-                    await _subjectService.UpdateAsync(_subject);
-
-                    // Refrescar el título (las tareas se mantienen porque su SubjectId no cambia)
-                    TitleLabel.Text = _subject.Name;
-                }
-                catch (Exception ex)
-                {
-                    await page.DisplayAlert("Error",
-                        $"No se pudo actualizar la materia: {ex.Message}", "OK");
-                }
-            };
-
-            page.ShowPopup(popup);
-        }
-        catch (Exception ex)
-        {
-            await Application.Current?.MainPage?.DisplayAlert("Error",
-                $"Ocurrió un error: {ex.Message}", "OK");
-        }
+        // Cerrar popup y navegar a la página unificada de edición
+        Close();
+        Application.Current?.MainPage?.Navigation.PushAsync(
+            new NewSchedulePage(_subject, _schedule, _subjectService));
     }
 
     private string GetDayName(DiaSemana day) => day switch
@@ -94,14 +55,6 @@ public partial class SubjectPopup : Popup
         DiaSemana.Domingo => "Domingo",
         _ => ""
     };
-
-    private void OnEdit(object sender, EventArgs e)
-    {
-        // Cerrar popup y navegar a NewSchedulePage para editar el horario actual
-        Close();
-        Application.Current?.MainPage?.Navigation.PushAsync(
-            new NewSchedulePage(_subject, _schedule, _subjectService));
-    }
 
     private void OnAddTask(object sender, EventArgs e)
     {
