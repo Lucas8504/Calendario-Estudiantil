@@ -36,6 +36,53 @@ public partial class SubjectPopup : Popup
         TasksList.ItemsSource = new ObservableCollection<TaskItem>(tasks);
     }
 
+    private async void OnEditSubject(object sender, EventArgs e)
+    {
+        try
+        {
+            var page = Application.Current?.MainPage;
+            if (page == null) return;
+
+            // Paso 1: Pedir nuevo nombre (pre-cargado con el actual)
+            var newName = await page.DisplayPromptAsync(
+                "Editar materia",
+                "Nuevo nombre:",
+                "Siguiente",
+                "Cancelar",
+                initialValue: _subject.Name,
+                maxLength: 50);
+
+            if (string.IsNullOrWhiteSpace(newName)) return;
+
+            // Paso 2: Seleccionar nuevo color
+            var popup = new ColorPickerPopup(_subjectService);
+            popup.ColorSelected += async (s, color) =>
+            {
+                try
+                {
+                    _subject.Name = newName;
+                    _subject.ColorHex = color;
+                    await _subjectService.UpdateAsync(_subject);
+
+                    // Refrescar el título (las tareas se mantienen porque su SubjectId no cambia)
+                    TitleLabel.Text = _subject.Name;
+                }
+                catch (Exception ex)
+                {
+                    await page.DisplayAlert("Error",
+                        $"No se pudo actualizar la materia: {ex.Message}", "OK");
+                }
+            };
+
+            page.ShowPopup(popup);
+        }
+        catch (Exception ex)
+        {
+            await Application.Current?.MainPage?.DisplayAlert("Error",
+                $"Ocurrió un error: {ex.Message}", "OK");
+        }
+    }
+
     private string GetDayName(DiaSemana day) => day switch
     {
         DiaSemana.Lunes => "Lunes",

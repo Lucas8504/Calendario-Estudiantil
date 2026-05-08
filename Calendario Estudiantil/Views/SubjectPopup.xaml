@@ -10,12 +10,40 @@
             Background="White">
         <VerticalStackLayout Spacing="15" Padding="20">
         
-        <!-- Título -->
-        <Label x:Name="TitleLabel" 
-               FontSize="20" 
-               FontAttributes="Bold" 
-               TextColor="#333333"
-               HorizontalOptions="Center"/>
+        <!-- Título con icono de editar -->
+        <Grid ColumnSpacing="10" HorizontalOptions="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Nombre de la materia -->
+            <Label x:Name="TitleLabel" 
+                   Grid.Column="0"
+                   FontSize="20" 
+                   FontAttributes="Bold" 
+                   TextColor="#333333"
+                   VerticalOptions="Center"/>
+
+            <!-- Icono de editar materia (nombre + color) -->
+            <Frame Grid.Column="1"
+                   BackgroundColor="Transparent"
+                   BorderColor="Transparent"
+                   Padding="4"
+                   CornerRadius="4"
+                   HasShadow="False"
+                   VerticalOptions="Center">
+                <Label Text="✏️" FontSize="14"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       HorizontalTextAlignment="Center"
+                       VerticalTextAlignment="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnEditSubject"/>
+                    </Label.GestureRecognizers>
+                </Label>
+            </Frame>
+        </Grid>
         
         <!-- Información del horario con botón de editar -->
         <Frame BackgroundColor="#F5F5F5" 
