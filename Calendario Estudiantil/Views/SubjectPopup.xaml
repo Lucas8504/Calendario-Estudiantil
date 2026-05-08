@@ -1,135 +1,130 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             x:Class="Calendario_Estudiantil.Views.SubjectPopup"
-    Color="Transparent">
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               x:Class="Calendario_Estudiantil.Views.SubjectPopup"
+               Color="Transparent">
 
-    <Border StrokeShape="RoundRectangle 16" 
-            StrokeThickness="0" 
+    <Border StrokeShape="RoundRectangle 16"
+            StrokeThickness="0"
             Background="White">
         <VerticalStackLayout Spacing="15" Padding="20">
-        
-        <!-- Título con icono de editar -->
-        <Grid ColumnSpacing="10" HorizontalOptions="Center">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
 
-            <!-- Nombre de la materia -->
-            <Label x:Name="TitleLabel" 
-                   Grid.Column="0"
-                   FontSize="20" 
-                   FontAttributes="Bold" 
-                   TextColor="#333333"
-                   VerticalOptions="Center"/>
-
-            <!-- Icono de editar materia (nombre + color) -->
-            <Frame Grid.Column="1"
-                   BackgroundColor="Transparent"
-                   BorderColor="Transparent"
-                   Padding="4"
-                   CornerRadius="4"
-                   HasShadow="False"
-                   VerticalOptions="Center">
-                <Label Text="✏️" FontSize="14"
+            <!-- Título con icono de editar -->
+            <Grid Padding="0,0,15,0">
+                <!-- Título centrado -->
+                <Label x:Name="TitleLabel"
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       TextColor="#333333"
                        HorizontalOptions="Center"
-                       VerticalOptions="Center"
-                       HorizontalTextAlignment="Center"
-                       VerticalTextAlignment="Center">
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnEditSubject"/>
-                    </Label.GestureRecognizers>
-                </Label>
-            </Frame>
-        </Grid>
-        
-        <!-- Información del horario con botón de editar -->
-        <Frame BackgroundColor="#F5F5F5" 
-                BorderColor="#E0E0E0" 
-                CornerRadius="8" 
-                Padding="15">
-            <Grid ColumnSpacing="10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                
-                <!-- Texto del horario (columna izquierda) -->
-                <VerticalStackLayout Spacing="8" Grid.Column="0">
-                    <Label x:Name="DayLabel" 
-                           FontSize="14" 
-                           TextColor="#666666"/>
-                    <Label x:Name="TimeLabel" 
-                           FontSize="14" 
-                           TextColor="#666666"/>
-                </VerticalStackLayout>
-                
-                <!-- Botón de editar como ícono (columna derecha) -->
-                <Frame Grid.Column="1" 
-                       BackgroundColor="#F5F5F5"
+                       VerticalOptions="Center"/>
+
+                <!-- Icono de editar materia a la derecha (misma posición que el de horario) -->
+                <Frame BackgroundColor="Transparent"
                        BorderColor="#CCCCCC"
                        Padding="4"
                        CornerRadius="4"
                        HasShadow="False"
-                       HorizontalOptions="Center"
+                       HorizontalOptions="End"
                        VerticalOptions="Center">
-                    <Label Text="✏️" 
-                           FontSize="14"
+                    <Label Text="✏️" FontSize="14"
                            HorizontalOptions="Center"
                            VerticalOptions="Center"
                            HorizontalTextAlignment="Center"
                            VerticalTextAlignment="Center">
                         <Label.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnEdit"/>
+                            <TapGestureRecognizer Tapped="OnEditSubject"/>
                         </Label.GestureRecognizers>
                     </Label>
                 </Frame>
             </Grid>
-        </Frame>
-        
-        <!-- Tareas de la materia -->
-        <VerticalStackLayout>
-            <Label Text="Tareas:" 
-                   FontSize="14" 
-                   FontAttributes="Bold" 
-                   TextColor="#333333"/>
-            <CollectionView x:Name="TasksList" 
-                          HeightRequest="100">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Label Text="{Binding Title}" 
-                               FontSize="13" 
-                               TextColor="#512BD4"
-                               Padding="5"/>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </VerticalStackLayout>
-        
-        <!-- Botones -->
-        <Grid ColumnSpacing="10">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            
-            <Button Grid.Column="0" 
-                    Text="Tarea" 
-                    Clicked="OnAddTask"
-                    BackgroundColor="#4CAF50"
-                    TextColor="White"/>
-            
-            <Button Grid.Column="1" 
-                    Text="✕" 
-                    Clicked="OnCancel"
-                    BackgroundColor="#9E9E9E"
-                    TextColor="White"
-                    WidthRequest="40"
-                    HeightRequest="40"/>
-        </Grid>
-        
+
+            <!-- Información del horario con botón de editar -->
+            <Frame BackgroundColor="#F5F5F5"
+                   BorderColor="#E0E0E0"
+                   CornerRadius="8"
+                   Padding="15">
+                <Grid ColumnSpacing="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Texto del horario (columna izquierda) -->
+                    <VerticalStackLayout Spacing="8" Grid.Column="0">
+                        <Label x:Name="DayLabel"
+                               FontSize="14"
+                               TextColor="#666666"/>
+                        <Label x:Name="TimeLabel"
+                               FontSize="14"
+                               TextColor="#666666"/>
+                    </VerticalStackLayout>
+
+                    <!-- Botón de editar como ícono (columna derecha) -->
+                    <Frame Grid.Column="1"
+                           BackgroundColor="Transparent"
+                           BorderColor="#CCCCCC"
+                           Padding="4"
+                           CornerRadius="4"
+                           HasShadow="False"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center">
+                        <Label Text="✏️"
+                               FontSize="14"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               VerticalTextAlignment="Center">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnEdit"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Frame>
+                </Grid>
+            </Frame>
+
+            <!-- Tareas de la materia -->
+            <VerticalStackLayout>
+                <Label Text="Tareas:"
+                       FontSize="14"
+                       FontAttributes="Bold"
+                       TextColor="#333333"/>
+                <CollectionView x:Name="TasksList"
+                                HeightRequest="100">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Label Text="{Binding Title}"
+                                   FontSize="13"
+                                   TextColor="#512BD4"
+                                   Padding="5"/>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+
+            <!-- Botones -->
+            <Grid ColumnSpacing="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0"
+                        Text="Tarea"
+                        Clicked="OnAddTask"
+                        BackgroundColor="#4CAF50"
+                        TextColor="White"/>
+
+                <Button Grid.Column="1"
+                        Text="✕"
+                        Clicked="OnCancel"
+                        BackgroundColor="#9E9E9E"
+                        TextColor="White"
+                        WidthRequest="40"
+                        HeightRequest="40"/>
+            </Grid>
+
         </VerticalStackLayout>
     </Border>
 </toolkit:Popup>
