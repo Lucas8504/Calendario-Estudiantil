@@ -43,6 +43,27 @@ public static class AppConstants
     }
 
     /// <summary>
+    /// Tema de la aplicación.
+    /// </summary>
+    public static class Theme
+    {
+        /// <summary>
+        /// Color de acento principal (azul intenso).
+        /// </summary>
+        public static Color Accent => Color.FromArgb("#1B48A3");
+
+        /// <summary>
+        /// Color de acento para estados hover/pressed.
+        /// </summary>
+        public static Color AccentDark => Color.FromArgb("#143680");
+
+        /// <summary>
+        /// Color de acento claro para fondos.
+        /// </summary>
+        public static Color AccentLight => Color.FromArgb("#E8F0FE");
+    }
+
+    /// <summary>
     /// Colores disponibles para materias.
     /// </summary>
     public static class SubjectColors

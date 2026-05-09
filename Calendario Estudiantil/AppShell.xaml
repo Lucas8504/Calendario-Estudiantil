@@ -8,7 +8,7 @@
     Title="Calendario Estudiantil">
 
     <Shell.FlyoutHeader>
-        <StackLayout BackgroundColor="{AppThemeBinding Light=#512BD4, Dark=#1C1B1F}" Padding="15">
+        <StackLayout BackgroundColor="{AppThemeBinding Light=#1544A2, Dark=#1C1B1F}" Padding="15">
             <Label Text="📅 Calendario Estudiantil" TextColor="White" FontSize="Large" FontAttributes="Bold"/>
         </StackLayout>
     </Shell.FlyoutHeader>
