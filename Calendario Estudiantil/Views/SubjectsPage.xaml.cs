@@ -55,32 +55,11 @@ public partial class SubjectsPage : ContentPage
     {
         try
         {
-            // Paso 1: Nombre
-            var name = await DisplayPromptAsync("Nueva Materia", "Nombre de la materia:", "Crear", "Cancelar", maxLength: 50);
-            if (string.IsNullOrWhiteSpace(name)) return;
-
-            // Paso 2: Selección de color con Popup visual
-            var popup = new ColorPickerPopup(_subjectService);
-            popup.ColorSelected += async (s, color) =>
-            {
-                try
-                {
-                    // Crear materia (sin carrera)
-                    await _viewModel.CreateSubjectNoCourseAsync(name, color);
-                    
-                    await DisplayAlert("Materia creada", $"Ahora '{name}' aparece en el calendario.\n\nPara agregar horarios, tocá la materia en la lista.", "OK");
-                }
-                catch (Exception ex)
-                {
-                    await DisplayAlert("Error", $"No se pudo crear la materia: {ex.Message}", "OK");
-                }
-            };
-            
-            this.ShowPopup(popup);
+            await Navigation.PushAsync(new NewSchedulePage(_subjectService));
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"No se pudo crear la materia: {ex.Message}", "OK");
+            await DisplayAlert("Error", $"No se pudo abrir el formulario: {ex.Message}", "OK");
         }
     }
 

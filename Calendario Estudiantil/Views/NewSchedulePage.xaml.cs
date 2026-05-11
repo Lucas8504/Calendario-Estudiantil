@@ -8,9 +8,10 @@ namespace Calendario_Estudiantil.Views;
 
 public partial class NewSchedulePage : ContentPage
 {
-    private readonly Subject _subject;
+    private readonly Subject? _subject;
     private readonly ISubjectService _subjectService;
     private readonly Schedule? _scheduleToEdit;
+    private readonly bool _isNewSubject;
     private string? _selectedDay;
     private string _subjectColor;
 
@@ -39,7 +40,7 @@ public partial class NewSchedulePage : ContentPage
     };
 
     /// <summary>
-    /// Constructor para crear un nuevo horario.
+    /// Constructor para crear un nuevo horario (materia ya existente).
     /// </summary>
     public NewSchedulePage(Subject subject, ISubjectService subjectService)
     {
@@ -47,6 +48,7 @@ public partial class NewSchedulePage : ContentPage
         _subject = subject;
         _subjectService = subjectService;
         _scheduleToEdit = null;
+        _isNewSubject = false;
         _subjectColor = subject.ColorHex;
 
         // Cargar datos de la materia
@@ -68,6 +70,7 @@ public partial class NewSchedulePage : ContentPage
         _subject = subject;
         _subjectService = subjectService;
         _scheduleToEdit = schedule;
+        _isNewSubject = false;
         _subjectColor = subject.ColorHex;
         _selectedDay = ReverseDiaMap[schedule.Day];
 
@@ -76,8 +79,8 @@ public partial class NewSchedulePage : ContentPage
         ColorPreview.BackgroundColor = Color.FromArgb(_subjectColor);
 
         // Título y botón para modo edición
-        Title = "Editar Horario";
-        PageTitle.Text = "Editar Horario";
+        Title = "Editar";
+        PageTitle.Text = "Editar";
         SaveButton.Text = "Guardar";
 
         // Pre-cargar horas
@@ -85,6 +88,33 @@ public partial class NewSchedulePage : ContentPage
         EndTimePicker.Time = schedule.EndTime;
 
         InitializeDayButtons();
+    }
+
+    /// <summary>
+    /// Constructor para crear una nueva materia + horario desde cero.
+    /// </summary>
+    public NewSchedulePage(ISubjectService subjectService)
+    {
+        InitializeComponent();
+        _subject = null;
+        _subjectService = subjectService;
+        _scheduleToEdit = null;
+        _isNewSubject = true;
+        _subjectColor = "#512BD4";
+
+        // Valores vacíos para materia nueva
+        SubjectNameEntry.Placeholder = "Ej: Matemáticas";
+        ColorPreview.BackgroundColor = Color.FromArgb(_subjectColor);
+
+        // Título y botón para modo creación
+        Title = "Agregar Materia";
+        PageTitle.Text = "Agregar Materia";
+        SaveButton.Text = "Crear";
+
+        // Valores por defecto
+        _selectedDay = "Lunes";
+        StartTimePicker.Time = new TimeSpan(8, 0, 0);
+        EndTimePicker.Time = new TimeSpan(10, 0, 0);
     }
 
     protected override void OnAppearing()
@@ -121,9 +151,9 @@ public partial class NewSchedulePage : ContentPage
                 Padding = new Thickness(0),
                 FontSize = 12,
                 FontAttributes = isSelected ? FontAttributes.Bold : FontAttributes.None,
-                BackgroundColor = isSelected ? Color.FromArgb("#512BD4") : Color.FromArgb("#F0F0F0"),
+                BackgroundColor = isSelected ? Color.FromArgb(_subjectColor) : Color.FromArgb("#F0F0F0"),
                 TextColor = isSelected ? Colors.White : Color.FromArgb("#333333"),
-                BorderColor = isSelected ? Color.FromArgb("#3A1E99") : Color.FromArgb("#CCCCCC"),
+                BorderColor = isSelected ? Color.FromArgb(_subjectColor) : Color.FromArgb("#CCCCCC"),
                 BorderWidth = 1
             };
 
@@ -145,9 +175,9 @@ public partial class NewSchedulePage : ContentPage
             if (child is Button btn)
             {
                 var isThisBtn = btn.Text == selectedBtn.Text;
-                btn.BackgroundColor = isThisBtn ? Color.FromArgb("#512BD4") : Color.FromArgb("#F0F0F0");
+                btn.BackgroundColor = isThisBtn ? Color.FromArgb(_subjectColor) : Color.FromArgb("#F0F0F0");
                 btn.TextColor = isThisBtn ? Colors.White : Color.FromArgb("#333333");
-                btn.BorderColor = isThisBtn ? Color.FromArgb("#3A1E99") : Color.FromArgb("#CCCCCC");
+                btn.BorderColor = isThisBtn ? Color.FromArgb(_subjectColor) : Color.FromArgb("#CCCCCC");
                 btn.FontAttributes = isThisBtn ? FontAttributes.Bold : FontAttributes.None;
             }
         }
@@ -160,9 +190,35 @@ public partial class NewSchedulePage : ContentPage
         {
             _subjectColor = color;
             ColorPreview.BackgroundColor = Color.FromArgb(color);
+
+            // Actualizar el botón de día seleccionado con el nuevo color
+            UpdateSelectedDayColor();
         };
 
         this.ShowPopup(popup);
+    }
+
+    private void UpdateSelectedDayColor()
+    {
+        // Mapear día completo a abreviatura de 3 letras
+        var fullToShort = new Dictionary<string, string>
+        {
+            ["Lunes"] = "Lun", ["Martes"] = "Mar", ["Miércoles"] = "Mié",
+            ["Jueves"] = "Jue", ["Viernes"] = "Vie", ["Sábado"] = "Sáb",
+            ["Domingo"] = "Dom"
+        };
+
+        if (_selectedDay == null || !fullToShort.TryGetValue(_selectedDay, out var shortName))
+            return;
+
+        foreach (var child in DayGrid.Children)
+        {
+            if (child is Button btn && btn.Text == shortName)
+            {
+                btn.BackgroundColor = Color.FromArgb(_subjectColor);
+                btn.BorderColor = Color.FromArgb(_subjectColor);
+            }
+        }
     }
 
     private void OnCancel(object sender, EventArgs e)
@@ -197,13 +253,35 @@ public partial class NewSchedulePage : ContentPage
             return;
         }
 
-        // 4. Guardar cambios de la materia (nombre + color)
-        _subject.Name = newName;
-        _subject.ColorHex = _subjectColor;
-        await _subjectService.UpdateAsync(_subject);
+        // 4. Guardar la materia (crear o actualizar)
+        int subjectId;
+        if (_isNewSubject)
+        {
+            var newSubject = new Subject
+            {
+                Name = newName,
+                ColorHex = _subjectColor,
+                CourseId = 0
+            };
+            subjectId = await _subjectService.CreateAsync(newSubject);
+            await DisplayAlert("Éxito",
+                $"Materia '{newName}' creada con horario: {_selectedDay} {startTime:hh\\:mm} - {endTime:hh\\:mm}",
+                "OK");
+        }
+        else if (_subject != null)
+        {
+            _subject.Name = newName;
+            _subject.ColorHex = _subjectColor;
+            await _subjectService.UpdateAsync(_subject);
+            subjectId = _subject.Id;
+        }
+        else
+        {
+            return; // No debería ocurrir
+        }
 
         // 5. Crear o actualizar el Schedule
-        var schedule = _scheduleToEdit ?? new Schedule { SubjectId = _subject.Id };
+        var schedule = _scheduleToEdit ?? new Schedule { SubjectId = subjectId };
         schedule.Day = DiaMap[_selectedDay!];
         schedule.StartTime = startTime;
         schedule.EndTime = endTime;
@@ -211,12 +289,14 @@ public partial class NewSchedulePage : ContentPage
         if (_scheduleToEdit != null)
         {
             await _subjectService.UpdateScheduleAsync(schedule);
-            await DisplayAlert("Éxito", $"Horario actualizado: {_selectedDay} {startTime:hh\\:mm} - {endTime:hh\\:mm}", "OK");
+            if (!_isNewSubject)
+                await DisplayAlert("Éxito", $"Horario actualizado: {_selectedDay} {startTime:hh\\:mm} - {endTime:hh\\:mm}", "OK");
         }
         else
         {
             await _subjectService.AddScheduleAsync(schedule);
-            await DisplayAlert("Éxito", $"Horario agregado: {_selectedDay} {startTime:hh\\:mm} - {endTime:hh\\:mm}", "OK");
+            if (!_isNewSubject)
+                await DisplayAlert("Éxito", $"Horario agregado: {_selectedDay} {startTime:hh\\:mm} - {endTime:hh\\:mm}", "OK");
         }
 
         await Navigation.PopAsync();

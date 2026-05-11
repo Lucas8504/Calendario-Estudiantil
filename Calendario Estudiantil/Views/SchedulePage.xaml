@@ -30,7 +30,8 @@
                 <Button Grid.Column="0" Text="◀" Clicked="OnPreviousWeek"
                         WidthRequest="40" HeightRequest="36" CornerRadius="8"
                         BackgroundColor="{x:Static config:AppConstants+Theme.Accent}"
-                        TextColor="White" FontSize="16"/>
+                        TextColor="White" FontSize="14"
+                        VerticalOptions="Start"/>
 
                 <!-- Semana actual -->
                 <Label Grid.Column="1" Text="{Binding WeekLabel}"
@@ -48,7 +49,8 @@
                 <Button Grid.Column="3" Text="▶" Clicked="OnNextWeek"
                         WidthRequest="40" HeightRequest="36" CornerRadius="8"
                         BackgroundColor="{x:Static config:AppConstants+Theme.Accent}"
-                        TextColor="White" FontSize="16"/>
+                        TextColor="White" FontSize="14"
+                        VerticalOptions="Start"/>
             </Grid>
         </Frame>
 
