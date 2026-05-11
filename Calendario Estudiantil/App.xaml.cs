@@ -13,9 +13,8 @@ public partial class App : Application
     {
         InitializeComponent();
 
-        // Los servicios se resuelven desde el DI container cuando se necesitan
-        // Las páginas resuelven sus propios servicios en sus constructores
-        MainPage = new AppShell();
+        // NavigationPage como contenedor principal, SchedulePage como página raíz
+        MainPage = new NavigationPage(new Views.SchedulePage());
     }
 
     protected override void OnStart()

@@ -327,4 +327,34 @@ public partial class SchedulePage : ContentPage
             await DisplayAlert("Error", $"No se pudo ir a hoy: {ex.Message}", "OK");
         }
     }
+
+    private async void OnNavigateSchedule(object sender, EventArgs e)
+    {
+        // Ya estamos en Calendario, no hacer nada
+        await Task.CompletedTask;
+    }
+
+    private async void OnNavigateTasks(object sender, EventArgs e)
+    {
+        try
+        {
+            await Navigation.PushAsync(new TasksPage());
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo abrir Tareas: {ex.Message}", "OK");
+        }
+    }
+
+    private async void OnNavigateSubjects(object sender, EventArgs e)
+    {
+        try
+        {
+            await Navigation.PushAsync(new SubjectsPage());
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo abrir Materias: {ex.Message}", "OK");
+        }
+    }
 }

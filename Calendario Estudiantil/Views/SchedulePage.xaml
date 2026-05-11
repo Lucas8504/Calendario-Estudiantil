@@ -11,6 +11,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Navegación de semana -->
@@ -70,5 +71,45 @@
         <!-- Indicador de carga -->
         <ActivityIndicator Grid.Row="2" IsVisible="{Binding IsLoading}"
                            HorizontalOptions="Center" VerticalOptions="Center"/>
+
+        <!-- Barra de navegación inferior -->
+        <Frame Grid.Row="3" Margin="0,5,0,0" Padding="0" CornerRadius="12"
+               BackgroundColor="{x:Static config:AppConstants+Theme.AccentLight}"
+               BorderColor="Transparent" HasShadow="False">
+            <Grid ColumnSpacing="0" HeightRequest="48">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Calendario (activo) -->
+                <Button Grid.Column="0" Text="📅 Calendario"
+                        Clicked="OnNavigateSchedule"
+                        BackgroundColor="Transparent"
+                        TextColor="{x:Static config:AppConstants+Theme.Accent}"
+                        FontSize="12" FontAttributes="Bold"
+                        CornerRadius="0" HeightRequest="48"/>
+
+                <!-- Separador -->
+                <BoxView Grid.Column="0" VerticalOptions="End"
+                         HeightRequest="3" Margin="15,0"
+                         BackgroundColor="{x:Static config:AppConstants+Theme.Accent}"/>
+
+                <!-- Tareas -->
+                <Button Grid.Column="1" Text="📋 Tareas"
+                        Clicked="OnNavigateTasks"
+                        BackgroundColor="Transparent"
+                        TextColor="#666666" FontSize="12"
+                        CornerRadius="0" HeightRequest="48"/>
+
+                <!-- Materias -->
+                <Button Grid.Column="2" Text="📚 Materias"
+                        Clicked="OnNavigateSubjects"
+                        BackgroundColor="Transparent"
+                        TextColor="#666666" FontSize="12"
+                        CornerRadius="0" HeightRequest="48"/>
+            </Grid>
+        </Frame>
     </Grid>
 </ContentPage>
