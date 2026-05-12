@@ -7,29 +7,24 @@
     <ScrollView>
         <Grid Margin="20" RowSpacing="18">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>  <!-- 0: Título -->
-                <RowDefinition Height="Auto"/>  <!-- 1: Nombre materia -->
-                <RowDefinition Height="Auto"/>  <!-- 2: Color materia -->
-                <RowDefinition Height="Auto"/>  <!-- 3: Día -->
-                <RowDefinition Height="Auto"/>  <!-- 4: Hora inicio -->
-                <RowDefinition Height="Auto"/>  <!-- 5: Hora fin -->
-                <RowDefinition Height="*"/>     <!-- 6: spacer -->
-                <RowDefinition Height="Auto"/>  <!-- 7: Botones -->
-            </Grid.RowDefinitions>
-
-            <!-- Título -->
-            <Label x:Name="PageTitle" Grid.Row="0"
-                   Text="Nuevo Horario" FontSize="24" FontAttributes="Bold"/>
+            <RowDefinition Height="Auto"/>  <!-- 0: Nombre materia -->
+            <RowDefinition Height="Auto"/>  <!-- 1: Color materia -->
+            <RowDefinition Height="Auto"/>  <!-- 2: Día -->
+            <RowDefinition Height="Auto"/>  <!-- 3: Hora inicio -->
+            <RowDefinition Height="Auto"/>  <!-- 4: Hora fin -->
+            <RowDefinition Height="*"/>     <!-- 5: spacer -->
+            <RowDefinition Height="Auto"/>  <!-- 6: Botones -->
+        </Grid.RowDefinitions>
 
             <!-- Nombre de la materia -->
-            <VerticalStackLayout Grid.Row="1">
+            <VerticalStackLayout Grid.Row="0">
                 <Label Text="Nombre de la materia" FontSize="Medium" FontAttributes="Bold" Margin="0,0,0,6"/>
                 <Entry x:Name="SubjectNameEntry" Placeholder="Ej: Matemáticas"
                        FontSize="16" MaxLength="50"/>
             </VerticalStackLayout>
 
             <!-- Color de la materia -->
-            <VerticalStackLayout Grid.Row="2">
+            <VerticalStackLayout Grid.Row="1">
                 <Label Text="Color de la materia" FontSize="Medium" FontAttributes="Bold" Margin="0,0,0,6"/>
                 <HorizontalStackLayout Spacing="12">
                     <Frame x:Name="ColorPreview" WidthRequest="44" HeightRequest="44"
@@ -48,7 +43,7 @@
             </VerticalStackLayout>
 
             <!-- Día (Cuadrícula de botones) -->
-            <VerticalStackLayout Grid.Row="3">
+            <VerticalStackLayout Grid.Row="2">
                 <Label Text="Día de la semana" FontSize="Medium" FontAttributes="Bold" Margin="0,0,0,8"/>
                 <FlexLayout x:Name="DayGrid" Wrap="Wrap" JustifyContent="SpaceBetween" AlignItems="Stretch">
                     <!-- Los botones se generan en el code-behind -->
@@ -56,19 +51,19 @@
             </VerticalStackLayout>
 
             <!-- Hora de inicio -->
-            <VerticalStackLayout Grid.Row="4">
+            <VerticalStackLayout Grid.Row="3">
                 <Label Text="Hora de inicio" FontSize="Medium" FontAttributes="Bold" Margin="0,0,0,6"/>
                 <TimePicker x:Name="StartTimePicker" Format="HH:mm"/>
             </VerticalStackLayout>
 
             <!-- Hora de fin -->
-            <VerticalStackLayout Grid.Row="5">
+            <VerticalStackLayout Grid.Row="4">
                 <Label Text="Hora de fin" FontSize="Medium" FontAttributes="Bold" Margin="0,0,0,6"/>
                 <TimePicker x:Name="EndTimePicker" Format="HH:mm"/>
             </VerticalStackLayout>
 
             <!-- Botones -->
-            <HorizontalStackLayout Grid.Row="7" Spacing="12" HorizontalOptions="Center">
+            <HorizontalStackLayout Grid.Row="6" Spacing="12" HorizontalOptions="Center">
                 <Button Text="Cancelar" Clicked="OnCancel"
                         WidthRequest="130" HeightRequest="44"
                         BackgroundColor="#9E9E9E" TextColor="White"/>

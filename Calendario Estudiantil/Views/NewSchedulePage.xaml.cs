@@ -80,7 +80,6 @@ public partial class NewSchedulePage : ContentPage
 
         // Título y botón para modo edición
         Title = "Editar";
-        PageTitle.Text = "Editar";
         SaveButton.Text = "Guardar";
 
         // Pre-cargar horas
@@ -108,7 +107,6 @@ public partial class NewSchedulePage : ContentPage
 
         // Título y botón para modo creación
         Title = "Agregar Materia";
-        PageTitle.Text = "Agregar Materia";
         SaveButton.Text = "Crear";
 
         // Valores por defecto
@@ -263,7 +261,8 @@ public partial class NewSchedulePage : ContentPage
                 ColorHex = _subjectColor,
                 CourseId = 0
             };
-            subjectId = await _subjectService.CreateAsync(newSubject);
+            await _subjectService.CreateAsync(newSubject);
+            subjectId = newSubject.Id; // <-- sqlite-net setea Id en el objeto, NO en el return value
             await DisplayAlert("Éxito",
                 $"Materia '{newName}' creada con horario: {_selectedDay} {startTime:hh\\:mm} - {endTime:hh\\:mm}",
                 "OK");

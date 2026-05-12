@@ -13,7 +13,7 @@
 
         <!-- Info de la materia -->
         <StackLayout Grid.Row="0" Margin="0,0,0,10">
-            <Label Text="{Binding SubjectName}" FontSize="20" FontAttributes="Bold"/>
+            <Label Text="{Binding SubjectName}" FontSize="10" FontAttributes="Bold"/>
             <Label Text="Agregá los días y horarios de clase" FontSize="14" TextColor="Gray"/>
         </StackLayout>
 
@@ -32,7 +32,7 @@
                                     <Label Text="{Binding DayName}" FontSize="16" FontAttributes="Bold"/>
                                     <Label Text="{Binding TimeDisplay}" FontSize="14" TextColor="Gray"/>
                                 </StackLayout>
-                                <Button Grid.Column="1" Text="X" Clicked="OnDeleteSchedule" 
+                                <Button Grid.Column="1" Text="X" Clicked="OnDeleteSchedule"
                                         WidthRequest="40" HeightRequest="40"
                                         BackgroundColor="#FFCDD2" TextColor="#D32F2F"/>
                             </Grid>
