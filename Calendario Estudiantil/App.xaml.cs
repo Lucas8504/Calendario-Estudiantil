@@ -1,3 +1,4 @@
+using Calendario_Estudiantil.Configuration;
 using Calendario_Estudiantil.Data;
 using Calendario_Estudiantil.Services;
 using Microsoft.Maui.Controls;
@@ -14,7 +15,10 @@ public partial class App : Application
         InitializeComponent();
 
         // NavigationPage como contenedor principal, SchedulePage como página raíz
-        MainPage = new NavigationPage(new Views.SchedulePage());
+        var navPage = new NavigationPage(new Views.SchedulePage());
+        navPage.BarBackgroundColor = AppConstants.Theme.Accent;
+        navPage.BarTextColor = Colors.White;
+        MainPage = navPage;
     }
 
     protected override void OnStart()
