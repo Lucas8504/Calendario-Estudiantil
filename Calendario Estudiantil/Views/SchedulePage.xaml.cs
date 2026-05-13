@@ -180,12 +180,12 @@ public partial class SchedulePage : ContentPage
 
                 if (cell != null && cell.HasClass && cell.Subject != null)
                 {
-                    // Verificar si esta clase ya fue dibujada (para manejar RowSpan)
-                    if (cell.Schedule != null && drawnSchedules.Contains(cell.Schedule.Id)) continue;
+                    var schedule = cell.Schedule;
+                    if (schedule == null) continue;
+                    if (drawnSchedules.Contains(schedule.Id)) continue;
 
                     var subject = cell.Subject;
-                    var schedule = cell.Schedule;
-                    if (schedule != null) drawnSchedules.Add(schedule.Id);
+                    drawnSchedules.Add(schedule.Id);
 
                     // Calcular RowSpan basado en las marcas de tiempo
                     int rowSpan = 0;

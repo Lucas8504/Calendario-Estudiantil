@@ -24,7 +24,7 @@ public partial class App : Application
         _ = InitializeDatabaseAsync();
     }
 
-    private async Task InitializeDatabaseAsync()
+    private Task InitializeDatabaseAsync()
     {
         try
         {
@@ -40,5 +40,6 @@ public partial class App : Application
         {
             System.Diagnostics.Debug.WriteLine($"Error inicializando BD: {ex.Message}");
         }
+        return Task.CompletedTask;
     }
 }

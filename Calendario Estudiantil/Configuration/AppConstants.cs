@@ -63,6 +63,22 @@ public static class AppConstants
         public static Color AccentLight => Color.FromArgb("#E8F0FE");
     }
 
+    // ========== XAML flat accessors (VS designer no soporta AppConstants+Theme) ==========
+    /// <summary>
+    /// Flat accessor para XAML. Delega a Theme.Accent.
+    /// </summary>
+    public static Color Accent => Theme.Accent;
+
+    /// <summary>
+    /// Flat accessor para XAML. Delega a Theme.AccentDark.
+    /// </summary>
+    public static Color AccentDark => Theme.AccentDark;
+
+    /// <summary>
+    /// Flat accessor para XAML. Delega a Theme.AccentLight.
+    /// </summary>
+    public static Color AccentLight => Theme.AccentLight;
+
     /// <summary>
     /// Colores disponibles para materias.
     /// </summary>
