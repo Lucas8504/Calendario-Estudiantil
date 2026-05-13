@@ -140,28 +140,60 @@ public partial class ScheduleGridViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Carga todos los horarios con una sola query compleja (NO hace N+1).
+    /// Carga horarios filtrando por curso activo si existe.
+    /// Si no hay curso activo o el curso activo no tiene datos, hace fallback
+    /// a la carga completa (comportamiento anterior).
     /// </summary>
     private async Task<List<ScheduleItemHelper>> LoadAllSchedulesOptimizedAsync()
     {
-        // Cargar horarios y materias en queries separadas, luego combinar en memoria
-        var schedules = await _databaseService.GetAllSchedulesAsync();
-        if (!schedules.Any())
-            return new List<ScheduleItemHelper>();
+        async Task<List<ScheduleItemHelper>> LoadAllFallback()
+        {
+            var schedules = await _databaseService.GetAllSchedulesAsync();
+            if (!schedules.Any()) return new List<ScheduleItemHelper>();
 
-        var subjectIds = schedules.Select(s => s.SubjectId).Distinct().ToList();
-        var subjects = await _databaseService.GetSubjectsByIdsAsync(subjectIds);
+            var subjectIds = schedules.Select(s => s.SubjectId).Distinct().ToList();
+            var subjects = await _databaseService.GetSubjectsByIdsAsync(subjectIds);
+            var subjectDict = subjects.ToDictionary(s => s.Id);
+
+            var result = new List<ScheduleItemHelper>();
+            foreach (var schedule in schedules)
+            {
+                if (subjectDict.TryGetValue(schedule.SubjectId, out var subject))
+                    result.Add(new ScheduleItemHelper { Subject = subject, Schedule = schedule });
+            }
+            return result;
+        }
+
+        // 1. Obtener el curso activo
+        var activeCourseId = await _databaseService.GetActiveCourseIdAsync();
+        if (activeCourseId <= 0)
+            return await LoadAllFallback();
+
+        // 2. Cargar materias del curso activo
+        var subjects = await _databaseService.GetSubjectsByCourseAsync(activeCourseId);
+        if (!subjects.Any())
+            return await LoadAllFallback();
 
         var subjectDict = subjects.ToDictionary(s => s.Id);
-        
+        var subjectIds = subjects.Select(s => s.Id).ToList();
+
+        // 3. Cargar horarios SOLO de esas materias
+        var schedulesDict = await _databaseService.GetSchedulesForSubjectsAsync(subjectIds);
+
+        // 4. Combinar en memoria
         var result = new List<ScheduleItemHelper>();
-        foreach (var schedule in schedules)
+        foreach (var (subjectId, scheduleList) in schedulesDict)
         {
-            if (subjectDict.TryGetValue(schedule.SubjectId, out var subject))
+            if (!subjectDict.TryGetValue(subjectId, out var subject)) continue;
+            foreach (var schedule in scheduleList)
             {
                 result.Add(new ScheduleItemHelper { Subject = subject, Schedule = schedule });
             }
         }
+
+        // Si por alguna razón el curso activo no tiene horarios, fallback
+        if (!result.Any())
+            return await LoadAllFallback();
 
         return result;
     }
@@ -189,20 +221,11 @@ public partial class ScheduleGridViewModel : ObservableObject
             marks.Add(TimeSpan.FromHours(h));
         }
 
-        // Agregar inicios y fines de materias (pueden caer en :30)
+        // Agregar inicios y fines de materias (incluye :00, :30, :45, etc.)
         foreach (var s in allSchedules)
         {
             marks.Add(s.Schedule.StartTime);
             marks.Add(s.Schedule.EndTime);
-        }
-
-        // Agregar medias horas SOLO donde hay materias con :30 (NO en todo el rango)
-        foreach (var s in allSchedules)
-        {
-            if (s.Schedule.StartTime.Minutes == 30)
-                marks.Add(TimeSpan.FromHours(s.Schedule.StartTime.Hours) + TimeSpan.FromMinutes(30));
-            if (s.Schedule.EndTime.Minutes == 30)
-                marks.Add(TimeSpan.FromHours(s.Schedule.EndTime.Hours) + TimeSpan.FromMinutes(30));
         }
 
         return marks
@@ -253,6 +276,11 @@ public partial class ScheduleGridViewModel : ObservableObject
         var cells = new ObservableCollection<ScheduleCell>();
         var startedSchedules = new HashSet<(int dayIndex, int scheduleId)>();
 
+        // Pre-agrupar horarios por día para evitar scanear todo allSchedules en cada iteración
+        var schedulesByDay = allSchedules
+            .GroupBy(s => s.Schedule.Day)
+            .ToDictionary(g => g.Key, g => g.ToList());
+
         for (int i = 0; i < timeMarks.Count - 1; i++)
         {
             var startMark = timeMarks[i];
@@ -264,13 +292,14 @@ public partial class ScheduleGridViewModel : ObservableObject
                 var dayIndex = (int)day - 1;
                 var dayDate = CurrentWeekStart.AddDays(dayIndex);
 
-                // Buscar si hay una clase que ocupe este intervalo
-                var matchingSchedule = allSchedules.FirstOrDefault(s => 
-                    s.Schedule.Day == day && 
+                // Buscar solo dentro del día correspondiente (evita scanear horarios de otros días)
+                if (!schedulesByDay.TryGetValue(day, out var daySchedules)) continue;
+
+                var matchingSchedule = daySchedules.FirstOrDefault(s => 
                     s.Schedule.StartTime <= startMark.Time && 
                     s.Schedule.EndTime >= endMark.Time);
 
-                int rowSpan = 1;
+                int rowSpan = 0;
                 if (matchingSchedule != null)
                 {
                     var key = (dayIndex, matchingSchedule.Schedule.Id);
@@ -287,9 +316,9 @@ public partial class ScheduleGridViewModel : ObservableObject
                             else if (timeMarks[j].Time > matchingSchedule.Schedule.StartTime)
                                 break;
                         }
-                        rowSpan = Math.Max(1, rowSpan);
                     }
                 }
+                rowSpan = Math.Max(1, rowSpan);
 
                 cells.Add(new ScheduleCell
                 {
@@ -307,17 +336,6 @@ public partial class ScheduleGridViewModel : ObservableObject
         }
 
         return cells;
-    }
-
-    /// <summary>
-    /// Busca si hay un horario que corresponda a este día y hora.
-    /// </summary>
-    private ScheduleItemHelper? FindMatchingSchedule(List<ScheduleItemHelper> allSchedules, DiaSemana day, int hour)
-    {
-        return allSchedules.FirstOrDefault(s => 
-            s.Schedule.Day == day && 
-            s.Schedule.StartTime < TimeSpan.FromHours(hour + 1) && 
-            s.Schedule.EndTime > TimeSpan.FromHours(hour));
     }
 
     private static string GetDayName(DiaSemana day) => day switch

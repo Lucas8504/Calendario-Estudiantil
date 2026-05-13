@@ -25,6 +25,7 @@ public partial class BottomNavView : ContentView
     public BottomNavView()
     {
         InitializeComponent();
+        UpdateActiveTab(ActiveTab);
     }
 
     private static void OnActiveTabChanged(BindableObject bindable, object oldValue, object newValue)
