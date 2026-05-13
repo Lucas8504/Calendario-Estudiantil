@@ -22,20 +22,9 @@ public partial class SubjectsPage : ContentPage
             .GetRequiredService<ISubjectService>()
             ?? throw new InvalidOperationException("ISubjectService no disponible");
         
-        var courseService = IPlatformApplication.Current?.Services
-            .GetRequiredService<ICourseService>()
-            ?? throw new InvalidOperationException("ICourseService no disponible");
-        
-        _viewModel = new SubjectViewModel(_subjectService, courseService);
+        _viewModel = new SubjectViewModel(_subjectService);
         BindingContext = _viewModel;
         SubjectsList.SetBinding(CollectionView.ItemsSourceProperty, new Binding(nameof(_viewModel.Subjects)));
-    }
-
-    // Constructor con parámetros para navegación programática (mantener compatibilidad)
-    public SubjectsPage(ISubjectService subjectService, ICourseService courseService) : this()
-    {
-        // El constructor sin parámetros ya inicializa todo
-        // Este constructor existe para mantener compatibilidad con código existente
     }
 
     protected override async void OnAppearing()
@@ -43,7 +32,7 @@ public partial class SubjectsPage : ContentPage
         try
         {
             base.OnAppearing();
-            await _viewModel.LoadSubjectsNoCourseAsync();
+            await _viewModel.LoadSubjectsAsync();
         }
         catch (Exception ex)
         {

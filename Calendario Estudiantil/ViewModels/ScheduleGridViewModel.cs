@@ -140,61 +140,25 @@ public partial class ScheduleGridViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Carga horarios filtrando por curso activo si existe.
-    /// Si no hay curso activo o el curso activo no tiene datos, hace fallback
-    /// a la carga completa (comportamiento anterior).
+    /// Carga todos los horarios con 2 queries (NO hace N+1).
+    /// La funcionalidad de "curso activo" no está implementada en la UI,
+    /// así que siempre cargamos todos los horarios.
     /// </summary>
     private async Task<List<ScheduleItemHelper>> LoadAllSchedulesOptimizedAsync()
     {
-        async Task<List<ScheduleItemHelper>> LoadAllFallback()
-        {
-            var schedules = await _databaseService.GetAllSchedulesAsync();
-            if (!schedules.Any()) return new List<ScheduleItemHelper>();
+        var schedules = await _databaseService.GetAllSchedulesAsync();
+        if (!schedules.Any()) return new List<ScheduleItemHelper>();
 
-            var subjectIds = schedules.Select(s => s.SubjectId).Distinct().ToList();
-            var subjects = await _databaseService.GetSubjectsByIdsAsync(subjectIds);
-            var subjectDict = subjects.ToDictionary(s => s.Id);
-
-            var result = new List<ScheduleItemHelper>();
-            foreach (var schedule in schedules)
-            {
-                if (subjectDict.TryGetValue(schedule.SubjectId, out var subject))
-                    result.Add(new ScheduleItemHelper { Subject = subject, Schedule = schedule });
-            }
-            return result;
-        }
-
-        // 1. Obtener el curso activo
-        var activeCourseId = await _databaseService.GetActiveCourseIdAsync();
-        if (activeCourseId <= 0)
-            return await LoadAllFallback();
-
-        // 2. Cargar materias del curso activo
-        var subjects = await _databaseService.GetSubjectsByCourseAsync(activeCourseId);
-        if (!subjects.Any())
-            return await LoadAllFallback();
-
+        var subjectIds = schedules.Select(s => s.SubjectId).Distinct().ToList();
+        var subjects = await _databaseService.GetSubjectsByIdsAsync(subjectIds);
         var subjectDict = subjects.ToDictionary(s => s.Id);
-        var subjectIds = subjects.Select(s => s.Id).ToList();
 
-        // 3. Cargar horarios SOLO de esas materias
-        var schedulesDict = await _databaseService.GetSchedulesForSubjectsAsync(subjectIds);
-
-        // 4. Combinar en memoria
         var result = new List<ScheduleItemHelper>();
-        foreach (var (subjectId, scheduleList) in schedulesDict)
+        foreach (var schedule in schedules)
         {
-            if (!subjectDict.TryGetValue(subjectId, out var subject)) continue;
-            foreach (var schedule in scheduleList)
-            {
+            if (subjectDict.TryGetValue(schedule.SubjectId, out var subject))
                 result.Add(new ScheduleItemHelper { Subject = subject, Schedule = schedule });
-            }
         }
-
-        // Si por alguna razón el curso activo no tiene horarios, fallback
-        if (!result.Any())
-            return await LoadAllFallback();
-
         return result;
     }
 

@@ -10,7 +10,6 @@ namespace Calendario_Estudiantil.ViewModels;
 public partial class SubjectViewModel : ObservableObject
 {
     private readonly Services.ISubjectService _subjectService;
-    private readonly Services.ICourseService _courseService;
 
     [ObservableProperty]
     private ObservableCollection<Subject> _subjects = new();
@@ -21,10 +20,9 @@ public partial class SubjectViewModel : ObservableObject
     [ObservableProperty]
     private bool _isLoading;
 
-    public SubjectViewModel(Services.ISubjectService subjectService, Services.ICourseService courseService)
+    public SubjectViewModel(Services.ISubjectService subjectService)
     {
         _subjectService = subjectService;
-        _courseService = courseService;
     }
 
     public async Task LoadSubjectsAsync()
@@ -32,14 +30,7 @@ public partial class SubjectViewModel : ObservableObject
         IsLoading = true;
         try
         {
-            var active = await _courseService.GetActiveAsync();
-            if (active == null)
-            {
-                Subjects.Clear();
-                return;
-            }
-
-            var list = await _subjectService.GetByCourseAsync(active.Id);
+            var list = await _subjectService.GetAllAsync();
             Subjects = new ObservableCollection<Subject>(list);
         }
         finally
@@ -52,50 +43,14 @@ public partial class SubjectViewModel : ObservableObject
     {
         if (string.IsNullOrWhiteSpace(name)) return;
 
-        var active = await _courseService.GetActiveAsync();
-        if (active == null) return;
-
         var subject = new Subject
         {
-            CourseId = active.Id,
             Name = name.Trim(),
             ColorHex = colorHex
         };
 
         await _subjectService.CreateAsync(subject);
         await LoadSubjectsAsync();
-    }
-
-    /// <summary>
-    /// Crea materia sin carrera (modo simple).
-    /// </summary>
-    public async Task CreateSubjectNoCourseAsync(string name, string colorHex = "#512BD4")
-    {
-        if (string.IsNullOrWhiteSpace(name)) return;
-
-        var subject = new Subject
-        {
-            CourseId = 0, // Sin carrera
-            Name = name.Trim(),
-            ColorHex = colorHex
-        };
-
-        await _subjectService.CreateAsync(subject);
-        await LoadSubjectsNoCourseAsync();
-    }
-
-    public async Task LoadSubjectsNoCourseAsync()
-    {
-        IsLoading = true;
-        try
-        {
-            var list = await _subjectService.GetAllAsync();
-            Subjects = new ObservableCollection<Subject>(list);
-        }
-        finally
-        {
-            IsLoading = false;
-        }
     }
 
     public async Task DeleteSubjectAsync(Subject? subject)

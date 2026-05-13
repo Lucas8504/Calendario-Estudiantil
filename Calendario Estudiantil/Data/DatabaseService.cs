@@ -36,12 +36,10 @@ public class DatabaseService : IDatabaseService
     {
         try
         {
-            database.CreateTableAsync<Course>().Wait();
             database.CreateTableAsync<Subject>().Wait();
             database.CreateTableAsync<Schedule>().Wait();
             database.CreateTableAsync<TaskItem>().Wait();
             database.CreateTableAsync<Subtask>().Wait();
-            database.CreateTableAsync<PreferenceRow>().Wait();
         }
         catch (Exception ex)
         {
@@ -54,30 +52,10 @@ public class DatabaseService : IDatabaseService
     /// </summary>
     public SQLiteAsyncConnection Database => _database.Value;
 
-    // ==================== Course ====================
-
-    public async Task<List<Course>> GetAllCoursesAsync()
-        => await Database.Table<Course>().ToListAsync();
-
-    public async Task<Course> GetCourseByIdAsync(int id)
-        => await Database.Table<Course>().Where(c => c.Id == id).FirstOrDefaultAsync()!;
-
-    public Task<int> InsertCourseAsync(Course course)
-        => Database.InsertAsync(course);
-
-    public Task<int> UpdateCourseAsync(Course course)
-        => Database.UpdateAsync(course);
-
-    public Task<int> DeleteCourseAsync(Course course)
-        => Database.DeleteAsync(course);
-
     // ==================== Subject ====================
 
     public async Task<List<Subject>> GetAllSubjectsAsync()
         => await Database.Table<Subject>().ToListAsync();
-
-    public async Task<List<Subject>> GetSubjectsByCourseAsync(int courseId)
-        => await Database.Table<Subject>().Where(s => s.CourseId == courseId).ToListAsync();
 
     public async Task<List<Subject>> GetSubjectsByIdsAsync(IEnumerable<int> ids)
     {
@@ -100,9 +78,6 @@ public class DatabaseService : IDatabaseService
 
     public Task<int> DeleteSubjectAsync(Subject subject)
         => Database.DeleteAsync(subject);
-
-    public Task<int> DeleteSubjectsByCourseAsync(int courseId)
-        => Database.Table<Subject>().Where(s => s.CourseId == courseId).DeleteAsync();
 
     // ==================== Schedule ====================
 
@@ -228,45 +203,4 @@ public class DatabaseService : IDatabaseService
 
     public Task<int> DeleteSubtasksByTaskAsync(int taskItemId)
         => Database.Table<Subtask>().Where(s => s.TaskItemId == taskItemId).DeleteAsync();
-
-    // ==================== Preferencias (SQLite) ====================
-
-    private int _activeCourseId = -2; // -2 = no leído aún
-
-    public async Task<int> GetActiveCourseIdAsync()
-    {
-        if (_activeCourseId != -2) return _activeCourseId;
-
-        var rows = await Database.Table<PreferenceRow>().ToListAsync();
-        var pref = rows.FirstOrDefault(p => p.Key == "ActiveCourseId");
-        _activeCourseId = pref != null && int.TryParse(pref.Value, out var id) ? id : -1;
-        return _activeCourseId;
-    }
-
-    public async Task SetActiveCourseIdAsync(int courseId)
-    {
-        _activeCourseId = courseId;
-        var rows = await Database.Table<PreferenceRow>().Where(p => p.Key == "ActiveCourseId").ToListAsync();
-
-        if (rows.Any())
-        {
-            var row = rows.First();
-            row.Value = courseId.ToString();
-            await Database.UpdateAsync(row);
-        }
-        else
-        {
-            await Database.InsertAsync(new PreferenceRow { Key = "ActiveCourseId", Value = courseId.ToString() });
-        }
-    }
-
-    /// <summary>
-    /// Fila genérica para preferencias (clave-valor simple).
-    /// </summary>
-    private class PreferenceRow
-    {
-        [PrimaryKey]
-        public string Key { get; set; } = string.Empty;
-        public string Value { get; set; } = string.Empty;
-    }
 }

@@ -18,9 +18,6 @@ public class SubjectService : ISubjectService
     public Task<List<Subject>> GetAllAsync()
         => _databaseService.GetAllSubjectsAsync();
 
-    public Task<List<Subject>> GetByCourseAsync(int courseId)
-        => _databaseService.GetSubjectsByCourseAsync(courseId);
-
     public Task<Subject> GetByIdAsync(int id)
         => _databaseService.GetSubjectByIdAsync(id);
 

@@ -16,22 +16,13 @@ public interface IDatabaseService
     /// </summary>
     SQLiteAsyncConnection Database { get; }
 
-    // ==================== Course ====================
-    Task<List<Course>> GetAllCoursesAsync();
-    Task<Course> GetCourseByIdAsync(int id);
-    Task<int> InsertCourseAsync(Course course);
-    Task<int> UpdateCourseAsync(Course course);
-    Task<int> DeleteCourseAsync(Course course);
-
     // ==================== Subject ====================
     Task<List<Subject>> GetAllSubjectsAsync();
-    Task<List<Subject>> GetSubjectsByCourseAsync(int courseId);
     Task<List<Subject>> GetSubjectsByIdsAsync(IEnumerable<int> ids);
     Task<Subject> GetSubjectByIdAsync(int id);
     Task<int> InsertSubjectAsync(Subject subject);
     Task<int> UpdateSubjectAsync(Subject subject);
     Task<int> DeleteSubjectAsync(Subject subject);
-    Task<int> DeleteSubjectsByCourseAsync(int courseId);
 
     // ==================== Schedule ====================
     Task<List<Schedule>> GetAllSchedulesAsync();
@@ -62,7 +53,4 @@ public interface IDatabaseService
     Task<int> DeleteSubtasksByTaskAsync(int taskItemId);
     Task<Dictionary<int, List<Subtask>>> GetSubtasksForTasksAsync(IEnumerable<int> taskIds);
 
-    // ==================== Preferencias ====================
-    Task<int> GetActiveCourseIdAsync();
-    Task SetActiveCourseIdAsync(int courseId);
 }

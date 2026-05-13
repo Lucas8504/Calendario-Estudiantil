@@ -30,7 +30,6 @@ namespace Calendario_Estudiantil
             
             // Servicios de negocio (Singleton para mantener estado)
             builder.Services.AddSingleton<INotificationService, NotificationService>();
-            builder.Services.AddSingleton<ICourseService, CourseService>();
             builder.Services.AddSingleton<ISubjectService, SubjectService>();
             builder.Services.AddSingleton<ITaskService, TaskService>();
 

@@ -258,8 +258,7 @@ public partial class NewSchedulePage : ContentPage
             var newSubject = new Subject
             {
                 Name = newName,
-                ColorHex = _subjectColor,
-                CourseId = 0
+                ColorHex = _subjectColor
             };
             await _subjectService.CreateAsync(newSubject);
             subjectId = newSubject.Id; // <-- sqlite-net setea Id en el objeto, NO en el return value

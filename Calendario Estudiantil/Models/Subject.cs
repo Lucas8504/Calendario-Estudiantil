@@ -10,8 +10,6 @@ public class Subject
     [PrimaryKey, AutoIncrement]
     public int Id { get; set; }
 
-    public int CourseId { get; set; }
-
     [NotNull]
     public string Name { get; set; } = string.Empty;
 
