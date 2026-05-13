@@ -17,9 +17,9 @@ public static class AppConstants
         public const int MinHour = 7;
 
         /// <summary>
-        /// Hora máxima del día (22 = 10:00 PM).
+        /// Hora máxima del día (23 = 11:00 PM).
         /// </summary>
-        public const int MaxHour = 22;
+        public const int MaxHour = 23;
 
         /// <summary>
         /// Cantidad total de horas mostradas.

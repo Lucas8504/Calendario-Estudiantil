@@ -168,35 +168,45 @@ public partial class ScheduleGridViewModel : ObservableObject
 
     /// <summary>
     /// Calcula las marcas de tiempo para la columna "regla".
-    /// Incluye horas de inicio, fin y horas enteras intermedias para legibilidad.
+    /// Usa el rango configurado (MinHour..MaxHour) como base y agrega horas
+    /// de inicio/fin de materias. Así la grilla siempre muestra el rango completo.
     /// </summary>
     private List<TimeMark> CalculateTimeMarks(List<ScheduleItemHelper> allSchedules)
     {
         var marks = new HashSet<TimeSpan>();
 
-        // Agregar inicios y fines
+        // Rango fijo desde configuración (ej: 7:00..23:00)
+        var rangeMin = TimeSpan.FromHours(AppConstants.ScheduleGrid.MinHour);
+        var rangeMax = TimeSpan.FromHours(AppConstants.ScheduleGrid.MaxHour);
+
+        // Agregar los bordes del rango configurado
+        marks.Add(rangeMin);
+        marks.Add(rangeMax);
+
+        // Agregar horas enteras del rango completo
+        for (int h = AppConstants.ScheduleGrid.MinHour; h <= AppConstants.ScheduleGrid.MaxHour; h++)
+        {
+            marks.Add(TimeSpan.FromHours(h));
+        }
+
+        // Agregar inicios y fines de materias (pueden caer en :30)
         foreach (var s in allSchedules)
         {
             marks.Add(s.Schedule.StartTime);
             marks.Add(s.Schedule.EndTime);
         }
 
-        // Agregar horas enteras intermedias para que la regla sea legible
-        var min = marks.Min();
-        var max = marks.Max();
-
-        for (int h = min.Hours; h <= max.Hours; h++)
+        // Si alguna materia usa :30, agregar medias horas en todo el rango
+        if (allSchedules.Any(s => s.Schedule.StartTime.Minutes == 30 || s.Schedule.EndTime.Minutes == 30))
         {
-            marks.Add(TimeSpan.FromHours(h));
-            // Opcional: agregar medias horas si hay clases que terminan ahí
-            if (allSchedules.Any(s => s.Schedule.StartTime.Minutes == 30 || s.Schedule.EndTime.Minutes == 30))
+            for (int h = AppConstants.ScheduleGrid.MinHour; h <= AppConstants.ScheduleGrid.MaxHour; h++)
             {
-                 marks.Add(TimeSpan.FromHours(h) + TimeSpan.FromMinutes(30));
+                marks.Add(TimeSpan.FromHours(h) + TimeSpan.FromMinutes(30));
             }
         }
 
         return marks
-            .Where(t => t >= min && t <= max)
+            .Where(t => t >= rangeMin && t <= rangeMax)
             .Distinct()
             .OrderBy(t => t)
             .Select(t => new TimeMark 
