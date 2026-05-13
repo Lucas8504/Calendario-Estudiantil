@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:config="clr-namespace:Calendario_Estudiantil.Configuration"
+             xmlns:controls="clr-namespace:Calendario_Estudiantil.Controls"
              x:Class="Calendario_Estudiantil.Views.SchedulePage"
              Title="Calendario"
              Padding="0">
@@ -50,36 +51,7 @@
             </ScrollView>
         </ScrollView>
 
-        <!-- Barra de navegación inferior -->
-        <Frame Grid.Row="2" Margin="5,0,5,5" Padding="0" CornerRadius="12"
-               BackgroundColor="{x:Static config:AppConstants.AccentLight}"
-               BorderColor="Transparent" HasShadow="False">
-            <Grid ColumnSpacing="0" HeightRequest="48">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Text="📅 Calendario"
-                        Clicked="OnNavigateSchedule"
-                        BackgroundColor="Transparent"
-                        TextColor="{x:Static config:AppConstants.Accent}"
-                        FontSize="12" FontAttributes="Bold"
-                        CornerRadius="0" HeightRequest="48"/>
-                <BoxView Grid.Column="0" VerticalOptions="End"
-                         HeightRequest="3" Margin="15,0"
-                         BackgroundColor="{x:Static config:AppConstants.Accent}"/>
-                <Button Grid.Column="1" Text="📋 Tareas"
-                        Clicked="OnNavigateTasks"
-                        BackgroundColor="Transparent"
-                        TextColor="#666666" FontSize="12"
-                        CornerRadius="0" HeightRequest="48"/>
-                <Button Grid.Column="2" Text="📚 Materias"
-                        Clicked="OnNavigateSubjects"
-                        BackgroundColor="Transparent"
-                        TextColor="#666666" FontSize="12"
-                        CornerRadius="0" HeightRequest="48"/>
-            </Grid>
-        </Frame>
+        <!-- Barra de navegación inferior reutilizable -->
+        <controls:BottomNavView Grid.Row="2" ActiveTab="Schedule"/>
     </Grid>
 </ContentPage>

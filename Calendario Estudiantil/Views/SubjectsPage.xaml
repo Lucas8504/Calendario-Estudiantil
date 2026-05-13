@@ -1,43 +1,56 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:Calendario_Estudiantil.Controls"
              x:Class="Calendario_Estudiantil.Views.SubjectsPage"
-             Title="Materias">
+             Title="Materias"
+             Padding="0">
 
-    <Grid Margin="10">
+    <Grid RowSpacing="0" ColumnSpacing="0">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <ScrollView Grid.Row="0">
-            <CollectionView x:Name="SubjectsList" EmptyView="Sin materias. Seleccioná una carrera.">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Frame Margin="0,4" Padding="10" BackgroundColor="#F5F5F5">
-                            <Frame.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnSubjectTapped"/>
-                            </Frame.GestureRecognizers>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="10"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <!-- Indicador de color -->
-                                <BoxView Grid.Column="0" WidthRequest="6" Margin="0,0,8,0"
-                                        BackgroundColor="{Binding ColorHex}" CornerRadius="3"/>
-                                <StackLayout Grid.Column="1">
-                                    <Label Text="{Binding Name}" FontSize="Medium"/>
-                                    <Label Text="Tocá para agregar horarios" FontSize="Small" TextColor="Gray"/>
-                                </StackLayout>
-                            </Grid>
-                        </Frame>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </ScrollView>
+        <!-- Contenido principal -->
+        <Grid Grid.Row="0" Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <Button Grid.Row="1" Text="+ Agregar Materia" Clicked="OnAddSubject" Margin="0,10,0,0"/>
+            <ScrollView Grid.Row="0">
+                <CollectionView x:Name="SubjectsList" EmptyView="Sin materias. Seleccioná una carrera.">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame Margin="0,4" Padding="10" BackgroundColor="#F5F5F5">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnSubjectTapped"/>
+                                </Frame.GestureRecognizers>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <!-- Indicador de color -->
+                                    <BoxView Grid.Column="0" WidthRequest="6" Margin="0,0,8,0"
+                                            BackgroundColor="{Binding ColorHex}" CornerRadius="3"/>
+                                    <StackLayout Grid.Column="1">
+                                        <Label Text="{Binding Name}" FontSize="Medium"/>
+                                        <Label Text="Tocá para agregar horarios" FontSize="Small" TextColor="Gray"/>
+                                    </StackLayout>
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </ScrollView>
+
+            <Button Grid.Row="1" Text="+ Agregar Materia" Clicked="OnAddSubject" Margin="0,10,0,0"/>
+        </Grid>
+
+        <!-- Barra de navegación inferior -->
+        <controls:BottomNavView Grid.Row="1" ActiveTab="Subjects"/>
     </Grid>
 
 </ContentPage>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:config="clr-namespace:Calendario_Estudiantil.Configuration"
+             x:Class="Calendario_Estudiantil.Controls.BottomNavView"
+             x:Name="NavView">
+
+    <Frame Margin="5,0,5,5" Padding="0" CornerRadius="12"
+           BackgroundColor="{x:Static config:AppConstants.AccentLight}"
+           BorderColor="Transparent" HasShadow="False">
+        <Grid ColumnSpacing="0" HeightRequest="48">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Calendario -->
+            <Grid Grid.Column="0">
+                <Button x:Name="ScheduleBtn" Text="📅 Calendario"
+                        Clicked="OnScheduleClicked"
+                        BackgroundColor="Transparent"
+                        FontSize="12"
+                        CornerRadius="0" HeightRequest="48"/>
+                <BoxView x:Name="ScheduleIndicator" VerticalOptions="End"
+                         HeightRequest="3" Margin="15,0"
+                         BackgroundColor="{x:Static config:AppConstants.Accent}"
+                         IsVisible="False"/>
+            </Grid>
+
+            <!-- Tareas -->
+            <Grid Grid.Column="1">
+                <Button x:Name="TasksBtn" Text="📋 Tareas"
+                        Clicked="OnTasksClicked"
+                        BackgroundColor="Transparent"
+                        FontSize="12"
+                        CornerRadius="0" HeightRequest="48"/>
+                <BoxView x:Name="TasksIndicator" VerticalOptions="End"
+                         HeightRequest="3" Margin="15,0"
+                         BackgroundColor="{x:Static config:AppConstants.Accent}"
+                         IsVisible="False"/>
+            </Grid>
+
+            <!-- Materias -->
+            <Grid Grid.Column="2">
+                <Button x:Name="SubjectsBtn" Text="📚 Materias"
+                        Clicked="OnSubjectsClicked"
+                        BackgroundColor="Transparent"
+                        FontSize="12"
+                        CornerRadius="0" HeightRequest="48"/>
+                <BoxView x:Name="SubjectsIndicator" VerticalOptions="End"
+                         HeightRequest="3" Margin="15,0"
+                         BackgroundColor="{x:Static config:AppConstants.Accent}"
+                         IsVisible="False"/>
+            </Grid>
+        </Grid>
+    </Frame>
+</ContentView>
