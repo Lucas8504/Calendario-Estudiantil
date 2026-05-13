@@ -105,10 +105,10 @@ public partial class SchedulePage : ContentPage
         {
             var hLine = new BoxView
             {
-                BackgroundColor = Color.FromArgb("#CCCCCC"),
-                HeightRequest = 1,
-                VerticalOptions = LayoutOptions.Start
-            };
+            BackgroundColor = Color.FromArgb("#E0E0E0"),
+            HeightRequest = 1,
+            VerticalOptions = LayoutOptions.Start
+        };
             grid.Children.Add(hLine);
             Grid.SetRow(hLine, i);
             Grid.SetColumn(hLine, 2);
@@ -118,7 +118,7 @@ public partial class SchedulePage : ContentPage
         // Línea horizontal del borde inferior de la última fila de datos
         var bottomHLine = new BoxView
         {
-            BackgroundColor = Color.FromArgb("#CCCCCC"),
+            BackgroundColor = Color.FromArgb("#E0E0E0"),
             HeightRequest = 1,
             VerticalOptions = LayoutOptions.End
         };
@@ -132,7 +132,7 @@ public partial class SchedulePage : ContentPage
         {
             var vLine = new BoxView
             {
-                BackgroundColor = Color.FromArgb("#CCCCCC"),
+                BackgroundColor = Color.FromArgb("#E0E0E0"),
                 WidthRequest = 1,
                 VerticalOptions = LayoutOptions.Fill,
                 HorizontalOptions = LayoutOptions.Start
@@ -146,7 +146,7 @@ public partial class SchedulePage : ContentPage
         // Borde vertical derecho de la última columna de día
         var rightVLine = new BoxView
         {
-            BackgroundColor = Color.FromArgb("#CCCCCC"),
+            BackgroundColor = Color.FromArgb("#E0E0E0"),
             WidthRequest = 1,
             VerticalOptions = LayoutOptions.Fill,
             HorizontalOptions = LayoutOptions.End
@@ -157,7 +157,7 @@ public partial class SchedulePage : ContentPage
         Grid.SetRowSpan(rightVLine, timeMarks.Count);
 
         // Divisor vertical único (col 1) entre hora y días — reemplaza los per-row + topDiv
-        var divider = new BoxView { BackgroundColor = Color.FromArgb("#CCCCCC") };
+        var divider = new BoxView { BackgroundColor = Color.FromArgb("#E0E0E0") };
         grid.Children.Add(divider);
         Grid.SetRow(divider, 0);
         Grid.SetColumn(divider, 1);
