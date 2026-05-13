@@ -196,13 +196,13 @@ public partial class ScheduleGridViewModel : ObservableObject
             marks.Add(s.Schedule.EndTime);
         }
 
-        // Si alguna materia usa :30, agregar medias horas en todo el rango
-        if (allSchedules.Any(s => s.Schedule.StartTime.Minutes == 30 || s.Schedule.EndTime.Minutes == 30))
+        // Agregar medias horas SOLO donde hay materias con :30 (NO en todo el rango)
+        foreach (var s in allSchedules)
         {
-            for (int h = AppConstants.ScheduleGrid.MinHour; h <= AppConstants.ScheduleGrid.MaxHour; h++)
-            {
-                marks.Add(TimeSpan.FromHours(h) + TimeSpan.FromMinutes(30));
-            }
+            if (s.Schedule.StartTime.Minutes == 30)
+                marks.Add(TimeSpan.FromHours(s.Schedule.StartTime.Hours) + TimeSpan.FromMinutes(30));
+            if (s.Schedule.EndTime.Minutes == 30)
+                marks.Add(TimeSpan.FromHours(s.Schedule.EndTime.Hours) + TimeSpan.FromMinutes(30));
         }
 
         return marks
@@ -243,8 +243,7 @@ public partial class ScheduleGridViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Crea las celdas del grid de horarios.
-    /// Ahora usa TimeMarks para determinar las filas.
+    /// Crea las celdas del grid de horarios con RowSpan pre-calculado.
     /// </summary>
     private ObservableCollection<ScheduleCell> CreateScheduleCells(
         List<ScheduleItemHelper> allSchedules, 
@@ -252,8 +251,8 @@ public partial class ScheduleGridViewModel : ObservableObject
         List<TimeMark> timeMarks)
     {
         var cells = new ObservableCollection<ScheduleCell>();
+        var startedSchedules = new HashSet<(int dayIndex, int scheduleId)>();
 
-        // Crear celdas para cada intervalo entre marcas de tiempo
         for (int i = 0; i < timeMarks.Count - 1; i++)
         {
             var startMark = timeMarks[i];
@@ -271,10 +270,27 @@ public partial class ScheduleGridViewModel : ObservableObject
                     s.Schedule.StartTime <= startMark.Time && 
                     s.Schedule.EndTime >= endMark.Time);
 
-                // Solo agregamos la celda si es el inicio de la clase o si es una celda vacía
-                // Para evitar duplicados visuales, manejamos la lógica en el UI o aquí.
-                // Simplificación: agregamos todas las celdas y el UI decide cómo pintar.
-                
+                int rowSpan = 1;
+                if (matchingSchedule != null)
+                {
+                    var key = (dayIndex, matchingSchedule.Schedule.Id);
+                    if (!startedSchedules.Contains(key))
+                    {
+                        startedSchedules.Add(key);
+
+                        // Pre-calcular RowSpan: cuántos intervalos cubre desde i
+                        for (int j = i; j < timeMarks.Count - 1; j++)
+                        {
+                            if (timeMarks[j].Time >= matchingSchedule.Schedule.StartTime &&
+                                timeMarks[j + 1].Time <= matchingSchedule.Schedule.EndTime)
+                                rowSpan++;
+                            else if (timeMarks[j].Time > matchingSchedule.Schedule.StartTime)
+                                break;
+                        }
+                        rowSpan = Math.Max(1, rowSpan);
+                    }
+                }
+
                 cells.Add(new ScheduleCell
                 {
                     Hour = hour,
@@ -284,7 +300,8 @@ public partial class ScheduleGridViewModel : ObservableObject
                     Subject = matchingSchedule?.Subject,
                     Schedule = matchingSchedule?.Schedule,
                     StartTime = startMark.Time,
-                    EndTime = endMark.Time
+                    EndTime = endMark.Time,
+                    RowSpan = rowSpan
                 });
             }
         }

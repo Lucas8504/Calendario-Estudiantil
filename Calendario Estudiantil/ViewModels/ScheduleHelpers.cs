@@ -41,6 +41,12 @@ public class ScheduleCell
     
     public string ColorHex => Subject?.ColorHex ?? "#FAFAFA";
     public string HourDisplay => $"{Hour:00}:00";
+
+    /// <summary>
+    /// Pre-calculado por CreateScheduleCells. Indica cuántas filas
+    /// del grid ocupa esta celda (para materias multi-hora).
+    /// </summary>
+    public int RowSpan { get; set; } = 1;
 }
 
 /// <summary>

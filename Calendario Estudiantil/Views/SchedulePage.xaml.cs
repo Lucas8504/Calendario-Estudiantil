@@ -187,28 +187,8 @@ public partial class SchedulePage : ContentPage
                     var subject = cell.Subject;
                     drawnSchedules.Add(schedule.Id);
 
-                    // Calcular RowSpan basado en las marcas de tiempo
-                    int rowSpan = 0;
-                    
-                    for (int j = i; j < timeMarks.Count - 1; j++)
-                    {
-                        var markStart = timeMarks[j].Time;
-                        var markEnd = timeMarks[j + 1].Time;
-                        
-                        bool startsAfter = markStart >= schedule.StartTime;
-                        bool endsBefore = markEnd <= schedule.EndTime;
-
-                        if (startsAfter && endsBefore)
-                        {
-                            rowSpan++;
-                        }
-                        else if (markStart > schedule.StartTime) 
-                        {
-                            break; 
-                        }
-                    }
-                    
-                    if (rowSpan == 0) rowSpan = 1;
+                    // Usar RowSpan pre-calculado por el ViewModel
+                    int rowSpan = cell.RowSpan;
 
                     // NO usamos HeightRequest fijo - dejamos que el Grid maneje la altura con RowSpan
                     var cel = new Label {
