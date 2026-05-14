@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Calendario_Estudiantil.Helpers;
 using Calendario_Estudiantil.Models;
 using Calendario_Estudiantil.Services;
 using CommunityToolkit.Maui.Views;
@@ -14,30 +15,6 @@ public partial class NewSchedulePage : ContentPage
     private readonly bool _isNewSubject;
     private string? _selectedDay;
     private string _subjectColor;
-
-    // Mapeo de días string a enum
-    private static readonly Dictionary<string, DiaSemana> DiaMap = new()
-    {
-        ["Lunes"] = DiaSemana.Lunes,
-        ["Martes"] = DiaSemana.Martes,
-        ["Miércoles"] = DiaSemana.Miércoles,
-        ["Jueves"] = DiaSemana.Jueves,
-        ["Viernes"] = DiaSemana.Viernes,
-        ["Sábado"] = DiaSemana.Sábado,
-        ["Domingo"] = DiaSemana.Domingo
-    };
-
-    // Mapeo inverso: enum a string
-    private static readonly Dictionary<DiaSemana, string> ReverseDiaMap = new()
-    {
-        [DiaSemana.Lunes] = "Lunes",
-        [DiaSemana.Martes] = "Martes",
-        [DiaSemana.Miércoles] = "Miércoles",
-        [DiaSemana.Jueves] = "Jueves",
-        [DiaSemana.Viernes] = "Viernes",
-        [DiaSemana.Sábado] = "Sábado",
-        [DiaSemana.Domingo] = "Domingo"
-    };
 
     /// <summary>
     /// Constructor para crear un nuevo horario (materia ya existente).
@@ -72,7 +49,7 @@ public partial class NewSchedulePage : ContentPage
         _scheduleToEdit = schedule;
         _isNewSubject = false;
         _subjectColor = subject.ColorHex;
-        _selectedDay = ReverseDiaMap[schedule.Day];
+        _selectedDay = DayHelper.ReverseDiaMap[schedule.Day];
 
         // Cargar datos de la materia
         SubjectNameEntry.Text = subject.Name;
@@ -124,8 +101,6 @@ public partial class NewSchedulePage : ContentPage
     private void InitializeDayButtons()
     {
         DayGrid.Children.Clear();
-        var days = new List<string> { "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom" };
-        var fullDays = new List<string> { "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo" };
 
         // Si no hay día seleccionado y es modo creación, seleccionar Lunes por defecto
         if (_selectedDay == null && _scheduleToEdit == null)
@@ -135,8 +110,8 @@ public partial class NewSchedulePage : ContentPage
 
         for (int i = 0; i < 7; i++)
         {
-            var dayName = days[i];
-            var fullDay = fullDays[i];
+            var dayName = DayHelper.ShortNames[i];
+            var fullDay = DayHelper.FullNames[i];
             var isSelected = _selectedDay == fullDay;
 
             var btn = new Button
@@ -157,13 +132,13 @@ public partial class NewSchedulePage : ContentPage
 
             // Capturar variable para closure
             var currentFullDay = fullDay;
-            btn.Clicked += (s, e) => SelectDay(btn, currentFullDay, days);
+            btn.Clicked += (s, e) => SelectDay(btn, currentFullDay);
 
             DayGrid.Children.Add(btn);
         }
     }
 
-    private void SelectDay(Button selectedBtn, string dayName, List<string> allDays)
+    private void SelectDay(Button selectedBtn, string dayName)
     {
         _selectedDay = dayName;
 
@@ -198,15 +173,7 @@ public partial class NewSchedulePage : ContentPage
 
     private void UpdateSelectedDayColor()
     {
-        // Mapear día completo a abreviatura de 3 letras
-        var fullToShort = new Dictionary<string, string>
-        {
-            ["Lunes"] = "Lun", ["Martes"] = "Mar", ["Miércoles"] = "Mié",
-            ["Jueves"] = "Jue", ["Viernes"] = "Vie", ["Sábado"] = "Sáb",
-            ["Domingo"] = "Dom"
-        };
-
-        if (_selectedDay == null || !fullToShort.TryGetValue(_selectedDay, out var shortName))
+        if (_selectedDay == null || !DayHelper.FullToShortMap.TryGetValue(_selectedDay, out var shortName))
             return;
 
         foreach (var child in DayGrid.Children)
@@ -235,7 +202,7 @@ public partial class NewSchedulePage : ContentPage
         }
 
         // 2. Validar día
-        if (string.IsNullOrEmpty(_selectedDay) || !DiaMap.ContainsKey(_selectedDay))
+        if (string.IsNullOrEmpty(_selectedDay) || !DayHelper.DiaMap.ContainsKey(_selectedDay))
         {
             await DisplayAlert("Error", "Seleccione un día.", "OK");
             return;
@@ -280,7 +247,7 @@ public partial class NewSchedulePage : ContentPage
 
         // 5. Crear o actualizar el Schedule
         var schedule = _scheduleToEdit ?? new Schedule { SubjectId = subjectId };
-        schedule.Day = DiaMap[_selectedDay!];
+        schedule.Day = DayHelper.DiaMap[_selectedDay!];
         schedule.StartTime = startTime;
         schedule.EndTime = endTime;
 

@@ -3,15 +3,6 @@ using Calendario_Estudiantil.Models;
 namespace Calendario_Estudiantil.ViewModels;
 
 /// <summary>
-/// Helper para mostrar horarios en el grid (usado por SchedulePage y SubjectSchedulesPage).
-/// </summary>
-public class ScheduleDisplay
-{
-    public Subject Subject { get; set; } = null!;
-    public Schedule Schedule { get; set; } = null!;
-}
-
-/// <summary>
 /// Representa una columna (día) de la semana en el grid.
 /// </summary>
 public class DayHeader

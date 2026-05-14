@@ -1,3 +1,4 @@
+using Calendario_Estudiantil.Helpers;
 using Calendario_Estudiantil.Models;
 using Calendario_Estudiantil.Services;
 using CommunityToolkit.Maui.Views;
@@ -23,7 +24,7 @@ public partial class SubjectPopup : Popup
 
         // Cargar datos en UI
         TitleLabel.Text = subject.Name;
-        DayLabel.Text = $"Día: {GetDayName(schedule.Day)}";
+        DayLabel.Text = $"Día: {DayHelper.GetDayName(schedule.Day)}";
         TimeLabel.Text = $"Hora: {schedule.StartTime:hh\\:mm} - {schedule.EndTime:hh\\:mm}";
 
         // Cargar tareas de la materia
@@ -43,18 +44,6 @@ public partial class SubjectPopup : Popup
         Application.Current?.MainPage?.Navigation.PushAsync(
             new NewSchedulePage(_subject, _schedule, _subjectService));
     }
-
-    private string GetDayName(DiaSemana day) => day switch
-    {
-        DiaSemana.Lunes => "Lunes",
-        DiaSemana.Martes => "Martes",
-        DiaSemana.Miércoles => "Miércoles",
-        DiaSemana.Jueves => "Jueves",
-        DiaSemana.Viernes => "Viernes",
-        DiaSemana.Sábado => "Sábado",
-        DiaSemana.Domingo => "Domingo",
-        _ => ""
-    };
 
     private void OnAddTask(object sender, EventArgs e)
     {

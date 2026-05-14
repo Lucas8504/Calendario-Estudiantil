@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using Calendario_Estudiantil.Configuration;
 using Calendario_Estudiantil.Data;
+using Calendario_Estudiantil.Helpers;
 using Calendario_Estudiantil.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -220,7 +221,7 @@ public partial class ScheduleGridViewModel : ObservableObject
             headers.Add(new DayHeader
             {
                 DayIndex = dayIndex,
-                DayName = GetDayName(day),
+                DayName = DayHelper.GetDayShortName(day),
                 DayNumber = date.Day,
                 IsToday = date.Date == DateTime.Today
             });
@@ -288,7 +289,7 @@ public partial class ScheduleGridViewModel : ObservableObject
                 {
                     Hour = hour,
                     DayIndex = dayIndex,
-                    DayName = GetDayName(day),
+                    DayName = DayHelper.GetDayShortName(day),
                     Date = dayDate,
                     Subject = matchingSchedule?.Subject,
                     Schedule = matchingSchedule?.Schedule,
@@ -301,18 +302,6 @@ public partial class ScheduleGridViewModel : ObservableObject
 
         return cells;
     }
-
-    private static string GetDayName(DiaSemana day) => day switch
-    {
-        DiaSemana.Lunes => "Lun",
-        DiaSemana.Martes => "Mar",
-        DiaSemana.Miércoles => "Mié",
-        DiaSemana.Jueves => "Jue",
-        DiaSemana.Viernes => "Vie",
-        DiaSemana.Sábado => "Sáb",
-        DiaSemana.Domingo => "Dom",
-        _ => string.Empty
-    };
 
     [RelayCommand]
     public async Task PreviousWeekAsync()

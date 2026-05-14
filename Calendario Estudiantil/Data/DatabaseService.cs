@@ -13,7 +13,8 @@ public class DatabaseService : IDatabaseService
     private readonly Lazy<SQLiteAsyncConnection> _database;
 
     /// <summary>
-    /// Constructor: inicializa la conexión de forma lazy (se crea solo cuando se usa).
+    /// Constructor: crea la conexión lazy y dispara la creación de tablas async.
+    /// sqlite-net CreateTableAsync es idempotente (IF NOT EXISTS).
     /// </summary>
     public DatabaseService()
     {
@@ -21,25 +22,24 @@ public class DatabaseService : IDatabaseService
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "calendario.db3");
 
-        _database = new Lazy<SQLiteAsyncConnection>(() =>
-        {
-            var database = new SQLiteAsyncConnection(dbPath);
-            InitializeDatabase(database);
-            return database;
-        });
+        _database = new Lazy<SQLiteAsyncConnection>(() => new SQLiteAsyncConnection(dbPath));
+
+        // Disparar creación de tablas en segundo plano (sin bloqueo)
+        _ = InitializeTablesAsync();
     }
 
     /// <summary>
-    /// Inicializa las tablas de la base de datos.
+    /// Crea las tablas si no existen. Idempotente.
     /// </summary>
-    private void InitializeDatabase(SQLiteAsyncConnection database)
+    private async Task InitializeTablesAsync()
     {
         try
         {
-            database.CreateTableAsync<Subject>().Wait();
-            database.CreateTableAsync<Schedule>().Wait();
-            database.CreateTableAsync<TaskItem>().Wait();
-            database.CreateTableAsync<Subtask>().Wait();
+            var db = _database.Value;
+            await db.CreateTableAsync<Subject>();
+            await db.CreateTableAsync<Schedule>();
+            await db.CreateTableAsync<TaskItem>();
+            await db.CreateTableAsync<Subtask>();
         }
         catch (Exception ex)
         {

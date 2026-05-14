@@ -1,3 +1,4 @@
+using Calendario_Estudiantil.Helpers;
 using Calendario_Estudiantil.Models;
 using Calendario_Estudiantil.Services;
 
@@ -77,7 +78,7 @@ public partial class NewTaskPage : ContentPage
         for (int i = 0; i < 7; i++)
         {
             var checkDate = today.AddDays(i);
-            var dayOfWeek = GetDiaSemana(checkDate.DayOfWeek);
+            var dayOfWeek = DayHelper.FromDayOfWeek(checkDate.DayOfWeek);
             
             var matchingSchedules = schedules
                 .Where(s => s.Day == dayOfWeek)
@@ -102,7 +103,7 @@ public partial class NewTaskPage : ContentPage
                 DueTimePicker.Time = nextSchedule.StartTime;
 
                 await DisplayAlert("Asignado", 
-                    $"La tarea vence el {nextDateTime:dd/MM/yyyy} a las {nextSchedule.StartTime:hh\\:mm}\n({GetDayName(nextSchedule.Day)})", 
+                    $"La tarea vence el {nextDateTime:dd/MM/yyyy} a las {nextSchedule.StartTime:hh\\:mm}\n({DayHelper.GetDayName(nextSchedule.Day)})", 
                     "OK");
                 return;
             }
@@ -110,30 +111,6 @@ public partial class NewTaskPage : ContentPage
 
         await DisplayAlert("Info", "No se encontró ninguna clase programada en los próximos 7 días.", "OK");
     }
-
-    private DiaSemana GetDiaSemana(DayOfWeek dow) => dow switch
-    {
-        DayOfWeek.Monday => DiaSemana.Lunes,
-        DayOfWeek.Tuesday => DiaSemana.Martes,
-        DayOfWeek.Wednesday => DiaSemana.Miércoles,
-        DayOfWeek.Thursday => DiaSemana.Jueves,
-        DayOfWeek.Friday => DiaSemana.Viernes,
-        DayOfWeek.Saturday => DiaSemana.Sábado,
-        DayOfWeek.Sunday => DiaSemana.Domingo,
-        _ => DiaSemana.Lunes
-    };
-
-    private string GetDayName(DiaSemana day) => day switch
-    {
-        DiaSemana.Lunes => "Lunes",
-        DiaSemana.Martes => "Martes",
-        DiaSemana.Miércoles => "Miércoles",
-        DiaSemana.Jueves => "Jueves",
-        DiaSemana.Viernes => "Viernes",
-        DiaSemana.Sábado => "Sábado",
-        DiaSemana.Domingo => "Domingo",
-        _ => ""
-    };
 
     private async void OnCancel(object sender, EventArgs e)
     {

@@ -1,3 +1,4 @@
+using Calendario_Estudiantil.Helpers;
 using Calendario_Estudiantil.Models;
 using Calendario_Estudiantil.Services;
 using System.Collections.ObjectModel;
@@ -11,8 +12,6 @@ public partial class SubjectSchedulesPage : ContentPage
     private ObservableCollection<ScheduleDisplay> _schedules = new();
 
     public string SubjectName => _subject.Name;
-
-    private readonly string[] _dias = { "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo" };
 
     public SubjectSchedulesPage(Subject subject, ISubjectService subjectService)
     {
@@ -66,17 +65,6 @@ public class ScheduleDisplay
     public Schedule Schedule { get; set; } = null!;
     public Subject Subject { get; set; } = null!;
 
-    public string DayName => Schedule.Day switch
-    {
-        DiaSemana.Lunes => "Lunes",
-        DiaSemana.Martes => "Martes",
-        DiaSemana.Miércoles => "Miércoles",
-        DiaSemana.Jueves => "Jueves",
-        DiaSemana.Viernes => "Viernes",
-        DiaSemana.Sábado => "Sábado",
-        DiaSemana.Domingo => "Domingo",
-        _ => ""
-    };
-
+    public string DayName => DayHelper.GetDayName(Schedule.Day);
     public string TimeDisplay => $"{Schedule.StartTime:hh\\:mm} - {Schedule.EndTime:hh\\:mm}";
 }

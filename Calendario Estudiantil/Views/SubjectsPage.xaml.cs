@@ -10,7 +10,6 @@ public partial class SubjectsPage : ContentPage
 {
     private readonly SubjectViewModel _viewModel;
     private readonly ISubjectService _subjectService;
-    private readonly string[] _colors = { "#512BD4", "#E91E63", "#2196F3", "#4CAF50", "#FF9800", "#9C27B0", "#00BCD4", "#795548" };
 
     // Constructor sin parámetros para XAML/MAUI
     public SubjectsPage()
