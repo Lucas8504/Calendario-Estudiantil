@@ -62,9 +62,9 @@ public class DatabaseService : IDatabaseService
         var idList = ids.ToList();
         if (!idList.Any()) return new List<Subject>();
         
-        // Use SQL IN clause for better performance (avoid loading all subjects)
-        var idString = string.Join(",", idList);
-        return await Database.QueryAsync<Subject>($"SELECT * FROM Subject WHERE Id IN ({idString})");
+        return await Database.Table<Subject>()
+            .Where(s => idList.Contains(s.Id))
+            .ToListAsync();
     }
 
     public async Task<Subject> GetSubjectByIdAsync(int id)
@@ -113,8 +113,9 @@ public class DatabaseService : IDatabaseService
         var idList = subjectIds.ToList();
         if (!idList.Any()) return new Dictionary<int, List<Schedule>>();
         
-        var idString = string.Join(",", idList);
-        var allSchedules = await Database.QueryAsync<Schedule>($"SELECT * FROM Schedule WHERE SubjectId IN ({idString})");
+        var allSchedules = await Database.Table<Schedule>()
+            .Where(s => idList.Contains(s.SubjectId))
+            .ToListAsync();
         
         var result = new Dictionary<int, List<Schedule>>();
         foreach (var schedule in allSchedules)
@@ -135,8 +136,9 @@ public class DatabaseService : IDatabaseService
         var idList = taskIds.ToList();
         if (!idList.Any()) return new Dictionary<int, List<Subtask>>();
         
-        var idString = string.Join(",", idList);
-        var allSubtasks = await Database.QueryAsync<Subtask>($"SELECT * FROM Subtask WHERE TaskItemId IN ({idString})");
+        var allSubtasks = await Database.Table<Subtask>()
+            .Where(s => idList.Contains(s.TaskItemId))
+            .ToListAsync();
         
         var result = new Dictionary<int, List<Subtask>>();
         foreach (var subtask in allSubtasks)
