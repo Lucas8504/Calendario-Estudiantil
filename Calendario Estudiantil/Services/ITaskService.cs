@@ -10,7 +10,7 @@ public interface ITaskService
     Task<List<TaskItem>> GetAllAsync();
     Task<List<TaskItem>> GetBySubjectAsync(int subjectId);
     Task<List<TaskItem>> GetForTodayAsync();
-    Task<List<TaskItem>> GetPendingAsync();
+    Task<List<TaskItem>> GetPendingAsync(int daysBack = 60, int daysForward = 60);
     Task<TaskItem> GetByIdAsync(int id);
     Task<int> CreateAsync(TaskItem task);
     Task<int> UpdateAsync(TaskItem task);

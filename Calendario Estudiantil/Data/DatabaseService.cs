@@ -167,10 +167,13 @@ public class DatabaseService : IDatabaseService
             .ToListAsync();
     }
 
-    public async Task<List<TaskItem>> GetPendingTasksAsync()
+    public async Task<List<TaskItem>> GetPendingTasksAsync(int daysBack = 60, int daysForward = 60)
     {
+        var from = DateTime.Today.AddDays(-daysBack);
+        var until = DateTime.Today.AddDays(daysForward);
         return await Database.Table<TaskItem>()
-            .Where(t => t.Status == ItemStatus.Pending || t.Status == ItemStatus.InProgress)
+            .Where(t => (t.Status == ItemStatus.Pending || t.Status == ItemStatus.InProgress)
+                     && t.DueDate >= from && t.DueDate <= until)
             .ToListAsync();
     }
 

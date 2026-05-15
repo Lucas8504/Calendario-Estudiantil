@@ -38,7 +38,7 @@ public interface IDatabaseService
     Task<List<TaskItem>> GetAllTasksAsync();
     Task<List<TaskItem>> GetTasksBySubjectAsync(int subjectId);
     Task<List<TaskItem>> GetTasksForTodayAsync();
-    Task<List<TaskItem>> GetPendingTasksAsync();
+    Task<List<TaskItem>> GetPendingTasksAsync(int daysBack = 60, int daysForward = 60);
     Task<TaskItem> GetTaskByIdAsync(int id);
     Task<int> InsertTaskAsync(TaskItem task);
     Task<int> UpdateTaskAsync(TaskItem task);

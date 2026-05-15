@@ -26,8 +26,8 @@ public class TaskService : ITaskService
     public Task<List<TaskItem>> GetForTodayAsync()
         => _databaseService.GetTasksForTodayAsync();
 
-    public Task<List<TaskItem>> GetPendingAsync()
-        => _databaseService.GetPendingTasksAsync();
+    public Task<List<TaskItem>> GetPendingAsync(int daysBack = 60, int daysForward = 60)
+        => _databaseService.GetPendingTasksAsync(daysBack, daysForward);
 
     public Task<TaskItem> GetByIdAsync(int id)
         => _databaseService.GetTaskByIdAsync(id);
