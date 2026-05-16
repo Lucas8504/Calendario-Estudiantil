@@ -23,8 +23,15 @@ public partial class SubjectSchedulesPage : ContentPage
 
     protected override async void OnAppearing()
     {
-        base.OnAppearing();
-        await LoadSchedulesAsync();
+        try
+        {
+            base.OnAppearing();
+            await LoadSchedulesAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error cargando horarios: {ex.Message}");
+        }
     }
 
     private async Task LoadSchedulesAsync()

@@ -22,7 +22,7 @@
 		<ApplicationTitle>Calendario Estudiantil</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.calendarioestudiantil</ApplicationId>
+		<ApplicationId>com.lucas.calendarioestudiantil</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>

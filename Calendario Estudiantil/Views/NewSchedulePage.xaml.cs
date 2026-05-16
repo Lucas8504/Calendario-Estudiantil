@@ -193,77 +193,84 @@ public partial class NewSchedulePage : ContentPage
 
     private async void OnSave(object sender, EventArgs e)
     {
-        // 1. Validar nombre de la materia
-        var newName = SubjectNameEntry.Text?.Trim();
-        if (string.IsNullOrWhiteSpace(newName))
+        try
         {
-            await DisplayAlert("Error", "El nombre de la materia no puede estar vacío.", "OK");
-            return;
-        }
-
-        // 2. Validar día
-        if (string.IsNullOrEmpty(_selectedDay) || !DayHelper.DiaMap.ContainsKey(_selectedDay))
-        {
-            await DisplayAlert("Error", "Seleccione un día.", "OK");
-            return;
-        }
-
-        // 3. Validar horarios
-        var startTime = StartTimePicker.Time;
-        var endTime = EndTimePicker.Time;
-
-        if (endTime <= startTime)
-        {
-            await DisplayAlert("Error", "La hora de fin debe ser mayor a la de inicio.", "OK");
-            return;
-        }
-
-        // 4. Guardar la materia (crear o actualizar)
-        int subjectId;
-        if (_isNewSubject)
-        {
-            var newSubject = new Subject
+            // 1. Validar nombre de la materia
+            var newName = SubjectNameEntry.Text?.Trim();
+            if (string.IsNullOrWhiteSpace(newName))
             {
-                Name = newName,
-                ColorHex = _subjectColor
-            };
-            await _subjectService.CreateAsync(newSubject);
-            subjectId = newSubject.Id; // <-- sqlite-net setea Id en el objeto, NO en el return value
-            await DisplayAlert("Éxito",
-                $"Materia '{newName}' creada con horario: {_selectedDay} {startTime:hh\\:mm} - {endTime:hh\\:mm}",
-                "OK");
-        }
-        else if (_subject != null)
-        {
-            _subject.Name = newName;
-            _subject.ColorHex = _subjectColor;
-            await _subjectService.UpdateAsync(_subject);
-            subjectId = _subject.Id;
-        }
-        else
-        {
-            return; // No debería ocurrir
-        }
+                await DisplayAlert("Error", "El nombre de la materia no puede estar vacío.", "OK");
+                return;
+            }
 
-        // 5. Crear o actualizar el Schedule
-        var schedule = _scheduleToEdit ?? new Schedule { SubjectId = subjectId };
-        schedule.Day = DayHelper.DiaMap[_selectedDay!];
-        schedule.StartTime = startTime;
-        schedule.EndTime = endTime;
+            // 2. Validar día
+            if (string.IsNullOrEmpty(_selectedDay) || !DayHelper.DiaMap.ContainsKey(_selectedDay))
+            {
+                await DisplayAlert("Error", "Seleccione un día.", "OK");
+                return;
+            }
 
-        if (_scheduleToEdit != null)
-        {
-            await _subjectService.UpdateScheduleAsync(schedule);
-            if (!_isNewSubject)
-                await DisplayAlert("Éxito", $"Horario actualizado: {_selectedDay} {startTime:hh\\:mm} - {endTime:hh\\:mm}", "OK");
-        }
-        else
-        {
-            await _subjectService.AddScheduleAsync(schedule);
-            if (!_isNewSubject)
-                await DisplayAlert("Éxito", $"Horario agregado: {_selectedDay} {startTime:hh\\:mm} - {endTime:hh\\:mm}", "OK");
-        }
+            // 3. Validar horarios
+            var startTime = StartTimePicker.Time;
+            var endTime = EndTimePicker.Time;
 
-        await Navigation.PopAsync();
+            if (endTime <= startTime)
+            {
+                await DisplayAlert("Error", "La hora de fin debe ser mayor a la de inicio.", "OK");
+                return;
+            }
+
+            // 4. Guardar la materia (crear o actualizar)
+            int subjectId;
+            if (_isNewSubject)
+            {
+                var newSubject = new Subject
+                {
+                    Name = newName,
+                    ColorHex = _subjectColor
+                };
+                await _subjectService.CreateAsync(newSubject);
+                subjectId = newSubject.Id; // <-- sqlite-net setea Id en el objeto, NO en el return value
+                await DisplayAlert("Éxito",
+                    $"Materia '{newName}' creada con horario: {_selectedDay} {startTime:hh\\:mm} - {endTime:hh\\:mm}",
+                    "OK");
+            }
+            else if (_subject != null)
+            {
+                _subject.Name = newName;
+                _subject.ColorHex = _subjectColor;
+                await _subjectService.UpdateAsync(_subject);
+                subjectId = _subject.Id;
+            }
+            else
+            {
+                return; // No debería ocurrir
+            }
+
+            // 5. Crear o actualizar el Schedule
+            var schedule = _scheduleToEdit ?? new Schedule { SubjectId = subjectId };
+            schedule.Day = DayHelper.DiaMap[_selectedDay!];
+            schedule.StartTime = startTime;
+            schedule.EndTime = endTime;
+
+            if (_scheduleToEdit != null)
+            {
+                await _subjectService.UpdateScheduleAsync(schedule);
+                if (!_isNewSubject)
+                    await DisplayAlert("Éxito", $"Horario actualizado: {_selectedDay} {startTime:hh\\:mm} - {endTime:hh\\:mm}", "OK");
+            }
+            else
+            {
+                await _subjectService.AddScheduleAsync(schedule);
+                if (!_isNewSubject)
+                    await DisplayAlert("Éxito", $"Horario agregado: {_selectedDay} {startTime:hh\\:mm} - {endTime:hh\\:mm}", "OK");
+            }
+
+            await Navigation.PopAsync();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo guardar: {ex.Message}", "OK");
+        }
     }
 }

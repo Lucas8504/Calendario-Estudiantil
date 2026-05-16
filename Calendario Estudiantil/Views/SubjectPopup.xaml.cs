@@ -33,8 +33,15 @@ public partial class SubjectPopup : Popup
 
     private async void LoadTasksAsync()
     {
-        var tasks = await _taskService.GetBySubjectAsync(_subject.Id);
-        TasksList.ItemsSource = new ObservableCollection<TaskItem>(tasks);
+        try
+        {
+            var tasks = await _taskService.GetBySubjectAsync(_subject.Id);
+            TasksList.ItemsSource = new ObservableCollection<TaskItem>(tasks);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error cargando tareas: {ex.Message}");
+        }
     }
 
     private void OnEditSubject(object sender, EventArgs e)
