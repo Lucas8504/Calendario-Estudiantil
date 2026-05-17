@@ -83,7 +83,7 @@ public partial class SchedulePage : ContentPage
         }
     }
 
-    private void BuildCards()
+    private async void BuildCards()
     {
         CardsContainer.Children.Clear();
 
@@ -101,10 +101,47 @@ public partial class SchedulePage : ContentPage
             return;
         }
 
+        // Crear todas las cards primero
+        var cardViews = new List<Frame>();
         foreach (var card in _viewModel.Cards)
         {
             var cardView = CreateCard(card);
+            cardViews.Add(cardView);
+        }
+
+        // Agregar cards al contenedor
+        foreach (var cardView in cardViews)
+        {
             CardsContainer.Children.Add(cardView);
+        }
+
+        // Animar cards con efecto cascada
+        await AnimateCardsAsync(cardViews);
+    }
+
+    /// <summary>
+    /// Anima las cards con un efecto de deslizamiento desde abajo.
+    /// </summary>
+    private async Task AnimateCardsAsync(List<Frame> cards)
+    {
+        const int staggerDelay = 80; // ms entre cada card
+        const int animationDuration = 300; // ms por animación
+        const double slideDistance = 50; // píxeles a deslizar
+
+        for (int i = 0; i < cards.Count; i++)
+        {
+            var card = cards[i];
+            
+            // Estado inicial: invisible y desplazado hacia abajo
+            card.Opacity = 0;
+            card.TranslationY = slideDistance;
+
+            // Pequeño delay para efecto cascada
+            await Task.Delay(staggerDelay);
+
+            // Animar: aparecer y deslizar hacia arriba
+            _ = card.TranslateTo(0, 0, (uint)animationDuration, Easing.CubicOut);
+            _ = card.FadeTo(1, (uint)animationDuration, Easing.CubicOut);
         }
     }
 
@@ -200,7 +237,7 @@ public partial class SchedulePage : ContentPage
             Grid.SetColumn(nowIndicator, 1);
         }
 
-        // Card con sombra y bordes redondeados (usando Frame para compatibilidad con .NET 8)
+        // Card con sombra pronunciada y bordes redondeados
         var cardFrame = new Frame
         {
             Content = mainLayout,
@@ -208,12 +245,19 @@ public partial class SchedulePage : ContentPage
             CornerRadius = 12,
             Padding = 0,
             HasShadow = true,
-            BorderColor = card.IsHappeningNow ? Color.FromArgb("#E53E3E") : Colors.Transparent
+            BorderColor = card.IsHappeningNow ? Color.FromArgb("#E53E3E") : Colors.Transparent,
+            Shadow = new Shadow
+            {
+                Brush = Colors.Black,
+                Opacity = 0.15f,
+                Offset = new Point(0, 4),
+                Radius = 8
+            }
         };
 
-        // Tap para mostrar detalles
+        // Tap para mostrar detalles - agregar al layout principal para evitar que hijos intercepten toques
         var gesture = new TapGestureRecognizer();
-        gesture.Tapped += (s, e) =>
+        gesture.Tapped += async (s, e) =>
         {
             try
             {
@@ -222,10 +266,24 @@ public partial class SchedulePage : ContentPage
             }
             catch (Exception ex)
             {
-                DisplayAlert("Error", ex.Message, "OK");
+                await DisplayAlert("Error", ex.Message, "OK");
             }
         };
-        cardFrame.GestureRecognizers.Add(gesture);
+        mainLayout.GestureRecognizers.Add(gesture);
+        
+        // Hacer que los hijos no intercepten toques
+        mainLayout.InputTransparent = false;
+        cardLayout.InputTransparent = true;
+        contentStack.InputTransparent = true;
+        timeRow.InputTransparent = true;
+        colorBar.InputTransparent = true;
+        timeLabel.InputTransparent = true;
+        durationLabel.InputTransparent = true;
+        subjectLabel.InputTransparent = true;
+        if (nowIndicator != null)
+        {
+            nowIndicator.InputTransparent = true;
+        }
 
         return cardFrame;
     }
