@@ -12,6 +12,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -20,12 +21,57 @@
         <Frame Grid.Row="0" Padding="16,12" CornerRadius="0"
                BackgroundColor="{x:Static config:AppConstants.Accent}"
                BorderColor="Transparent" HasShadow="False">
-            <Label Text="📅 Mi Horario" FontSize="22" FontAttributes="Bold"
-                   TextColor="White" HorizontalOptions="Center"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Título -->
+                <Label Grid.Column="0" Text="Mi Horario" FontSize="22" FontAttributes="Bold"
+                       TextColor="White" VerticalOptions="Center"/>
+                
+                <!-- Ícono búsqueda -->
+                <Button Grid.Column="1" Text="🔍" BackgroundColor="Transparent"
+                        WidthRequest="40" HeightRequest="40" CornerRadius="20"
+                        FontSize="18" Padding="0"
+                        Clicked="OnSearchClicked"/>
+                
+                <!-- Ícono notificaciones -->
+                <Button Grid.Column="2" Text="🔔" BackgroundColor="Transparent"
+                        WidthRequest="40" HeightRequest="40" CornerRadius="20"
+                        FontSize="18" Padding="0"
+                        Clicked="OnNotificationsClicked"/>
+            </Grid>
+        </Frame>
+
+        <!-- Barra de búsqueda (oculta por defecto) -->
+        <Frame Grid.Row="1" x:Name="SearchBarFrame" IsVisible="False"
+               Margin="8,4" Padding="8" CornerRadius="12"
+               BackgroundColor="White" BorderColor="Transparent" HasShadow="True">
+            <Grid ColumnSpacing="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <Entry Grid.Column="0" x:Name="SearchEntry" 
+                       Placeholder="Buscar materia o horario..."
+                       Text="{Binding SearchQuery}"
+                       TextChanged="OnSearchTextChanged"
+                       FontSize="14"/>
+                
+                <Button Grid.Column="1" Text="✕" 
+                        BackgroundColor="Transparent" TextColor="Gray"
+                        WidthRequest="32" HeightRequest="32" CornerRadius="16"
+                        FontSize="14" Padding="0"
+                        Clicked="OnClearSearchClicked"/>
+            </Grid>
         </Frame>
 
         <!-- Tabs de días -->
-        <ScrollView Grid.Row="1" Orientation="Horizontal" 
+        <ScrollView Grid.Row="2" Orientation="Horizontal" 
                     HorizontalScrollBarVisibility="Never"
                     BackgroundColor="{x:Static config:AppConstants.AccentLight}">
             <HorizontalStackLayout x:Name="DayTabsContainer" 
@@ -34,7 +80,7 @@
         </ScrollView>
 
         <!-- Lista de cards -->
-        <ScrollView Grid.Row="2" Orientation="Vertical" 
+        <ScrollView Grid.Row="3" Orientation="Vertical" 
                     VerticalScrollBarVisibility="Always"
                     BackgroundColor="#F5F5F5">
             <VerticalStackLayout x:Name="CardsContainer" 
@@ -43,7 +89,7 @@
         </ScrollView>
 
         <!-- FAB para agregar -->
-        <Button Grid.Row="2" Text="+" 
+        <Button Grid.Row="3" Text="+" 
                 FontSize="28" FontAttributes="Bold"
                 WidthRequest="56" HeightRequest="56" CornerRadius="28"
                 BackgroundColor="{x:Static config:AppConstants.Accent}"
@@ -54,6 +100,6 @@
                 Shadow="{Shadow Brush='Black', Opacity=0.3, Offset='0,2', Radius=4}"/>
 
         <!-- Barra de navegación inferior -->
-        <controls:BottomNavView Grid.Row="3" ActiveTab="Schedule"/>
+        <controls:BottomNavView Grid.Row="4" ActiveTab="Schedule"/>
     </Grid>
 </ContentPage>
