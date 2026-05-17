@@ -48,3 +48,15 @@ public class ScheduleItemHelper
     public Subject Subject { get; set; } = null!;
     public Schedule Schedule { get; set; } = null!;
 }
+
+/// <summary>
+/// Representa una card de horario para la vista diaria.
+/// </summary>
+public class ScheduleCard
+{
+    public Subject Subject { get; set; } = null!;
+    public Schedule Schedule { get; set; } = null!;
+    public string TimeRange => $"{Schedule.StartTime:hh\\:mm} - {Schedule.EndTime:hh\\:mm}";
+    public string SubjectName => Subject.Name;
+    public string ColorHex => Subject.ColorHex;
+}

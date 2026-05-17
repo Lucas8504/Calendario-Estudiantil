@@ -1,0 +1,127 @@
+using System.Collections.ObjectModel;
+using Calendario_Estudiantil.Configuration;
+using Calendario_Estudiantil.Data;
+using Calendario_Estudiantil.Models;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+
+namespace Calendario_Estudiantil.ViewModels;
+
+/// <summary>
+/// ViewModel para la vista diaria de horarios con cards.
+/// </summary>
+public partial class ScheduleDayViewModel : ObservableObject
+{
+    private readonly IDatabaseService _databaseService;
+
+    [ObservableProperty]
+    private ObservableCollection<ScheduleCard> _cards = new();
+
+    [ObservableProperty]
+    private ObservableCollection<string> _dayTabs = new();
+
+    [ObservableProperty]
+    private string _selectedDay = string.Empty;
+
+    [ObservableProperty]
+    private bool _isLoading;
+
+    [ObservableProperty]
+    private bool _hasNoClasses;
+
+    // Días de la semana en orden
+    private static readonly string[] WeekDays = { "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo" };
+
+    public ScheduleDayViewModel(IDatabaseService databaseService)
+    {
+        _databaseService = databaseService;
+        InitializeDayTabs();
+    }
+
+    private void InitializeDayTabs()
+    {
+        DayTabs = new ObservableCollection<string>(WeekDays);
+        // Seleccionar el día actual por defecto
+        var todayIndex = (int)DateTime.Today.DayOfWeek - 1;
+        if (todayIndex < 0) todayIndex = 6; // Domingo = 6
+        SelectedDay = WeekDays[todayIndex];
+    }
+
+    [RelayCommand]
+    public async Task LoadDayAsync()
+    {
+        if (string.IsNullOrEmpty(SelectedDay)) return;
+
+        IsLoading = true;
+        HasNoClasses = false;
+
+        try
+        {
+            var dayOfWeek = GetDiaSemana(SelectedDay);
+            var allSchedules = await LoadAllSchedulesOptimizedAsync();
+            
+            // Filtrar por el día seleccionado
+            var daySchedules = allSchedules
+                .Where(s => s.Schedule.Day == dayOfWeek)
+                .OrderBy(s => s.Schedule.StartTime)
+                .ToList();
+
+            Cards = new ObservableCollection<ScheduleCard>(
+                daySchedules.Select(s => new ScheduleCard 
+                { 
+                    Subject = s.Subject, 
+                    Schedule = s.Schedule 
+                })
+            );
+
+            HasNoClasses = !Cards.Any();
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private DiaSemana GetDiaSemana(string dayName)
+    {
+        return dayName switch
+        {
+            "Lunes" => DiaSemana.Lunes,
+            "Martes" => DiaSemana.Martes,
+            "Miércoles" => DiaSemana.Miércoles,
+            "Jueves" => DiaSemana.Jueves,
+            "Viernes" => DiaSemana.Viernes,
+            "Sábado" => DiaSemana.Sábado,
+            "Domingo" => DiaSemana.Domingo,
+            _ => DiaSemana.Lunes
+        };
+    }
+
+    /// <summary>
+    /// Carga todos los horarios con 2 queries (evita N+1).
+    /// </summary>
+    private async Task<List<ScheduleItemHelper>> LoadAllSchedulesOptimizedAsync()
+    {
+        var schedules = await _databaseService.GetAllSchedulesAsync();
+        if (!schedules.Any()) return new List<ScheduleItemHelper>();
+
+        var subjectIds = schedules.Select(s => s.SubjectId).Distinct().ToList();
+        var subjects = await _databaseService.GetSubjectsByIdsAsync(subjectIds);
+        var subjectDict = subjects.ToDictionary(s => s.Id);
+
+        var result = new List<ScheduleItemHelper>();
+        foreach (var schedule in schedules)
+        {
+            if (subjectDict.TryGetValue(schedule.SubjectId, out var subject))
+                result.Add(new ScheduleItemHelper { Subject = subject, Schedule = schedule });
+        }
+        return result;
+    }
+
+    [RelayCommand]
+    public async Task SelectDayAsync(string day)
+    {
+        SelectedDay = day;
+        await LoadDayAsync();
+    }
+}

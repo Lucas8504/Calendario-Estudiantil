@@ -2,11 +2,11 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:config="clr-namespace:Calendario_Estudiantil.Configuration"
-              xmlns:controls="clr-namespace:Calendario_Estudiantil.Controls"
-              x:Class="Calendario_Estudiantil.Views.SchedulePage"
-              Title="Calendario"
-              Padding="0"
-              NavigationPage.HasNavigationBar="False">
+             xmlns:controls="clr-namespace:Calendario_Estudiantil.Controls"
+             x:Class="Calendario_Estudiantil.Views.SchedulePage"
+             Title="Calendario"
+             Padding="0"
+             NavigationPage.HasNavigationBar="False">
 
     <Grid RowSpacing="0" ColumnSpacing="0">
         <Grid.RowDefinitions>
@@ -16,52 +16,44 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Header calendario -->
-        <Frame Grid.Row="0" Padding="14,10" CornerRadius="0"
+        <!-- Header limpio -->
+        <Frame Grid.Row="0" Padding="16,12" CornerRadius="0"
                BackgroundColor="{x:Static config:AppConstants.Accent}"
                BorderColor="Transparent" HasShadow="False">
-            <Label Text="📅 Calendario" FontSize="20" FontAttributes="Bold"
+            <Label Text="📅 Mi Horario" FontSize="22" FontAttributes="Bold"
                    TextColor="White" HorizontalOptions="Center"/>
         </Frame>
 
-        <!-- Navegación de semana -->
-        <Frame Grid.Row="1" Margin="5,5,5,5" Padding="8" CornerRadius="12"
-               BackgroundColor="{x:Static config:AppConstants.AccentLight}"
-               BorderColor="Transparent" HasShadow="False">
-            <Grid ColumnSpacing="8">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Text="◀" Clicked="OnPreviousWeek"
-                        WidthRequest="40" HeightRequest="36" CornerRadius="8"
-                        BackgroundColor="{x:Static config:AppConstants.Accent}"
-                        TextColor="White" FontSize="14" VerticalOptions="Start"/>
-                <Label Grid.Column="1" Text="{Binding WeekLabel}"
-                       FontSize="16" FontAttributes="Bold"
-                       TextColor="{x:Static config:AppConstants.Accent}"
-                       VerticalOptions="Center" HorizontalOptions="Center"/>
-                <Button Grid.Column="2" Text="Hoy" Clicked="OnGoToToday"
-                        HeightRequest="36" CornerRadius="8" Padding="12,0"
-                        BackgroundColor="{x:Static config:AppConstants.Accent}"
-                        TextColor="White" FontSize="13" FontAttributes="Bold"/>
-                <Button Grid.Column="3" Text="▶" Clicked="OnNextWeek"
-                        WidthRequest="40" HeightRequest="36" CornerRadius="8"
-                        BackgroundColor="{x:Static config:AppConstants.Accent}"
-                        TextColor="White" FontSize="14" VerticalOptions="Start"/>
-            </Grid>
-        </Frame>
-
-        <!-- Grid de horarios -->
-        <ScrollView Grid.Row="2" Orientation="Vertical" VerticalScrollBarVisibility="Always">
-            <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Always">
-                <Grid x:Name="GridContainer" HorizontalOptions="Start" VerticalOptions="Start"/>
-            </ScrollView>
+        <!-- Tabs de días -->
+        <ScrollView Grid.Row="1" Orientation="Horizontal" 
+                    HorizontalScrollBarVisibility="Never"
+                    BackgroundColor="{x:Static config:AppConstants.AccentLight}">
+            <HorizontalStackLayout x:Name="DayTabsContainer" 
+                                   Spacing="4" Padding="8,6"
+                                   HorizontalOptions="Center"/>
         </ScrollView>
 
-        <!-- Barra de navegación inferior reutilizable -->
+        <!-- Lista de cards -->
+        <ScrollView Grid.Row="2" Orientation="Vertical" 
+                    VerticalScrollBarVisibility="Always"
+                    BackgroundColor="#F5F5F5">
+            <VerticalStackLayout x:Name="CardsContainer" 
+                                 Spacing="12" Padding="16"
+                                 VerticalOptions="Start"/>
+        </ScrollView>
+
+        <!-- FAB para agregar -->
+        <Button Grid.Row="2" Text="+" 
+                FontSize="28" FontAttributes="Bold"
+                WidthRequest="56" HeightRequest="56" CornerRadius="28"
+                BackgroundColor="{x:Static config:AppConstants.Accent}"
+                TextColor="White"
+                HorizontalOptions="End" VerticalOptions="End"
+                Margin="0,0,16,16"
+                Clicked="OnAddScheduleClicked"
+                Shadow="{Shadow Brush='Black', Opacity=0.3, Offset='0,2', Radius=4}"/>
+
+        <!-- Barra de navegación inferior -->
         <controls:BottomNavView Grid.Row="3" ActiveTab="Schedule"/>
     </Grid>
 </ContentPage>
