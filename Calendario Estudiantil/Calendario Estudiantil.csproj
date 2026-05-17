@@ -38,6 +38,10 @@
 		<AndroidManifestMergingAnnotation>enabled</AndroidManifestMergingAnnotation>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android|AnyCPU'">
+	  <AndroidPackageFormat>apk</AndroidPackageFormat>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\calicon.svg" ForegroundFile="Resources\AppIcon\calicon.svg" Color="#512BD4" />
