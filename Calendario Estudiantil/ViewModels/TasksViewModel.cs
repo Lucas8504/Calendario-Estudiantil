@@ -22,6 +22,12 @@ public partial class TasksViewModel : ObservableObject
     [ObservableProperty]
     private bool _isLoading;
 
+    [ObservableProperty]
+    private string _searchQuery = string.Empty;
+
+    // Todas las tareas sin filtrar (para búsqueda)
+    private List<TaskDisplay> _allTasks = new();
+
     public TasksViewModel(ITaskService taskService)
     {
         _taskService = taskService;
@@ -46,12 +52,48 @@ public partial class TasksViewModel : ObservableObject
                 IsShortAnticipation = _taskService.IsShortAnticipation(t.NotificationHours)
             }).ToList();
 
-            Tasks = new ObservableCollection<TaskDisplay>(display);
+            _allTasks = display;
+            ApplySearchFilter();
         }
         finally
         {
             IsLoading = false;
         }
+    }
+
+    /// <summary>
+    /// Aplica el filtro de búsqueda sobre las tareas.
+    /// </summary>
+    private void ApplySearchFilter()
+    {
+        var filtered = string.IsNullOrWhiteSpace(SearchQuery)
+            ? _allTasks
+            : _allTasks.Where(t => 
+                t.TaskItem.Title.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase) ||
+                t.TaskItem.Description?.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase) == true)
+              .ToList();
+
+        Tasks = new ObservableCollection<TaskDisplay>(filtered);
+    }
+
+    /// <summary>
+    /// Busca tareas por título o descripción.
+    /// </summary>
+    [RelayCommand]
+    public void Search(string query)
+    {
+        SearchQuery = query;
+        ApplySearchFilter();
+    }
+
+    /// <summary>
+    /// Limpia el filtro de búsqueda.
+    /// </summary>
+    [RelayCommand]
+    public void ClearSearch()
+    {
+        SearchQuery = string.Empty;
+        ApplySearchFilter();
     }
 
     [RelayCommand]

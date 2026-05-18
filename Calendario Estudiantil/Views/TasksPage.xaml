@@ -3,67 +3,117 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:config="clr-namespace:Calendario_Estudiantil.Configuration"
              xmlns:controls="clr-namespace:Calendario_Estudiantil.Controls"
-              x:Class="Calendario_Estudiantil.Views.TasksPage"
-              Title="Tareas"
-              Padding="0"
-              NavigationPage.HasNavigationBar="False">
+             x:Class="Calendario_Estudiantil.Views.TasksPage"
+             Title="Tareas"
+             Padding="0"
+             NavigationPage.HasNavigationBar="False">
 
     <Grid RowSpacing="0" ColumnSpacing="0">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Header tareas -->
-        <Frame Grid.Row="0" Padding="14,10" CornerRadius="0"
-               BackgroundColor="{x:Static config:AppConstants.Accent}"
+        <!-- Header limpio -->
+        <Frame Grid.Row="0" Padding="16,12" CornerRadius="0"
+               BackgroundColor="White"
                BorderColor="Transparent" HasShadow="False">
-            <Label Text="📋 Tareas" FontSize="20" FontAttributes="Bold"
-                   TextColor="White" HorizontalOptions="Center"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Avatar circular -->
+                <Frame Grid.Column="0" WidthRequest="40" HeightRequest="40" CornerRadius="20"
+                       Padding="0" HasShadow="False" BorderColor="Transparent"
+                       BackgroundColor="{x:Static config:AppConstants.Accent}"
+                       VerticalOptions="Center" Margin="0,0,12,0">
+                    <Label Text="T" FontSize="18" FontAttributes="Bold"
+                           TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Frame>
+                
+                <!-- Título y subtítulo -->
+                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                    <Label Text="Mis Tareas" FontSize="20" FontAttributes="Bold"
+                           TextColor="#1A1A1A"/>
+                    <Label Text="CICLO LECTIVO 2026" FontSize="12"
+                           TextColor="#888888"/>
+                </VerticalStackLayout>
+                
+                <!-- Ícono búsqueda -->
+                <Button Grid.Column="2" Text="🔍" BackgroundColor="Transparent"
+                        WidthRequest="40" HeightRequest="40" CornerRadius="20"
+                        FontSize="18" Padding="0" TextColor="#666666"
+                        Clicked="OnSearchClicked"/>
+                
+                <!-- Ícono notificaciones -->
+                <Button Grid.Column="3" Text="🔔" BackgroundColor="Transparent"
+                        WidthRequest="40" HeightRequest="40" CornerRadius="20"
+                        FontSize="18" Padding="0" TextColor="#666666"
+                        Clicked="OnNotificationsClicked"/>
+            </Grid>
         </Frame>
 
-        <!-- Contenido principal -->
-        <Grid Grid.Row="1" Margin="10">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+        <!-- Barra de búsqueda (oculta por defecto) -->
+        <Frame Grid.Row="1" x:Name="SearchBarFrame" IsVisible="False"
+               Margin="16,0,16,8" Padding="12,8" CornerRadius="12"
+               BackgroundColor="#F5F5F5" BorderColor="Transparent" HasShadow="False">
+            <Grid ColumnSpacing="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <Entry Grid.Column="0" x:Name="SearchEntry" 
+                       Placeholder="Buscar tarea..."
+                       Text="{Binding SearchQuery}"
+                       TextChanged="OnSearchTextChanged"
+                       FontSize="14" BackgroundColor="Transparent"/>
+                
+                <Button Grid.Column="1" Text="✕" 
+                        BackgroundColor="Transparent" TextColor="Gray"
+                        WidthRequest="32" HeightRequest="32" CornerRadius="16"
+                        FontSize="14" Padding="0"
+                        Clicked="OnClearSearchClicked"/>
+            </Grid>
+        </Frame>
 
-            <!-- Filtros -->
-            <HorizontalStackLayout Grid.Row="0" Spacing="5" Margin="0,0,0,10">
-                <Button Text="Todos" Clicked="OnFilterAll"/>
-                <Button Text="Hoy" Clicked="OnFilterToday"/>
-                <Button Text="Pendientes" Clicked="OnFilterPending"/>
-            </HorizontalStackLayout>
+        <!-- Tabs de filtros estilo pill -->
+        <ScrollView Grid.Row="2" Orientation="Horizontal" 
+                    HorizontalScrollBarVisibility="Never"
+                    BackgroundColor="White">
+            <HorizontalStackLayout x:Name="FilterTabsContainer" 
+                                   Spacing="8" Padding="16,8"
+                                   HorizontalOptions="Start"/>
+        </ScrollView>
 
-            <!-- Lista -->
-            <CollectionView Grid.Row="1" x:Name="TasksList" EmptyView="Sin tareas para mostrar.">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Frame Margin="0,4" Padding="10">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <VerticalStackLayout Grid.Column="0">
-                                    <Label Text="{Binding TaskItem.Title}" FontSize="Medium"/>
-                                    <Label Text="{Binding TaskItem.DueDate, StringFormat='Vence: {0:g}'}" FontSize="Caption"/>
-                                </VerticalStackLayout>
-                                <Button Grid.Column="1" Text="✓" Clicked="OnCompleteTask" BackgroundColor="LightGreen"/>
-                            </Grid>
-                        </Frame>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+        <!-- Lista de tareas -->
+        <ScrollView Grid.Row="2" Orientation="Vertical" 
+                    VerticalScrollBarVisibility="Always"
+                    BackgroundColor="#F8F9FA"
+                    Margin="0,50,0,0">
+            <VerticalStackLayout x:Name="TasksContainer" 
+                                 Spacing="12" Padding="16"
+                                 VerticalOptions="Start"/>
+        </ScrollView>
 
-            <Button Grid.Row="2" Text="+ Nueva Tarea" Clicked="OnCreateTask" Margin="0,10,0,0"/>
-        </Grid>
+        <!-- FAB para agregar -->
+        <Button Grid.Row="2" Text="+" 
+                FontSize="28" FontAttributes="Bold"
+                WidthRequest="56" HeightRequest="56" CornerRadius="16"
+                BackgroundColor="{x:Static config:AppConstants.Accent}"
+                TextColor="White"
+                HorizontalOptions="End" VerticalOptions="End"
+                Margin="0,0,16,16"
+                Clicked="OnCreateTask"
+                Shadow="{Shadow Brush='Black', Opacity=0.3, Offset='0,2', Radius=4}"/>
 
         <!-- Barra de navegación inferior -->
-        <controls:BottomNavView Grid.Row="2" ActiveTab="Tasks"/>
+        <controls:BottomNavView Grid.Row="3" ActiveTab="Tasks"/>
     </Grid>
-
 </ContentPage>
