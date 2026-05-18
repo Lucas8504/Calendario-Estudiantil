@@ -13,43 +13,58 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Header limpio -->
         <Frame Grid.Row="0" Padding="16,12" CornerRadius="0"
-               BackgroundColor="{x:Static config:AppConstants.Accent}"
+               BackgroundColor="White"
                BorderColor="Transparent" HasShadow="False">
             <Grid>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 
-                <!-- Título -->
-                <Label Grid.Column="0" Text="Mi Horario" FontSize="22" FontAttributes="Bold"
-                       TextColor="White" VerticalOptions="Center"/>
+                <!-- Avatar circular -->
+                <Frame Grid.Column="0" WidthRequest="40" HeightRequest="40" CornerRadius="20"
+                       Padding="0" HasShadow="False" BorderColor="Transparent"
+                       BackgroundColor="{x:Static config:AppConstants.Accent}"
+                       VerticalOptions="Center" Margin="0,0,12,0">
+                    <Label Text="S" FontSize="18" FontAttributes="Bold"
+                           TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Frame>
+                
+                <!-- Título y subtítulo -->
+                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                    <Label Text="Mi Horario" FontSize="20" FontAttributes="Bold"
+                           TextColor="#1A1A1A"/>
+                    <Label Text="CICLO LECTIVO 2026" FontSize="12"
+                           TextColor="#888888"/>
+                </VerticalStackLayout>
                 
                 <!-- Ícono búsqueda -->
-                <Button Grid.Column="1" Text="🔍" BackgroundColor="Transparent"
+                <Button Grid.Column="2" Text="🔍" BackgroundColor="Transparent"
                         WidthRequest="40" HeightRequest="40" CornerRadius="20"
-                        FontSize="18" Padding="0"
+                        FontSize="18" Padding="0" TextColor="#666666"
                         Clicked="OnSearchClicked"/>
                 
                 <!-- Ícono notificaciones -->
-                <Button Grid.Column="2" Text="🔔" BackgroundColor="Transparent"
+                <Button Grid.Column="3" Text="🔔" BackgroundColor="Transparent"
                         WidthRequest="40" HeightRequest="40" CornerRadius="20"
-                        FontSize="18" Padding="0"
+                        FontSize="18" Padding="0" TextColor="#666666"
                         Clicked="OnNotificationsClicked"/>
             </Grid>
         </Frame>
 
         <!-- Barra de búsqueda (oculta por defecto) -->
         <Frame Grid.Row="1" x:Name="SearchBarFrame" IsVisible="False"
-               Margin="8,4" Padding="8" CornerRadius="12"
-               BackgroundColor="White" BorderColor="Transparent" HasShadow="True">
+               Margin="16,0,16,8" Padding="12,8" CornerRadius="12"
+               BackgroundColor="#F5F5F5" BorderColor="Transparent" HasShadow="False">
             <Grid ColumnSpacing="8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -60,7 +75,7 @@
                        Placeholder="Buscar materia o horario..."
                        Text="{Binding SearchQuery}"
                        TextChanged="OnSearchTextChanged"
-                       FontSize="14"/>
+                       FontSize="14" BackgroundColor="Transparent"/>
                 
                 <Button Grid.Column="1" Text="✕" 
                         BackgroundColor="Transparent" TextColor="Gray"
@@ -70,28 +85,28 @@
             </Grid>
         </Frame>
 
-        <!-- Tabs de días -->
+        <!-- Tabs de días estilo pill -->
         <ScrollView Grid.Row="2" Orientation="Horizontal" 
                     HorizontalScrollBarVisibility="Never"
-                    BackgroundColor="{x:Static config:AppConstants.AccentLight}">
+                    BackgroundColor="White">
             <HorizontalStackLayout x:Name="DayTabsContainer" 
-                                   Spacing="4" Padding="8,6"
-                                   HorizontalOptions="Center"/>
+                                   Spacing="8" Padding="16,8"
+                                   HorizontalOptions="Start"/>
         </ScrollView>
 
         <!-- Lista de cards -->
-        <ScrollView Grid.Row="3" Orientation="Vertical" 
+        <ScrollView Grid.Row="4" Orientation="Vertical" 
                     VerticalScrollBarVisibility="Always"
-                    BackgroundColor="#F5F5F5">
+                    BackgroundColor="#F8F9FA">
             <VerticalStackLayout x:Name="CardsContainer" 
                                  Spacing="12" Padding="16"
                                  VerticalOptions="Start"/>
         </ScrollView>
 
         <!-- FAB para agregar -->
-        <Button Grid.Row="3" Text="+" 
+        <Button Grid.Row="4" Text="+" 
                 FontSize="28" FontAttributes="Bold"
-                WidthRequest="56" HeightRequest="56" CornerRadius="28"
+                WidthRequest="56" HeightRequest="56" CornerRadius="16"
                 BackgroundColor="{x:Static config:AppConstants.Accent}"
                 TextColor="White"
                 HorizontalOptions="End" VerticalOptions="End"
@@ -100,6 +115,6 @@
                 Shadow="{Shadow Brush='Black', Opacity=0.3, Offset='0,2', Radius=4}"/>
 
         <!-- Barra de navegación inferior -->
-        <controls:BottomNavView Grid.Row="4" ActiveTab="Schedule"/>
+        <controls:BottomNavView Grid.Row="5" ActiveTab="Schedule"/>
     </Grid>
 </ContentPage>

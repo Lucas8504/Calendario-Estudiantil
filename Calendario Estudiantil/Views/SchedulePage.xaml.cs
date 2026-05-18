@@ -59,14 +59,14 @@ public partial class SchedulePage : ContentPage
             var btn = new Button
             {
                 Text = day,
-                FontSize = 13,
+                FontSize = 14,
                 FontAttributes = isSelected ? FontAttributes.Bold : FontAttributes.None,
-                Padding = new Thickness(12, 6),
-                CornerRadius = 8,
-                BackgroundColor = isSelected ? AppConstants.Accent : Colors.White,
-                TextColor = isSelected ? Colors.White : AppConstants.Accent,
-                BorderColor = AppConstants.Accent,
-                BorderWidth = isSelected ? 0 : 1,
+                Padding = new Thickness(16, 8),
+                CornerRadius = 20,
+                BackgroundColor = isSelected ? AppConstants.Accent : Colors.Transparent,
+                TextColor = isSelected ? Colors.White : Color.FromArgb("#666666"),
+                BorderColor = Colors.Transparent,
+                BorderWidth = 0,
                 HorizontalOptions = LayoutOptions.Start
             };
 
