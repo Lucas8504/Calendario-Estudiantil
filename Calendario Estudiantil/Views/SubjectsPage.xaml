@@ -86,7 +86,8 @@
         <!-- Lista de materias -->
         <CollectionView Grid.Row="2" x:Name="SubjectsList"
                         BackgroundColor="#F8F9FA"
-                        VerticalScrollBarVisibility="Always">
+                        VerticalScrollBarVisibility="Always"
+                        Margin="0,0,0,70">
             <CollectionView.ItemsLayout>
                 <LinearItemsLayout Orientation="Vertical" ItemSpacing="12"/>
             </CollectionView.ItemsLayout>
@@ -132,7 +133,7 @@
                 BackgroundColor="{x:Static config:AppConstants.Accent}"
                 TextColor="White"
                 HorizontalOptions="End" VerticalOptions="End"
-                Margin="0,0,16,80"
+                Margin="0,0,16,16"
                 Clicked="OnAddSubject"
                 Shadow="{Shadow Brush='Black', Opacity=0.3, Offset='0,2', Radius=4}"/>
 

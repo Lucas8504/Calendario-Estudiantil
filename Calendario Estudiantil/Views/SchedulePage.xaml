@@ -35,13 +35,13 @@
                        Padding="0" HasShadow="False" BorderColor="Transparent"
                        BackgroundColor="{x:Static config:AppConstants.Accent}"
                        VerticalOptions="Center" Margin="0,0,12,0">
-                    <Label Text="S" FontSize="18" FontAttributes="Bold"
+                    <Label Text="C" FontSize="18" FontAttributes="Bold"
                            TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
                 </Frame>
                 
                 <!-- Título y subtítulo -->
                 <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
-                    <Label Text="Mi Horario" FontSize="20" FontAttributes="Bold"
+                    <Label Text="Calendario" FontSize="20" FontAttributes="Bold"
                            TextColor="#1A1A1A"/>
                     <Label Text="CICLO LECTIVO 2026" FontSize="12"
                            TextColor="#888888"/>
