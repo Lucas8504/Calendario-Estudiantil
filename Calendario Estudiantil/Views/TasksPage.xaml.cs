@@ -120,8 +120,15 @@ public partial class TasksPage : ContentPage
     {
         var task = taskDisplay.TaskItem;
         
+        // Determinar colores según el tema actual
+        var isDark = Application.Current?.RequestedTheme == AppTheme.Dark;
+        var cardBgColor = isDark ? Color.FromArgb("#1E1E1E") : Colors.White;
+        var textColor = isDark ? Color.FromArgb("#E0E0E0") : Color.FromArgb("#333333");
+        var secondaryTextColor = isDark ? Color.FromArgb("#A0A0A0") : Colors.Gray;
+        var completedBgColor = isDark ? Color.FromArgb("#2C2C2C") : Color.FromArgb("#F9FAFB");
+        var colorHex = task.SubjectId > 0 ? GetSubjectColor(task.SubjectId) : (isDark ? "#A0A0A0" : "#6B7280");
+        
         // Borde de color lateral (usando color de la materia si existe)
-        var colorHex = task.SubjectId > 0 ? GetSubjectColor(task.SubjectId) : "#6B7280";
         var colorBar = new BoxView
         {
             Color = Color.FromArgb(colorHex),
@@ -153,23 +160,23 @@ public partial class TasksPage : ContentPage
             Text = task.Title,
             FontSize = 16,
             FontAttributes = task.Status == ItemStatus.Completed ? FontAttributes.None : FontAttributes.Bold,
-            TextColor = task.Status == ItemStatus.Completed ? Colors.Gray : Color.FromArgb("#333333"),
+            TextColor = task.Status == ItemStatus.Completed ? secondaryTextColor : textColor,
             TextDecorations = task.Status == ItemStatus.Completed ? TextDecorations.Strikethrough : TextDecorations.None
         };
 
         var dueDateLabel = new Label
         {
-            Text = $"📅 Vence: {task.DueDate:dd/MM/yyyy}",
+            Text = $" Vence: {task.DueDate:dd/MM/yyyy}",
             FontSize = 13,
-            TextColor = Colors.Gray
+            TextColor = secondaryTextColor
         };
 
         var subjectLabel = task.SubjectId > 0
             ? new Label
             {
-                Text = $"📚 Materia #{task.SubjectId}",
+                Text = $" Materia #{task.SubjectId}",
                 FontSize = 12,
-                TextColor = Color.FromArgb("#666666")
+                TextColor = secondaryTextColor
             }
             : null;
 
@@ -210,7 +217,7 @@ public partial class TasksPage : ContentPage
         var cardFrame = new Frame
         {
             Content = mainLayout,
-            BackgroundColor = task.Status == ItemStatus.Completed ? Color.FromArgb("#F9FAFB") : Colors.White,
+            BackgroundColor = task.Status == ItemStatus.Completed ? completedBgColor : cardBgColor,
             CornerRadius = 12,
             Padding = 0,
             HasShadow = true,
@@ -328,6 +335,18 @@ public partial class TasksPage : ContentPage
     private void OnNotificationsClicked(object sender, EventArgs e)
     {
         DisplayAlert("Notificaciones", "Funcionalidad en desarrollo", "OK");
+    }
+
+    private async void OnSettingsClicked(object sender, EventArgs e)
+    {
+        try
+        {
+            await Navigation.PushAsync(new SettingsPage());
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo abrir la configuración: {ex.Message}", "OK");
+        }
     }
 
     private async void OnCreateTask(object sender, EventArgs e)

@@ -18,7 +18,7 @@
 
         <!-- Header limpio -->
         <Frame Grid.Row="0" Padding="16,12" CornerRadius="0"
-               BackgroundColor="White"
+               BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}"
                BorderColor="Transparent" HasShadow="False">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -40,29 +40,29 @@
                 <!-- Título y subtítulo -->
                 <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
                     <Label Text="Mis Tareas" FontSize="20" FontAttributes="Bold"
-                           TextColor="#1A1A1A"/>
+                           TextColor="{AppThemeBinding Light=#1A1A1A, Dark=#E0E0E0}"/>
                     <Label Text="CICLO LECTIVO 2026" FontSize="12"
-                           TextColor="#888888"/>
+                           TextColor="{AppThemeBinding Light=#888888, Dark=#707070}"/>
                 </VerticalStackLayout>
                 
                 <!-- Ícono búsqueda -->
                 <Button Grid.Column="2" Text="🔍" BackgroundColor="Transparent"
                         WidthRequest="40" HeightRequest="40" CornerRadius="20"
-                        FontSize="18" Padding="0" TextColor="#666666"
+                        FontSize="18" Padding="0" TextColor="{AppThemeBinding Light=#666666, Dark=#A0A0A0}"
                         Clicked="OnSearchClicked"/>
                 
-                <!-- Ícono notificaciones -->
-                <Button Grid.Column="3" Text="🔔" BackgroundColor="Transparent"
+                <!-- Ícono configuración -->
+                <Button Grid.Column="3" Text="⚙️" BackgroundColor="Transparent"
                         WidthRequest="40" HeightRequest="40" CornerRadius="20"
-                        FontSize="18" Padding="0" TextColor="#666666"
-                        Clicked="OnNotificationsClicked"/>
+                        FontSize="18" Padding="0" TextColor="{AppThemeBinding Light=#666666, Dark=#A0A0A0}"
+                        Clicked="OnSettingsClicked"/>
             </Grid>
         </Frame>
 
         <!-- Barra de búsqueda (oculta por defecto) -->
         <Frame Grid.Row="1" x:Name="SearchBarFrame" IsVisible="False"
                Margin="16,0,16,8" Padding="12,8" CornerRadius="12"
-               BackgroundColor="#F5F5F5" BorderColor="Transparent" HasShadow="False">
+               BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2C2C2C}" BorderColor="Transparent" HasShadow="False">
             <Grid ColumnSpacing="8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -73,10 +73,11 @@
                        Placeholder="Buscar tarea..."
                        Text="{Binding SearchQuery}"
                        TextChanged="OnSearchTextChanged"
-                       FontSize="14" BackgroundColor="Transparent"/>
+                       FontSize="14" BackgroundColor="Transparent"
+                       TextColor="{AppThemeBinding Light=#1A1A1A, Dark=#E0E0E0}"/>
                 
-                <Button Grid.Column="1" Text="✕" 
-                        BackgroundColor="Transparent" TextColor="Gray"
+                <Button Grid.Column="1" Text="" 
+                        BackgroundColor="Transparent" TextColor="{AppThemeBinding Light=#666666, Dark=#A0A0A0}"
                         WidthRequest="32" HeightRequest="32" CornerRadius="16"
                         FontSize="14" Padding="0"
                         Clicked="OnClearSearchClicked"/>
@@ -86,7 +87,7 @@
         <!-- Tabs de filtros estilo pill -->
         <ScrollView Grid.Row="2" Orientation="Horizontal" 
                     HorizontalScrollBarVisibility="Never"
-                    BackgroundColor="White">
+                    BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
             <HorizontalStackLayout x:Name="FilterTabsContainer" 
                                    Spacing="8" Padding="16,8"
                                    HorizontalOptions="Start"/>
@@ -95,7 +96,7 @@
         <!-- Lista de tareas -->
         <ScrollView Grid.Row="2" Orientation="Vertical" 
                     VerticalScrollBarVisibility="Always"
-                    BackgroundColor="#F8F9FA"
+                    BackgroundColor="{AppThemeBinding Light=#F8F9FA, Dark=#121212}"
                     Margin="0,50,0,0">
             <VerticalStackLayout x:Name="TasksContainer" 
                                  Spacing="12" Padding="16"

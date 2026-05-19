@@ -30,9 +30,6 @@ public partial class SubjectsPage : ContentPage
             base.OnAppearing();
             await _viewModel.LoadSubjectsAsync();
             SubjectsList.SetBinding(CollectionView.ItemsSourceProperty, new Binding(nameof(_viewModel.Subjects)));
-            
-            // Agregar gesto de tap a los items
-            SubjectsList.SelectionChanged += OnSubjectSelectionChanged;
         }
         catch (Exception ex)
         {
@@ -40,9 +37,9 @@ public partial class SubjectsPage : ContentPage
         }
     }
 
-    private async void OnSubjectSelectionChanged(object sender, SelectionChangedEventArgs e)
+    private async void OnSubjectTapped(object sender, TappedEventArgs e)
     {
-        if (e.CurrentSelection.FirstOrDefault() is Subject subject)
+        if (sender is VisualElement element && element.BindingContext is Subject subject)
         {
             try
             {
@@ -51,11 +48,6 @@ public partial class SubjectsPage : ContentPage
             catch (Exception ex)
             {
                 await DisplayAlert("Error", $"No se pudo abrir la materia: {ex.Message}", "OK");
-            }
-            finally
-            {
-                // Deseleccionar el item
-                SubjectsList.SelectedItem = null;
             }
         }
     }
@@ -84,6 +76,18 @@ public partial class SubjectsPage : ContentPage
     private void OnNotificationsClicked(object sender, EventArgs e)
     {
         DisplayAlert("Notificaciones", "Funcionalidad en desarrollo", "OK");
+    }
+
+    private async void OnSettingsClicked(object sender, EventArgs e)
+    {
+        try
+        {
+            await Navigation.PushAsync(new SettingsPage());
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo abrir la configuración: {ex.Message}", "OK");
+        }
     }
 
     private async void OnAddSubject(object sender, EventArgs e)

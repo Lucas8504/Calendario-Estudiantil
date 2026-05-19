@@ -24,8 +24,27 @@ public partial class App : Application
     protected override void OnStart()
     {
         base.OnStart();
+        
+        // Aplicar tema guardado
+        ApplySavedTheme();
+        
         // Forzar inicialización de la base de datos
         _ = InitializeDatabaseAsync();
+    }
+
+    private void ApplySavedTheme()
+    {
+        try
+        {
+            var themeService = IPlatformApplication.Current?.Services
+                .GetRequiredService<IThemeService>();
+            
+            themeService?.ApplyTheme();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error aplicando tema: {ex.Message}");
+        }
     }
 
     private Task InitializeDatabaseAsync()

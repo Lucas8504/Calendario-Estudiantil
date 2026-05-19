@@ -32,6 +32,7 @@ namespace Calendario_Estudiantil
             builder.Services.AddSingleton<INotificationService, NotificationService>();
             builder.Services.AddSingleton<ISubjectService, SubjectService>();
             builder.Services.AddSingleton<ITaskService, TaskService>();
+            builder.Services.AddSingleton<IThemeService, ThemeService>();
 
             // App principal (para que MAUI resuelva las dependencias)
             builder.Services.AddSingleton<App>();

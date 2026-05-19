@@ -91,7 +91,7 @@ public partial class SchedulePage : ContentPage
         {
             CardsContainer.Children.Add(new Label
             {
-                Text = "📭 No hay clases para este día",
+                Text = " No hay clases para este día",
                 FontSize = 16,
                 TextColor = Colors.Gray,
                 HorizontalOptions = LayoutOptions.Center,
@@ -147,6 +147,15 @@ public partial class SchedulePage : ContentPage
 
     private Frame CreateCard(ScheduleCard card)
     {
+        // Determinar colores según el tema actual
+        var isDark = Application.Current?.RequestedTheme == AppTheme.Dark;
+        var cardBgColor = isDark ? Color.FromArgb("#1E1E1E") : Colors.White;
+        var textColor = isDark ? Color.FromArgb("#E0E0E0") : Color.FromArgb("#333333");
+        var secondaryTextColor = isDark ? Color.FromArgb("#A0A0A0") : Colors.Gray;
+        var nowBgColor = isDark ? Color.FromArgb("#FF5252") : Color.FromArgb("#E53E3E");
+        var cardBgNowColor = isDark ? Color.FromArgb("#2C1A1A") : Color.FromArgb("#FFF5F5");
+        var borderColor = isDark ? Color.FromArgb("#FF5252") : Color.FromArgb("#E53E3E");
+
         // Borde de color lateral
         var colorBar = new BoxView
         {
@@ -162,11 +171,11 @@ public partial class SchedulePage : ContentPage
         {
             nowIndicator = new Label
             {
-                Text = "🔴 AHORA",
+                Text = " AHORA",
                 FontSize = 11,
                 FontAttributes = FontAttributes.Bold,
                 TextColor = Colors.White,
-                BackgroundColor = Color.FromArgb("#E53E3E"),
+                BackgroundColor = nowBgColor,
                 Padding = new Thickness(8, 2),
                 HorizontalOptions = LayoutOptions.End,
                 VerticalOptions = LayoutOptions.Start
@@ -176,17 +185,17 @@ public partial class SchedulePage : ContentPage
         // Contenido de la card
         var timeLabel = new Label
         {
-            Text = $"🕐 {card.TimeRange}",
+            Text = $" {card.TimeRange}",
             FontSize = 13,
-            TextColor = Colors.Gray,
+            TextColor = secondaryTextColor,
             FontAttributes = FontAttributes.None
         };
 
         var durationLabel = new Label
         {
-            Text = $"⏱ {card.Duration}",
+            Text = $" {card.Duration}",
             FontSize = 12,
-            TextColor = Color.FromArgb("#666666"),
+            TextColor = secondaryTextColor,
             FontAttributes = FontAttributes.None
         };
 
@@ -195,7 +204,7 @@ public partial class SchedulePage : ContentPage
             Text = card.SubjectName,
             FontSize = 18,
             FontAttributes = FontAttributes.Bold,
-            TextColor = Color.FromArgb("#333333")
+            TextColor = textColor
         };
 
         // Layout superior: tiempo + duración
@@ -241,11 +250,11 @@ public partial class SchedulePage : ContentPage
         var cardFrame = new Frame
         {
             Content = mainLayout,
-            BackgroundColor = card.IsHappeningNow ? Color.FromArgb("#FFF5F5") : Colors.White,
+            BackgroundColor = card.IsHappeningNow ? cardBgNowColor : cardBgColor,
             CornerRadius = 12,
             Padding = 0,
             HasShadow = true,
-            BorderColor = card.IsHappeningNow ? Color.FromArgb("#E53E3E") : Colors.Transparent,
+            BorderColor = card.IsHappeningNow ? borderColor : Colors.Transparent,
             Shadow = new Shadow
             {
                 Brush = Colors.Black,
@@ -324,7 +333,19 @@ public partial class SchedulePage : ContentPage
 
     private void OnNotificationsClicked(object sender, EventArgs e)
     {
-        _ = ShowPendingTasksAsync();
+        DisplayAlert("Notificaciones", "Funcionalidad en desarrollo", "OK");
+    }
+
+    private async void OnSettingsClicked(object sender, EventArgs e)
+    {
+        try
+        {
+            await Navigation.PushAsync(new SettingsPage());
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudo abrir la configuración: {ex.Message}", "OK");
+        }
     }
 
     private async Task ShowPendingTasksAsync()
@@ -335,7 +356,7 @@ public partial class SchedulePage : ContentPage
             
             if (!pendingTasks.Any())
             {
-                await DisplayAlert("Notificaciones", "🎉 No tenés tareas pendientes", "OK");
+                await DisplayAlert("Notificaciones", " No tenés tareas pendientes", "OK");
                 return;
             }
 
@@ -348,7 +369,7 @@ public partial class SchedulePage : ContentPage
             var options = new[] { "Cancelar" }.Concat(taskNames).ToArray();
             
             var action = await DisplayActionSheet(
-                $"📋 Tareas pendientes ({pendingTasks.Count})",
+                $" Tareas pendientes ({pendingTasks.Count})",
                 "Cerrar",
                 null,
                 options);
