@@ -52,9 +52,9 @@
                         Clicked="OnSearchClicked"/>
                 
                 <!-- Ícono configuración -->
-                <Button Grid.Column="3" Text="⚙️" BackgroundColor="Transparent"
+                <Button Grid.Column="3" Text="⚙" BackgroundColor="Transparent"
                         WidthRequest="40" HeightRequest="40" CornerRadius="20"
-                        FontSize="18" Padding="0" TextColor="{AppThemeBinding Light=#666666, Dark=#A0A0A0}"
+                        FontSize="20" Padding="0" TextColor="{AppThemeBinding Light=#666666, Dark=#A0A0A0}"
                         Clicked="OnSettingsClicked"/>
             </Grid>
         </Frame>

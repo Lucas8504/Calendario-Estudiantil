@@ -22,13 +22,13 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                
+
                 <!-- Botón volver -->
                 <Button Grid.Column="0" Text="←" BackgroundColor="Transparent"
                         WidthRequest="40" HeightRequest="40" CornerRadius="20"
                         FontSize="20" Padding="0" TextColor="{AppThemeBinding Light=#666666, Dark=#A0A0A0}"
                         Clicked="OnBackClicked"/>
-                
+
                 <!-- Título -->
                 <Label Grid.Column="1" Text="Configuración" FontSize="20" FontAttributes="Bold"
                        TextColor="{AppThemeBinding Light=#1A1A1A, Dark=#E0E0E0}" VerticalOptions="Center"/>
@@ -38,85 +38,65 @@
         <!-- Contenido -->
         <ScrollView Grid.Row="1" BackgroundColor="{AppThemeBinding Light=#F8F9FA, Dark=#121212}">
             <VerticalStackLayout Padding="16" Spacing="16">
-                
+
                 <!-- Sección de tema -->
                 <Frame BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}" CornerRadius="12" Padding="16"
                        HasShadow="True" BorderColor="Transparent">
                     <Frame.Shadow>
                         <Shadow Brush="Black" Opacity="0.1" Offset="0,2" Radius="4"/>
                     </Frame.Shadow>
-                    
+
                     <VerticalStackLayout Spacing="12">
                         <Label Text="Tema de la aplicación" FontSize="18" FontAttributes="Bold"
                                TextColor="{AppThemeBinding Light=#333333, Dark=#E0E0E0}"/>
                         <Label Text="Selecciona cómo quieres ver la aplicación" FontSize="14"
                                TextColor="{AppThemeBinding Light=#666666, Dark=#A0A0A0}"/>
                         
-                        <!-- Opción: Claro -->
-                        <Grid ColumnSpacing="12" Margin="0,8,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
+                        <!-- Botones de tema -->
+                        <VerticalStackLayout Spacing="8" Margin="0,8,0,0">
+                            <!-- Opción: Claro -->
+                            <Button x:Name="BtnLight" Text="☀️ Claro" FontSize="16" FontAttributes="Bold"
+                                    BackgroundColor="{AppThemeBinding Light=#F0F0F0, Dark=#2C2C2C}"
+                                    TextColor="{AppThemeBinding Light=#333333, Dark=#E0E0E0}"
+                                    CornerRadius="12" Padding="16"
+                                    BorderColor="{x:Static config:AppConstants.Accent}" BorderWidth="2"
+                                    HorizontalOptions="Fill"
+                                    Clicked="OnThemeClicked" CommandParameter="Light"/>
                             
-                            <Label Grid.Column="0" Text="☀️" FontSize="20" VerticalOptions="Center"/>
-                            <Label Grid.Column="1" Text="Claro" FontSize="16" 
-                                   TextColor="{AppThemeBinding Light=#333333, Dark=#E0E0E0}"
-                                   VerticalOptions="Center"/>
-                            <RadioButton Grid.Column="2" GroupName="ThemeGroup" Value="Light"
-                                         CheckedChanged="OnThemeChanged" VerticalOptions="Center"/>
-                        </Grid>
-                        
-                        <!-- Opción: Oscuro -->
-                        <Grid ColumnSpacing="12" Margin="0,4,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
+                            <!-- Opción: Oscuro -->
+                            <Button x:Name="BtnDark" Text="🌙 Oscuro" FontSize="16"
+                                    BackgroundColor="{AppThemeBinding Light=#F0F0F0, Dark=#2C2C2C}"
+                                    TextColor="{AppThemeBinding Light=#333333, Dark=#E0E0E0}"
+                                    CornerRadius="12" Padding="16"
+                                    BorderColor="Transparent" BorderWidth="2"
+                                    HorizontalOptions="Fill"
+                                    Clicked="OnThemeClicked" CommandParameter="Dark"/>
                             
-                            <Label Grid.Column="0" Text="" FontSize="20" VerticalOptions="Center"/>
-                            <Label Grid.Column="1" Text="Oscuro" FontSize="16" 
-                                   TextColor="{AppThemeBinding Light=#333333, Dark=#E0E0E0}"
-                                   VerticalOptions="Center"/>
-                            <RadioButton Grid.Column="2" GroupName="ThemeGroup" Value="Dark"
-                                         CheckedChanged="OnThemeChanged" VerticalOptions="Center"/>
-                        </Grid>
-                        
-                        <!-- Opción: Sistema -->
-                        <Grid ColumnSpacing="12" Margin="0,4,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            
-                            <Label Grid.Column="0" Text="📱" FontSize="20" VerticalOptions="Center"/>
-                            <Label Grid.Column="1" Text="Sistema" FontSize="16" 
-                                   TextColor="{AppThemeBinding Light=#333333, Dark=#E0E0E0}"
-                                   VerticalOptions="Center"/>
-                            <Label Grid.Column="1" Text=" (sigue la configuración del dispositivo)" FontSize="12"
-                                   TextColor="{AppThemeBinding Light=#888888, Dark=#707070}" VerticalOptions="Center" Margin="65,0,0,0"/>
-                            <RadioButton Grid.Column="2" GroupName="ThemeGroup" Value="System"
-                                         CheckedChanged="OnThemeChanged" VerticalOptions="Center"/>
-                        </Grid>
+                            <!-- Opción: Sistema -->
+                            <Button x:Name="BtnSystem" Text="📱 Sistema" FontSize="16"
+                                    BackgroundColor="{AppThemeBinding Light=#F0F0F0, Dark=#2C2C2C}"
+                                    TextColor="{AppThemeBinding Light=#333333, Dark=#E0E0E0}"
+                                    CornerRadius="12" Padding="16"
+                                    BorderColor="Transparent" BorderWidth="2"
+                                    HorizontalOptions="Fill"
+                                    Clicked="OnThemeClicked" CommandParameter="System"/>
+                        </VerticalStackLayout>
                     </VerticalStackLayout>
                 </Frame>
-                
+
                 <!-- Información de la app -->
                 <Frame BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}" CornerRadius="12" Padding="16"
                        HasShadow="True" BorderColor="Transparent">
                     <Frame.Shadow>
                         <Shadow Brush="Black" Opacity="0.1" Offset="0,2" Radius="4"/>
                     </Frame.Shadow>
-                    
+
                     <VerticalStackLayout Spacing="8">
                         <Label Text="Calendario Estudiantil" FontSize="18" FontAttributes="Bold"
                                TextColor="{AppThemeBinding Light=#333333, Dark=#E0E0E0}"/>
-                        <Label Text="Versión 1.0.0" FontSize="14" 
+                        <Label Text="Versión 1.0.0" FontSize="14"
                                TextColor="{AppThemeBinding Light=#666666, Dark=#A0A0A0}"/>
-                        <Label Text="CICLO LECTIVO 2026" FontSize="12" 
+                        <Label Text="CICLO LECTIVO 2026" FontSize="12"
                                TextColor="{AppThemeBinding Light=#888888, Dark=#707070}"/>
                     </VerticalStackLayout>
                 </Frame>

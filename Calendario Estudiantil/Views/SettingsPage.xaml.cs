@@ -1,3 +1,4 @@
+using Calendario_Estudiantil.Configuration;
 using Calendario_Estudiantil.Services;
 using Microsoft.Maui.Controls;
 
@@ -19,51 +20,45 @@ public partial class SettingsPage : ContentPage
         SelectCurrentTheme();
     }
 
+    private void OnThemeClicked(object sender, EventArgs e)
+    {
+        if (sender is Button btn && btn.CommandParameter is string theme)
+        {
+            _themeService.SelectedTheme = theme;
+            UpdateButtonSelection(theme);
+        }
+    }
+
+    private void UpdateButtonSelection(string selectedTheme)
+    {
+        var theme = selectedTheme.ToLowerInvariant();
+        var accentColor = AppConstants.Accent;
+        var transparentColor = Colors.Transparent;
+        
+        // Reset all buttons
+        BtnLight.BorderColor = transparentColor;
+        BtnDark.BorderColor = transparentColor;
+        BtnSystem.BorderColor = transparentColor;
+        
+        // Set selected button
+        switch (theme)
+        {
+            case "light":
+                BtnLight.BorderColor = accentColor;
+                break;
+            case "dark":
+                BtnDark.BorderColor = accentColor;
+                break;
+            case "system":
+                BtnSystem.BorderColor = accentColor;
+                break;
+        }
+    }
+
     private void SelectCurrentTheme()
     {
         var currentTheme = _themeService.SelectedTheme.ToLowerInvariant();
-        
-        // Encontrar y marcar el RadioButton correcto
-        foreach (var child in GetVisualTree())
-        {
-            if (child is RadioButton rb && rb.GroupName == "ThemeGroup")
-            {
-                if (rb.Value?.ToString()?.ToLowerInvariant() == currentTheme)
-                {
-                    rb.IsChecked = true;
-                    break;
-                }
-            }
-        }
-    }
-
-    private IEnumerable<VisualElement> GetVisualTree()
-    {
-        var queue = new Queue<VisualElement>();
-        queue.Enqueue(this);
-        
-        while (queue.Count > 0)
-        {
-            var current = queue.Dequeue();
-            yield return current;
-            
-            if (current is IViewContainer<View> container)
-            {
-                foreach (var child in container.Children)
-                {
-                    if (child is VisualElement ve)
-                        queue.Enqueue(ve);
-                }
-            }
-        }
-    }
-
-    private void OnThemeChanged(object sender, CheckedChangedEventArgs e)
-    {
-        if (e.Value && sender is RadioButton rb)
-        {
-            _themeService.SelectedTheme = rb.Value?.ToString() ?? "System";
-        }
+        UpdateButtonSelection(currentTheme);
     }
 
     private async void OnBackClicked(object sender, EventArgs e)
