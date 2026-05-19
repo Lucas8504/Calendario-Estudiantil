@@ -10,6 +10,7 @@ public partial class SubjectsPage : ContentPage
 {
     private readonly SubjectViewModel _viewModel;
     private readonly ISubjectService _subjectService;
+    private readonly ITaskService _taskService;
 
     public SubjectsPage()
     {
@@ -18,6 +19,10 @@ public partial class SubjectsPage : ContentPage
         _subjectService = IPlatformApplication.Current?.Services
             .GetRequiredService<ISubjectService>()
             ?? throw new InvalidOperationException("ISubjectService no disponible");
+        
+        _taskService = IPlatformApplication.Current?.Services
+            .GetRequiredService<ITaskService>()
+            ?? throw new InvalidOperationException("ITaskService no disponible");
         
         _viewModel = new SubjectViewModel(_subjectService);
         BindingContext = _viewModel;
@@ -73,11 +78,6 @@ public partial class SubjectsPage : ContentPage
         SearchBarFrame.IsVisible = false;
     }
 
-    private void OnNotificationsClicked(object sender, EventArgs e)
-    {
-        DisplayAlert("Notificaciones", "Funcionalidad en desarrollo", "OK");
-    }
-
     private async void OnSettingsClicked(object sender, EventArgs e)
     {
         try
@@ -87,6 +87,71 @@ public partial class SubjectsPage : ContentPage
         catch (Exception ex)
         {
             await DisplayAlert("Error", $"No se pudo abrir la configuración: {ex.Message}", "OK");
+        }
+    }
+
+    private async void OnNotificationsClicked(object sender, EventArgs e)
+    {
+        try
+        {
+            var pendingTasks = await _taskService.GetPendingAsync();
+            
+            if (!pendingTasks.Any())
+            {
+                await DisplayAlert("Notificaciones", "🎉 No tenés tareas pendientes", "OK");
+                return;
+            }
+
+            var subjects = await _subjectService.GetAllAsync();
+            var subjectDict = subjects.ToDictionary(s => s.Id, s => s.Name);
+
+            var taskNames = pendingTasks
+                .Take(10)
+                .Select(t => $"{t.Title} ({subjectDict.GetValueOrDefault(t.SubjectId, "Sin materia")})")
+                .ToArray();
+
+            var options = new[] { "Cancelar" }.Concat(taskNames).ToArray();
+            
+            var action = await DisplayActionSheet(
+                $"📋 Tareas pendientes ({pendingTasks.Count})",
+                "Cerrar",
+                null,
+                options);
+
+            if (action != "Cancelar" && !string.IsNullOrEmpty(action))
+            {
+                var selectedTask = pendingTasks.FirstOrDefault(t => 
+                    $"{t.Title} ({subjectDict.GetValueOrDefault(t.SubjectId, "Sin materia")})" == action);
+                
+                if (selectedTask != null)
+                {
+                    var subjectName = subjectDict.GetValueOrDefault(selectedTask.SubjectId, "Sin materia");
+                    var statusEmoji = selectedTask.Status switch
+                    {
+                        ItemStatus.Pending => "⏳",
+                        ItemStatus.InProgress => "🔄",
+                        ItemStatus.Completed => "✅",
+                        ItemStatus.Expired => "❌",
+                        _ => "❓"
+                    };
+                    
+                    var details = $"📚 Materia: {subjectName}\n" +
+                                  $"📝 Título: {selectedTask.Title}\n" +
+                                  $"📅 Vence: {selectedTask.DueDate:dd/MM/yyyy HH:mm}\n" +
+                                  $"📊 Estado: {statusEmoji} {selectedTask.Status}";
+                    
+                    if (!string.IsNullOrEmpty(selectedTask.Description))
+                    {
+                        details += $"\n📄 Descripción: {selectedTask.Description}";
+                    }
+
+                    await DisplayAlert("Detalle de Tarea", details, "OK");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"No se pudieron cargar las tareas: {ex.Message}", "OK");
         }
     }
 

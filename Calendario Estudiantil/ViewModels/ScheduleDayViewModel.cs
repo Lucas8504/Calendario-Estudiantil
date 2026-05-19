@@ -32,6 +32,9 @@ public partial class ScheduleDayViewModel : ObservableObject
     [ObservableProperty]
     private string _searchQuery = string.Empty;
 
+    [ObservableProperty]
+    private bool _hasNotifications;
+
     // Todas las cards sin filtrar (para búsqueda)
     private List<ScheduleCard> _allCards = new();
 
@@ -81,10 +84,30 @@ public partial class ScheduleDayViewModel : ObservableObject
                 .ToList();
 
             ApplySearchFilter();
+            
+            // Verificar notificaciones (tareas pendientes para hoy)
+            await CheckNotificationsAsync();
         }
         finally
         {
             IsLoading = false;
+        }
+    }
+
+    /// <summary>
+    /// Verifica si hay notificaciones pendientes.
+    /// </summary>
+    private async Task CheckNotificationsAsync()
+    {
+        try
+        {
+            // Verificar si hay tareas pendientes para hoy
+            var pendingTasks = await _databaseService.GetPendingTasksAsync();
+            HasNotifications = pendingTasks.Any(t => t.DueDate.Date == DateTime.Today);
+        }
+        catch
+        {
+            HasNotifications = false;
         }
     }
 

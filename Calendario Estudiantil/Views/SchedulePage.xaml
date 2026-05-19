@@ -27,8 +27,9 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                
+
                 <!-- Avatar circular -->
                 <Frame Grid.Column="0" WidthRequest="40" HeightRequest="40" CornerRadius="20"
                        Padding="0" HasShadow="False" BorderColor="Transparent"
@@ -37,7 +38,7 @@
                     <Label Text="C" FontSize="18" FontAttributes="Bold"
                            TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
                 </Frame>
-                
+
                 <!-- Título y subtítulo -->
                 <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
                     <Label Text="Calendario" FontSize="20" FontAttributes="Bold"
@@ -45,19 +46,34 @@
                     <Label Text="CICLO LECTIVO 2026" FontSize="12"
                            TextColor="{AppThemeBinding Light=#888888, Dark=#707070}"/>
                 </VerticalStackLayout>
-                
+
                 <!-- Ícono búsqueda -->
                 <Button Grid.Column="2" Text="🔍" BackgroundColor="Transparent"
                         WidthRequest="40" HeightRequest="40" CornerRadius="20"
                         FontSize="18" Padding="0" TextColor="{AppThemeBinding Light=#666666, Dark=#A0A0A0}"
                         Clicked="OnSearchClicked"/>
-                
+
                 <!-- Ícono configuración -->
                 <Button Grid.Column="3" Text="⚙" BackgroundColor="Transparent"
                         WidthRequest="40" HeightRequest="40" CornerRadius="20"
                         FontSize="20" Padding="0" TextColor="{AppThemeBinding Light=#666666, Dark=#A0A0A0}"
                         Clicked="OnSettingsClicked"/>
+
+                <!-- Ícono notificaciones -->
+                <Button Grid.Column="4" Text="🔔" BackgroundColor="Transparent"
+                        WidthRequest="40" HeightRequest="40" CornerRadius="20"
+                        FontSize="20" Padding="0" TextColor="{AppThemeBinding Light=#666666, Dark=#A0A0A0}"
+                        Clicked="OnNotificationsClicked"/>
             </Grid>
+        </Frame>
+
+        <!-- Badge de notificaciones -->
+        <Frame Grid.Row="0" HorizontalOptions="End" VerticalOptions="Start"
+               Margin="0,8,16,0" Padding="6,4" CornerRadius="12"
+               BackgroundColor="{AppThemeBinding Light=#FF5252, Dark=#FF6B6B}"
+               BorderColor="Transparent" HasShadow="True" IsVisible="{Binding HasNotifications}"
+               InputTransparent="True">
+            <Label Text="!" FontSize="12" FontAttributes="Bold" TextColor="White"/>
         </Frame>
 
         <!-- Barra de búsqueda (oculta por defecto) -->
@@ -69,15 +85,15 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                
-                <Entry Grid.Column="0" x:Name="SearchEntry" 
+
+                <Entry Grid.Column="0" x:Name="SearchEntry"
                        Placeholder="Buscar materia o horario..."
                        Text="{Binding SearchQuery}"
                        TextChanged="OnSearchTextChanged"
                        FontSize="14" BackgroundColor="Transparent"
                        TextColor="{AppThemeBinding Light=#1A1A1A, Dark=#E0E0E0}"/>
-                
-                <Button Grid.Column="1" Text="✕" 
+
+                <Button Grid.Column="1" Text="✕"
                         BackgroundColor="Transparent" TextColor="{AppThemeBinding Light=#666666, Dark=#A0A0A0}"
                         WidthRequest="32" HeightRequest="32" CornerRadius="16"
                         FontSize="14" Padding="0"
@@ -86,25 +102,25 @@
         </Frame>
 
         <!-- Tabs de días estilo pill -->
-        <ScrollView Grid.Row="2" Orientation="Horizontal" 
+        <ScrollView Grid.Row="2" Orientation="Horizontal"
                     HorizontalScrollBarVisibility="Never"
                     BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
-            <HorizontalStackLayout x:Name="DayTabsContainer" 
+            <HorizontalStackLayout x:Name="DayTabsContainer"
                                    Spacing="8" Padding="16,8"
                                    HorizontalOptions="Start"/>
         </ScrollView>
 
         <!-- Lista de cards -->
-        <ScrollView Grid.Row="3" Orientation="Vertical" 
+        <ScrollView Grid.Row="3" Orientation="Vertical"
                     VerticalScrollBarVisibility="Always"
                     BackgroundColor="{AppThemeBinding Light=#F8F9FA, Dark=#121212}">
-            <VerticalStackLayout x:Name="CardsContainer" 
+            <VerticalStackLayout x:Name="CardsContainer"
                                  Spacing="12" Padding="16"
                                  VerticalOptions="Start"/>
         </ScrollView>
 
         <!-- FAB para agregar -->
-        <Button Grid.Row="3" Text="+" 
+        <Button Grid.Row="3" Text="+"
                 FontSize="28" FontAttributes="Bold"
                 WidthRequest="56" HeightRequest="56" CornerRadius="16"
                 BackgroundColor="{x:Static config:AppConstants.Accent}"

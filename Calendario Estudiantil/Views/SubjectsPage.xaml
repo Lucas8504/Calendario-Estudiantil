@@ -26,6 +26,7 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 
                 <!-- Avatar circular -->
@@ -56,6 +57,12 @@
                         WidthRequest="40" HeightRequest="40" CornerRadius="20"
                         FontSize="20" Padding="0" TextColor="{AppThemeBinding Light=#666666, Dark=#A0A0A0}"
                         Clicked="OnSettingsClicked"/>
+                
+                <!-- Ícono notificaciones -->
+                <Button Grid.Column="4" Text="🔔" BackgroundColor="Transparent"
+                        WidthRequest="40" HeightRequest="40" CornerRadius="20"
+                        FontSize="20" Padding="0" TextColor="{AppThemeBinding Light=#666666, Dark=#A0A0A0}"
+                        Clicked="OnNotificationsClicked"/>
             </Grid>
         </Frame>
 
