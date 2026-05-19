@@ -20,6 +20,12 @@ public partial class SubjectViewModel : ObservableObject
     [ObservableProperty]
     private bool _isLoading;
 
+    [ObservableProperty]
+    private string _searchQuery = string.Empty;
+
+    // Todas las materias sin filtrar (para búsqueda)
+    private List<Subject> _allSubjects = new();
+
     public SubjectViewModel(Services.ISubjectService subjectService)
     {
         _subjectService = subjectService;
@@ -31,12 +37,45 @@ public partial class SubjectViewModel : ObservableObject
         try
         {
             var list = await _subjectService.GetAllAsync();
-            Subjects = new ObservableCollection<Subject>(list);
+            _allSubjects = list;
+            ApplySearchFilter();
         }
         finally
         {
             IsLoading = false;
         }
+    }
+
+    /// <summary>
+    /// Aplica el filtro de búsqueda sobre las materias.
+    /// </summary>
+    private void ApplySearchFilter()
+    {
+        var filtered = string.IsNullOrWhiteSpace(SearchQuery)
+            ? _allSubjects
+            : _allSubjects.Where(s => 
+                s.Name.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase))
+              .ToList();
+
+        Subjects = new ObservableCollection<Subject>(filtered);
+    }
+
+    /// <summary>
+    /// Busca materias por nombre.
+    /// </summary>
+    public void Search(string query)
+    {
+        SearchQuery = query;
+        ApplySearchFilter();
+    }
+
+    /// <summary>
+    /// Limpia el filtro de búsqueda.
+    /// </summary>
+    public void ClearSearch()
+    {
+        SearchQuery = string.Empty;
+        ApplySearchFilter();
     }
 
     public async Task CreateSubjectAsync(string name, string colorHex = "#512BD4")
