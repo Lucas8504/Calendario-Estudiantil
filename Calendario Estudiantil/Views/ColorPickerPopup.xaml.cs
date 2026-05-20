@@ -8,17 +8,17 @@ public partial class ColorPickerPopup : Popup
     private readonly ISubjectService _subjectService;
     private readonly string[] _colors = {
         // Rojos/Naranjas
-        "#F44336", "#E91E63", "#FF5722", "#FF9800",
+        "#8E1B2D", "#E91E63", "#FF5722", "#FF9800",
         // Amarillos/Verdes
         "#FFC107", "#8BC34A", "#4CAF50", "#009688",
         // Azules/Cianes
-        "#2196F3", "#03A9F4", "#00BCD4", "#512BD4",
+        "#2196F3", "#03A9F4", "#00BCD4", "#1FE8EA",
         // Violetas/Rosas
         "#9C27B0", "#E040FB", "#FF4081", "#673AB7",
         // Grises/Marrones
-        "#795548", "#9E9E9E", "#607D8B", "#455A64",
+        "#D1EBFC", "#9E9E9E", "#607D8B", "#455A64",
         // Colores extra
-        "#00796B", "#CDDC39", "#E64A19", "#3F51B5"
+        "#00796B", "#CDDC39", "#8E89EA", "#FFCEB8"
     };
 
     public event EventHandler<string>? ColorSelected;

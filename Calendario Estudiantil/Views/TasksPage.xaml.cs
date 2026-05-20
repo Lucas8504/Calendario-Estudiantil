@@ -11,6 +11,7 @@ public partial class TasksPage : ContentPage
     private readonly TasksViewModel _viewModel;
     private readonly ISubjectService _subjectService;
     private readonly ITaskService _taskService;
+    private Dictionary<int, Subject> _subjectsDict = new();
 
     // Filtros disponibles
     private static readonly string[] FilterOptions = { "Todos", "Hoy", "Pendientes", "Vencidas" };
@@ -37,6 +38,7 @@ public partial class TasksPage : ContentPage
         {
             base.OnAppearing();
             BuildFilterTabs();
+            await LoadSubjectsAsync();
             await _viewModel.LoadTasksAsync();
             BuildTaskCards();
         }
@@ -44,6 +46,12 @@ public partial class TasksPage : ContentPage
         {
             await DisplayAlert("Error", $"No se pudieron cargar las tareas: {ex.Message}", "OK");
         }
+    }
+
+    private async Task LoadSubjectsAsync()
+    {
+        var subjects = await _subjectService.GetAllAsync();
+        _subjectsDict = subjects.ToDictionary(s => s.Id);
     }
 
     private void BuildFilterTabs()
@@ -171,10 +179,17 @@ public partial class TasksPage : ContentPage
             TextColor = secondaryTextColor
         };
 
-        var subjectLabel = task.SubjectId > 0
+        var subjectLabel = task.SubjectId > 0 && _subjectsDict.TryGetValue(task.SubjectId, out var subject)
             ? new Label
             {
-                Text = $" Materia #{task.SubjectId}",
+                Text = $"📚 {subject.Name}",
+                FontSize = 12,
+                TextColor = secondaryTextColor
+            }
+            : task.SubjectId > 0
+            ? new Label
+            {
+                Text = $"📚 Materia #{task.SubjectId}",
                 FontSize = 12,
                 TextColor = secondaryTextColor
             }
@@ -283,8 +298,10 @@ public partial class TasksPage : ContentPage
 
     private string GetSubjectColor(int subjectId)
     {
-        // TODO: Obtener color real de la materia desde el servicio
-        // Por ahora retornamos un color por defecto
+        if (_subjectsDict.TryGetValue(subjectId, out var subject))
+        {
+            return subject.ColorHex;
+        }
         return "#6B7280";
     }
 

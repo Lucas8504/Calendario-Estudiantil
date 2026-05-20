@@ -51,7 +51,7 @@
                                TextColor="{AppThemeBinding Light=#333333, Dark=#E0E0E0}"/>
                         <Label Text="Selecciona cómo quieres ver la aplicación" FontSize="14"
                                TextColor="{AppThemeBinding Light=#666666, Dark=#A0A0A0}"/>
-                        
+
                         <!-- Botones de tema -->
                         <VerticalStackLayout Spacing="8" Margin="0,8,0,0">
                             <!-- Opción: Claro -->
@@ -62,7 +62,7 @@
                                     BorderColor="{x:Static config:AppConstants.Accent}" BorderWidth="2"
                                     HorizontalOptions="Fill"
                                     Clicked="OnThemeClicked" CommandParameter="Light"/>
-                            
+
                             <!-- Opción: Oscuro -->
                             <Button x:Name="BtnDark" Text="🌙 Oscuro" FontSize="16"
                                     BackgroundColor="{AppThemeBinding Light=#F0F0F0, Dark=#2C2C2C}"
@@ -71,7 +71,7 @@
                                     BorderColor="Transparent" BorderWidth="2"
                                     HorizontalOptions="Fill"
                                     Clicked="OnThemeClicked" CommandParameter="Dark"/>
-                            
+
                             <!-- Opción: Sistema -->
                             <Button x:Name="BtnSystem" Text="📱 Sistema" FontSize="16"
                                     BackgroundColor="{AppThemeBinding Light=#F0F0F0, Dark=#2C2C2C}"
@@ -96,7 +96,7 @@
                                TextColor="{AppThemeBinding Light=#333333, Dark=#E0E0E0}"/>
                         <Label Text="Versión 1.0.0" FontSize="14"
                                TextColor="{AppThemeBinding Light=#666666, Dark=#A0A0A0}"/>
-                        <Label Text="CICLO LECTIVO 2026" FontSize="12"
+                        <Label Text="Luks.dev dedicado a Joaquin Araujo Leiva" FontSize="12"
                                TextColor="{AppThemeBinding Light=#888888, Dark=#707070}"/>
                     </VerticalStackLayout>
                 </Frame>
