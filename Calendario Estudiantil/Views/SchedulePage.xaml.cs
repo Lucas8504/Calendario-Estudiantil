@@ -2,6 +2,7 @@ using Calendario_Estudiantil.Configuration;
 using Calendario_Estudiantil.Data;
 using Calendario_Estudiantil.Helpers;
 using Calendario_Estudiantil.Models;
+using Calendario_Estudiantil.Models.Ui;
 using Calendario_Estudiantil.Services;
 using Calendario_Estudiantil.ViewModels;
 using CommunityToolkit.Maui.Views;

@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using Calendario_Estudiantil.Configuration;
 using Calendario_Estudiantil.Data;
 using Calendario_Estudiantil.Models;
+using Calendario_Estudiantil.Models.Ui;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
