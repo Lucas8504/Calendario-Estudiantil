@@ -12,7 +12,6 @@ public partial class TasksPage : ContentPage
     private readonly TasksViewModel _viewModel;
     private readonly ISubjectService _subjectService;
     private readonly ITaskService _taskService;
-    private Dictionary<int, Subject> _subjectsDict = new();
 
     // Cached colors to avoid repeated Color.FromArgb allocations
     private static readonly Color CachedGray666 = Color.FromArgb("#666666");
@@ -45,20 +44,13 @@ public partial class TasksPage : ContentPage
         {
             base.OnAppearing();
             BuildFilterTabs();
-            await LoadSubjectsAsync();
+            await _viewModel.LoadSubjectsAsync();
             await _viewModel.LoadTasksAsync();
-            await BuildTaskCardsAsync();
         }
         catch (Exception ex)
         {
             await DisplayAlert("Error", $"No se pudieron cargar las tareas: {ex.Message}", "OK");
         }
-    }
-
-    private async Task LoadSubjectsAsync()
-    {
-        var subjects = await _subjectService.GetAllAsync();
-        _subjectsDict = subjects.ToDictionary(s => s.Id);
     }
 
     private void BuildFilterTabs()
@@ -88,200 +80,32 @@ public partial class TasksPage : ContentPage
                 _viewModel.FilterMode = selectedFilter;
                 await _viewModel.LoadTasksAsync();
                 BuildFilterTabs();
-                await BuildTaskCardsAsync();
             };
 
             FilterTabsContainer.Children.Add(btn);
         }
     }
 
-    private async Task BuildTaskCardsAsync()
+    private async void OnTaskTapped(object sender, TappedEventArgs e)
     {
-        TasksContainer.Children.Clear();
-
-        if (!_viewModel.Tasks.Any())
-        {
-            TasksContainer.Children.Add(new Label
-            {
-                Text = "📭 No hay tareas para mostrar",
-                FontSize = 16,
-                TextColor = Colors.Gray,
-                HorizontalOptions = LayoutOptions.Center,
-                VerticalOptions = LayoutOptions.Center,
-                Margin = new Thickness(0, 40, 0, 0)
-            });
-            return;
-        }
-
-        // Crear todas las cards primero
-        var cardViews = new List<Frame>();
-        foreach (var task in _viewModel.Tasks)
-        {
-            var cardView = CreateTaskCard(task);
-            cardViews.Add(cardView);
-        }
-
-        // Agregar cards al contenedor
-        foreach (var cardView in cardViews)
-        {
-            TasksContainer.Children.Add(cardView);
-        }
-
-        // Animar cards con efecto cascada
-        await CardAnimationHelper.AnimateCardsAsync(cardViews);
-    }
-
-    private Frame CreateTaskCard(TaskDisplay taskDisplay)
-    {
-        var task = taskDisplay.TaskItem;
-        
-        // Determinar colores según el tema actual
-        var isDark = Application.Current?.RequestedTheme == AppTheme.Dark;
-        var cardBgColor = isDark ? CachedDark1E1E1E : CachedWhite;
-        var textColor = isDark ? CachedDarkE0E0E0 : CachedLight333333;
-        var secondaryTextColor = isDark ? CachedDarkA0A0A0 : CachedLightGray;
-        var completedBgColor = isDark ? CachedDark2C2C2C : CachedLightF9FAFB;
-        var colorHex = task.SubjectId > 0 ? GetSubjectColor(task.SubjectId) : (isDark ? "#A0A0A0" : "#6B7280");
-        
-        // Borde de color lateral (usando color de la materia si existe)
-        var colorBar = new BoxView
-        {
-            Color = Color.FromArgb(colorHex),
-            WidthRequest = 6,
-            HorizontalOptions = LayoutOptions.Start,
-            VerticalOptions = LayoutOptions.Fill
-        };
-
-        // Indicador de estado
-        var statusIndicator = task.Status == ItemStatus.Completed
-            ? new Label
-            {
-                Text = "✅",
-                FontSize = 20,
-                HorizontalOptions = LayoutOptions.End,
-                VerticalOptions = LayoutOptions.Start
-            }
-            : new Label
-            {
-                Text = taskDisplay.IsShortAnticipation ? "️" : "⏳",
-                FontSize = 18,
-                HorizontalOptions = LayoutOptions.End,
-                VerticalOptions = LayoutOptions.Start
-            };
-
-        // Contenido de la card
-        var titleLabel = new Label
-        {
-            Text = task.Title,
-            FontSize = 16,
-            FontAttributes = task.Status == ItemStatus.Completed ? FontAttributes.None : FontAttributes.Bold,
-            TextColor = task.Status == ItemStatus.Completed ? secondaryTextColor : textColor,
-            TextDecorations = task.Status == ItemStatus.Completed ? TextDecorations.Strikethrough : TextDecorations.None
-        };
-
-        var dueDateLabel = new Label
-        {
-            Text = $" Vence: {task.DueDate:dd/MM/yyyy}",
-            FontSize = 13,
-            TextColor = secondaryTextColor
-        };
-
-        var subjectLabel = task.SubjectId > 0 && _subjectsDict.TryGetValue(task.SubjectId, out var subject)
-            ? new Label
-            {
-                Text = $"📚 {subject.Name}",
-                FontSize = 12,
-                TextColor = secondaryTextColor
-            }
-            : task.SubjectId > 0
-            ? new Label
-            {
-                Text = $"📚 Materia #{task.SubjectId}",
-                FontSize = 12,
-                TextColor = secondaryTextColor
-            }
-            : null;
-
-        var contentStack = new VerticalStackLayout
-        {
-            Spacing = 4,
-            Padding = new Thickness(12, 8),
-            Children = { titleLabel, dueDateLabel }
-        };
-
-        if (subjectLabel != null)
-        {
-            contentStack.Children.Add(subjectLabel);
-        }
-
-        // Layout horizontal: barra de color + contenido
-        var cardLayout = new HorizontalStackLayout
-        {
-            Spacing = 0,
-            Children = { colorBar, contentStack }
-        };
-
-        // Layout principal con indicador de estado
-        var mainLayout = new Grid
-        {
-            ColumnDefinitions = 
-            {
-                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                new ColumnDefinition { Width = GridLength.Auto }
-            }
-        };
-        mainLayout.Children.Add(cardLayout);
-        Grid.SetColumn(cardLayout, 0);
-        mainLayout.Children.Add(statusIndicator);
-        Grid.SetColumn(statusIndicator, 1);
-
-        // Card con sombra y bordes redondeados
-        var cardFrame = new Frame
-        {
-            Content = mainLayout,
-            BackgroundColor = task.Status == ItemStatus.Completed ? completedBgColor : cardBgColor,
-            CornerRadius = 12,
-            Padding = 0,
-            HasShadow = true,
-            BorderColor = Colors.Transparent,
-            Shadow = new Shadow
-            {
-                Brush = Colors.Black,
-                Opacity = 0.15f,
-                Offset = new Point(0, 4),
-                Radius = 8
-            }
-        };
-
-        // Hacer que los hijos no intercepten toques
-        mainLayout.InputTransparent = false;
-        cardLayout.InputTransparent = true;
-        contentStack.InputTransparent = true;
-        colorBar.InputTransparent = true;
-        titleLabel.InputTransparent = true;
-        dueDateLabel.InputTransparent = true;
-        if (subjectLabel != null)
-        {
-            subjectLabel.InputTransparent = true;
-        }
-        statusIndicator.InputTransparent = true;
-
-        // Tap para mostrar opciones
-        var gesture = new TapGestureRecognizer();
-        gesture.Tapped += async (s, e) =>
+        if (sender is Frame frame && frame.BindingContext is TaskDisplay taskDisplay)
         {
             try
             {
+                var task = taskDisplay.TaskItem;
+                var options = task.Status == ItemStatus.Completed
+                    ? new[] { "Eliminar" }
+                    : new[] { "Completar", "Eliminar" };
+
                 var action = await DisplayActionSheet(
                     task.Title,
                     "Cancelar",
                     null,
-                    task.Status == ItemStatus.Completed ? new[] { "Eliminar" } : new[] { "Completar", "Eliminar" });
+                    options);
 
                 if (action == "Completar")
                 {
                     await _viewModel.CompleteTaskAsync(taskDisplay);
-                    await BuildTaskCardsAsync();
                 }
                 else if (action == "Eliminar")
                 {
@@ -289,7 +113,6 @@ public partial class TasksPage : ContentPage
                     if (confirm)
                     {
                         await _viewModel.DeleteTaskAsync(taskDisplay);
-                        await BuildTaskCardsAsync();
                     }
                 }
             }
@@ -297,41 +120,6 @@ public partial class TasksPage : ContentPage
             {
                 await DisplayAlert("Error", ex.Message, "OK");
             }
-        };
-        mainLayout.GestureRecognizers.Add(gesture);
-
-        return cardFrame;
-    }
-
-    private string GetSubjectColor(int subjectId)
-    {
-        if (_subjectsDict.TryGetValue(subjectId, out var subject))
-        {
-            return subject.ColorHex;
-        }
-        return "#6B7280";
-    }
-
-    /// <summary>
-    /// Anima las cards con un efecto de deslizamiento desde abajo.
-    /// </summary>
-    private async Task AnimateCardsAsync(List<Frame> cards)
-    {
-        const int staggerDelay = 80;
-        const int animationDuration = 300;
-        const double slideDistance = 50;
-
-        for (int i = 0; i < cards.Count; i++)
-        {
-            var card = cards[i];
-            
-            card.Opacity = 0;
-            card.TranslationY = slideDistance;
-
-            await Task.Delay(staggerDelay);
-
-            _ = card.TranslateTo(0, 0, (uint)animationDuration, Easing.CubicOut);
-            _ = card.FadeTo(1, (uint)animationDuration, Easing.CubicOut);
         }
     }
 

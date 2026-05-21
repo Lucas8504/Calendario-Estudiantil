@@ -3,13 +3,21 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:config="clr-namespace:Calendario_Estudiantil.Configuration"
              xmlns:controls="clr-namespace:Calendario_Estudiantil.Controls"
+             xmlns:converters="clr-namespace:Calendario_Estudiantil.Converters"
              x:Class="Calendario_Estudiantil.Views.TasksPage"
              Title="Tareas"
              Padding="0"
              NavigationPage.HasNavigationBar="False">
 
+    <ContentPage.Resources>
+        <converters:HexToColorConverter x:Key="HexToColorConverter"/>
+        <converters:TaskStatusToEmojiConverter x:Key="TaskStatusToEmojiConverter"/>
+        <converters:SubjectIdToVisibilityConverter x:Key="SubjectIdToVisibilityConverter"/>
+    </ContentPage.Resources>
+
     <Grid RowSpacing="0" ColumnSpacing="0">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -101,17 +109,60 @@
         </ScrollView>
 
         <!-- Lista de tareas -->
-        <ScrollView Grid.Row="2" Orientation="Vertical" 
-                    VerticalScrollBarVisibility="Always"
-                    BackgroundColor="{AppThemeBinding Light=#F8F9FA, Dark=#121212}"
-                    Margin="0,50,0,0">
-            <VerticalStackLayout x:Name="TasksContainer" 
-                                 Spacing="12" Padding="16"
-                                 VerticalOptions="Start"/>
-        </ScrollView>
+        <CollectionView x:Name="TasksCollectionView"
+                        Grid.Row="3"
+                        ItemsSource="{Binding Tasks}"
+                        BackgroundColor="{AppThemeBinding Light=#F8F9FA, Dark=#121212}"
+                        SelectionMode="None"
+                        ItemSizingStrategy="MeasureAllItems">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="12"/>
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Padding="0" CornerRadius="12" HasShadow="True" BorderColor="Transparent">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnTaskTapped"/>
+                        </Frame.GestureRecognizers>
+                        <Grid ColumnSpacing="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="6"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Barra de color lateral -->
+                            <BoxView Grid.Column="0" Color="{Binding SubjectColor}"
+                                     HorizontalOptions="Fill" VerticalOptions="Fill"/>
+
+                            <!-- Contenido -->
+                            <VerticalStackLayout Grid.Column="1" Spacing="4" Padding="12,8">
+                                <Label Text="{Binding TaskItem.Title}" FontSize="16"
+                                       TextColor="{AppThemeBinding Light=#333333, Dark=#E0E0E0}"/>
+                                <Label Text="{Binding TaskItem.DueDate, StringFormat='📅 Vence: {0:dd/MM/yyyy}'}"
+                                       FontSize="13"
+                                       TextColor="{AppThemeBinding Light=#888888, Dark=#A0A0A0}"/>
+                                <Label Text="{Binding SubjectName, StringFormat='📚 {0}'}"
+                                       FontSize="12"
+                                       TextColor="{AppThemeBinding Light=#888888, Dark=#A0A0A0}"
+                                       IsVisible="{Binding TaskItem.SubjectId, Converter={StaticResource SubjectIdToVisibilityConverter}}"/>
+                            </VerticalStackLayout>
+
+                            <!-- Indicador de estado -->
+                            <Label Grid.Column="2" Text="{Binding TaskItem.Status, Converter={StaticResource TaskStatusToEmojiConverter}}"
+                                   FontSize="18" HorizontalOptions="End" VerticalOptions="Start" Margin="0,8,12,0"/>
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+            <CollectionView.EmptyView>
+                <Label Text="📭 No hay tareas para mostrar" FontSize="16" TextColor="Gray"
+                       HorizontalOptions="Center" VerticalOptions="Center" Margin="0,40,0,0"/>
+            </CollectionView.EmptyView>
+        </CollectionView>
 
         <!-- FAB para agregar -->
-        <Button Grid.Row="2" Text="+" 
+        <Button Grid.Row="3" Text="+" 
                 FontSize="28" FontAttributes="Bold"
                 WidthRequest="56" HeightRequest="56" CornerRadius="16"
                 BackgroundColor="{x:Static config:AppConstants.Accent}"
@@ -122,6 +173,6 @@
                 Shadow="{Shadow Brush='Black', Opacity=0.3, Offset='0,2', Radius=4}"/>
 
         <!-- Barra de navegación inferior -->
-        <controls:BottomNavView Grid.Row="3" ActiveTab="Tasks"/>
+        <controls:BottomNavView Grid.Row="4" ActiveTab="Tasks"/>
     </Grid>
 </ContentPage>

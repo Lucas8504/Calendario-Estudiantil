@@ -13,6 +13,8 @@ namespace Calendario_Estudiantil.ViewModels;
 public partial class TasksViewModel : ObservableObject
 {
     private readonly ITaskService _taskService;
+    private readonly ISubjectService? _subjectService;
+    private Dictionary<int, Subject> _subjectsDict = new();
 
     [ObservableProperty]
     private ObservableCollection<TaskDisplay> _tasks = new();
@@ -29,9 +31,17 @@ public partial class TasksViewModel : ObservableObject
     // Todas las tareas sin filtrar (para búsqueda)
     private List<TaskDisplay> _allTasks = new();
 
-    public TasksViewModel(ITaskService taskService)
+    public TasksViewModel(ITaskService taskService, ISubjectService? subjectService = null)
     {
         _taskService = taskService;
+        _subjectService = subjectService;
+    }
+
+    public async Task LoadSubjectsAsync()
+    {
+        if (_subjectService == null) return;
+        var subjects = await _subjectService.GetAllAsync();
+        _subjectsDict = subjects.ToDictionary(s => s.Id);
     }
 
     [RelayCommand]
@@ -50,7 +60,9 @@ public partial class TasksViewModel : ObservableObject
             var display = list.Select(t => new TaskDisplay
             {
                 TaskItem = t,
-                IsShortAnticipation = _taskService.IsShortAnticipation(t.NotificationHours)
+                IsShortAnticipation = _taskService.IsShortAnticipation(t.NotificationHours),
+                SubjectName = _subjectsDict.TryGetValue(t.SubjectId, out var s) ? s.Name : null,
+                SubjectColor = _subjectsDict.TryGetValue(t.SubjectId, out var s2) ? s2.ColorHex : "#6B7280"
             }).ToList();
 
             _allTasks = display;
@@ -121,4 +133,6 @@ public class TaskDisplay
 {
     public TaskItem TaskItem { get; set; } = null!;
     public bool IsShortAnticipation { get; set; }
+    public string? SubjectName { get; set; }
+    public string SubjectColor { get; set; } = "#6B7280";
 }
