@@ -1,4 +1,5 @@
 using Calendario_Estudiantil.Configuration;
+using Calendario_Estudiantil.Helpers;
 using Calendario_Estudiantil.Models;
 using Calendario_Estudiantil.Services;
 using Calendario_Estudiantil.ViewModels;
@@ -59,23 +60,17 @@ public partial class SubjectsPage : ContentPage
 
     private void OnSearchClicked(object sender, EventArgs e)
     {
-        SearchBarFrame.IsVisible = !SearchBarFrame.IsVisible;
-        if (SearchBarFrame.IsVisible)
-        {
-            SearchEntry.Focus();
-        }
+        SearchHelper.ToggleSearch(SearchBarFrame, SearchEntry);
     }
 
     private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
     {
-        _viewModel.Search(e.NewTextValue);
+        SearchHelper.UpdateSearch(_viewModel, (vm, q) => vm.Search(q), e.NewTextValue);
     }
 
     private void OnClearSearchClicked(object sender, EventArgs e)
     {
-        _viewModel.ClearSearch();
-        SearchEntry.Text = string.Empty;
-        SearchBarFrame.IsVisible = false;
+        SearchHelper.ClearSearch(_viewModel, (vm, _) => vm.ClearSearch(), SearchEntry, SearchBarFrame);
     }
 
     private async void OnSettingsClicked(object sender, EventArgs e)
@@ -92,67 +87,7 @@ public partial class SubjectsPage : ContentPage
 
     private async void OnNotificationsClicked(object sender, EventArgs e)
     {
-        try
-        {
-            var pendingTasks = await _taskService.GetPendingAsync();
-            
-            if (!pendingTasks.Any())
-            {
-                await DisplayAlert("Notificaciones", "🎉 No tenés tareas pendientes", "OK");
-                return;
-            }
-
-            var subjects = await _subjectService.GetAllAsync();
-            var subjectDict = subjects.ToDictionary(s => s.Id, s => s.Name);
-
-            var taskNames = pendingTasks
-                .Take(10)
-                .Select(t => $"{t.Title} ({subjectDict.GetValueOrDefault(t.SubjectId, "Sin materia")})")
-                .ToArray();
-
-            var options = new[] { "Cancelar" }.Concat(taskNames).ToArray();
-            
-            var action = await DisplayActionSheet(
-                $"📋 Tareas pendientes ({pendingTasks.Count})",
-                "Cerrar",
-                null,
-                options);
-
-            if (action != "Cancelar" && !string.IsNullOrEmpty(action))
-            {
-                var selectedTask = pendingTasks.FirstOrDefault(t => 
-                    $"{t.Title} ({subjectDict.GetValueOrDefault(t.SubjectId, "Sin materia")})" == action);
-                
-                if (selectedTask != null)
-                {
-                    var subjectName = subjectDict.GetValueOrDefault(selectedTask.SubjectId, "Sin materia");
-                    var statusEmoji = selectedTask.Status switch
-                    {
-                        ItemStatus.Pending => "⏳",
-                        ItemStatus.InProgress => "🔄",
-                        ItemStatus.Completed => "✅",
-                        ItemStatus.Expired => "❌",
-                        _ => "❓"
-                    };
-                    
-                    var details = $"📚 Materia: {subjectName}\n" +
-                                  $"📝 Título: {selectedTask.Title}\n" +
-                                  $"📅 Vence: {selectedTask.DueDate:dd/MM/yyyy HH:mm}\n" +
-                                  $"📊 Estado: {statusEmoji} {selectedTask.Status}";
-                    
-                    if (!string.IsNullOrEmpty(selectedTask.Description))
-                    {
-                        details += $"\n📄 Descripción: {selectedTask.Description}";
-                    }
-
-                    await DisplayAlert("Detalle de Tarea", details, "OK");
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            await DisplayAlert("Error", $"No se pudieron cargar las tareas: {ex.Message}", "OK");
-        }
+        await NotificationHelper.ShowPendingTasksAsync(this, _taskService, _subjectService);
     }
 
     private async void OnAddSubject(object sender, EventArgs e)

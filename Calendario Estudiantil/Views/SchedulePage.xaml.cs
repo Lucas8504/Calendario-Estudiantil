@@ -1,5 +1,6 @@
 using Calendario_Estudiantil.Configuration;
 using Calendario_Estudiantil.Data;
+using Calendario_Estudiantil.Helpers;
 using Calendario_Estudiantil.Models;
 using Calendario_Estudiantil.Services;
 using Calendario_Estudiantil.ViewModels;
@@ -116,33 +117,7 @@ public partial class SchedulePage : ContentPage
         }
 
         // Animar cards con efecto cascada
-        await AnimateCardsAsync(cardViews);
-    }
-
-    /// <summary>
-    /// Anima las cards con un efecto de deslizamiento desde abajo.
-    /// </summary>
-    private async Task AnimateCardsAsync(List<Frame> cards)
-    {
-        const int staggerDelay = 80; // ms entre cada card
-        const int animationDuration = 300; // ms por animación
-        const double slideDistance = 50; // píxeles a deslizar
-
-        for (int i = 0; i < cards.Count; i++)
-        {
-            var card = cards[i];
-            
-            // Estado inicial: invisible y desplazado hacia abajo
-            card.Opacity = 0;
-            card.TranslationY = slideDistance;
-
-            // Pequeño delay para efecto cascada
-            await Task.Delay(staggerDelay);
-
-            // Animar: aparecer y deslizar hacia arriba
-            _ = card.TranslateTo(0, 0, (uint)animationDuration, Easing.CubicOut);
-            _ = card.FadeTo(1, (uint)animationDuration, Easing.CubicOut);
-        }
+        await CardAnimationHelper.AnimateCardsAsync(cardViews);
     }
 
     private Frame CreateCard(ScheduleCard card)
@@ -311,24 +286,17 @@ public partial class SchedulePage : ContentPage
 
     private void OnSearchClicked(object sender, EventArgs e)
     {
-        // Mostrar/ocultar barra de búsqueda
-        SearchBarFrame.IsVisible = !SearchBarFrame.IsVisible;
-        if (SearchBarFrame.IsVisible)
-        {
-            SearchEntry.Focus();
-        }
+        SearchHelper.ToggleSearch(SearchBarFrame, SearchEntry);
     }
 
     private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
     {
-        _viewModel.Search(e.NewTextValue);
+        SearchHelper.UpdateSearch(_viewModel, (vm, q) => vm.Search(q), e.NewTextValue);
     }
 
     private void OnClearSearchClicked(object sender, EventArgs e)
     {
-        _viewModel.ClearSearch();
-        SearchEntry.Text = string.Empty;
-        SearchBarFrame.IsVisible = false;
+        SearchHelper.ClearSearch(_viewModel, (vm, _) => vm.ClearSearch(), SearchEntry, SearchBarFrame);
     }
 
     private async void OnSettingsClicked(object sender, EventArgs e)
@@ -345,111 +313,6 @@ public partial class SchedulePage : ContentPage
 
     private async void OnNotificationsClicked(object sender, EventArgs e)
     {
-        try
-        {
-            var pendingTasks = await _taskService.GetPendingAsync();
-            
-            if (!pendingTasks.Any())
-            {
-                await DisplayAlert("Notificaciones", "🎉 No tenés tareas pendientes", "OK");
-                return;
-            }
-
-            var subjects = await _subjectService.GetAllAsync();
-            var subjectDict = subjects.ToDictionary(s => s.Id, s => s.Name);
-
-            var taskNames = pendingTasks
-                .Take(10)
-                .Select(t => $"{t.Title} ({subjectDict.GetValueOrDefault(t.SubjectId, "Sin materia")})")
-                .ToArray();
-
-            var options = new[] { "Cancelar" }.Concat(taskNames).ToArray();
-            
-            var action = await DisplayActionSheet(
-                $"📋 Tareas pendientes ({pendingTasks.Count})",
-                "Cerrar",
-                null,
-                options);
-
-            if (action != "Cancelar" && !string.IsNullOrEmpty(action))
-            {
-                var selectedTask = pendingTasks.FirstOrDefault(t => 
-                    $"{t.Title} ({subjectDict.GetValueOrDefault(t.SubjectId, "Sin materia")})" == action);
-                
-                if (selectedTask != null)
-                {
-                    var subjectName = subjectDict.GetValueOrDefault(selectedTask.SubjectId, "Sin materia");
-                    var statusEmoji = selectedTask.Status switch
-                    {
-                        ItemStatus.Pending => "⏳",
-                        ItemStatus.InProgress => "🔄",
-                        ItemStatus.Completed => "✅",
-                        ItemStatus.Expired => "❌",
-                        _ => "❓"
-                    };
-                    
-                    var details = $"📚 Materia: {subjectName}\n" +
-                                  $"📝 Título: {selectedTask.Title}\n" +
-                                  $"📅 Vence: {selectedTask.DueDate:dd/MM/yyyy HH:mm}\n" +
-                                  $"📊 Estado: {statusEmoji} {selectedTask.Status}";
-                    
-                    if (!string.IsNullOrEmpty(selectedTask.Description))
-                    {
-                        details += $"\n📄 Descripción: {selectedTask.Description}";
-                    }
-
-                    await DisplayAlert("Detalle de Tarea", details, "OK");
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            await DisplayAlert("Error", $"No se pudieron cargar las tareas: {ex.Message}", "OK");
-        }
-    }
-
-    private async Task ShowPendingTasksAsync()
-    {
-        try
-        {
-            var pendingTasks = await _taskService.GetPendingAsync();
-            
-            if (!pendingTasks.Any())
-            {
-                await DisplayAlert("Notificaciones", " No tenés tareas pendientes", "OK");
-                return;
-            }
-
-            // Mostrar las tareas próximas en un ActionSheet
-            var taskNames = pendingTasks
-                .Take(10) // Limitar a 10 para no saturar
-                .Select(t => $"{t.Title} - {t.DueDate:dd/MM}")
-                .ToArray();
-
-            var options = new[] { "Cancelar" }.Concat(taskNames).ToArray();
-            
-            var action = await DisplayActionSheet(
-                $" Tareas pendientes ({pendingTasks.Count})",
-                "Cerrar",
-                null,
-                options);
-
-            // Si seleccionó una tarea, navegar a ella
-            if (action != "Cancelar" && !string.IsNullOrEmpty(action))
-            {
-                var selectedTask = pendingTasks.FirstOrDefault(t => 
-                    $"{t.Title} - {t.DueDate:dd/MM}" == action);
-                
-                if (selectedTask != null)
-                {
-                    // TODO: Navegar al detalle de la tarea
-                    await DisplayAlert("Tarea", $"Seleccionaste: {selectedTask.Title}", "OK");
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            await DisplayAlert("Error", $"No se pudieron cargar las tareas: {ex.Message}", "OK");
-        }
+        await NotificationHelper.ShowPendingTasksAsync(this, _taskService, _subjectService);
     }
 }
