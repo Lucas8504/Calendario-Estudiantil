@@ -12,7 +12,7 @@ public class Subtask
 
     public int TaskItemId { get; set; }
 
-    [NotNull]
+    [NotNull, MaxLength(200)]
     public string Title { get; set; } = string.Empty;
 
     public bool IsCompleted { get; set; }

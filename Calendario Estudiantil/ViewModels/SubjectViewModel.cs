@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Calendario_Estudiantil.Helpers;
 using Calendario_Estudiantil.Models;
 
 namespace Calendario_Estudiantil.ViewModels;
@@ -57,7 +58,7 @@ public partial class SubjectViewModel : ObservableObject
                 s.Name.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase))
               .ToList();
 
-        Subjects = new ObservableCollection<Subject>(filtered);
+        Subjects.ReplaceWith(filtered);
     }
 
     /// <summary>
@@ -85,7 +86,7 @@ public partial class SubjectViewModel : ObservableObject
         var subject = new Subject
         {
             Name = name.Trim(),
-            ColorHex = colorHex
+            ColorHex = ColorValidation.Validate(colorHex)
         };
 
         await _subjectService.CreateAsync(subject);

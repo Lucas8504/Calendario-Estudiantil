@@ -16,6 +16,19 @@ public partial class SchedulePage : ContentPage
     private readonly ISubjectService _subjectService;
     private readonly ITaskService _taskService;
 
+    // Cached colors to avoid repeated Color.FromArgb allocations
+    private static readonly Color CachedGray666 = Color.FromArgb("#666666");
+    private static readonly Color CachedWhite = Colors.White;
+    private static readonly Color CachedDark1E1E1E = Color.FromArgb("#1E1E1E");
+    private static readonly Color CachedDarkE0E0E0 = Color.FromArgb("#E0E0E0");
+    private static readonly Color CachedLight333333 = Color.FromArgb("#333333");
+    private static readonly Color CachedDarkA0A0A0 = Color.FromArgb("#A0A0A0");
+    private static readonly Color CachedLightGray = Colors.Gray;
+    private static readonly Color CachedDarkFF5252 = Color.FromArgb("#FF5252");
+    private static readonly Color CachedLightE53E3E = Color.FromArgb("#E53E3E");
+    private static readonly Color CachedDark2C1A1A = Color.FromArgb("#2C1A1A");
+    private static readonly Color CachedLightFFF5F5 = Color.FromArgb("#FFF5F5");
+
     public SchedulePage(ScheduleDayViewModel viewModel, ISubjectService subjectService, ITaskService taskService)
     {
         InitializeComponent();
@@ -34,7 +47,7 @@ public partial class SchedulePage : ContentPage
             base.OnAppearing();
             BuildDayTabs();
             await _viewModel.LoadDayAsync();
-            BuildCards();
+            await BuildCardsAsync();
         }
         catch (Exception ex)
         {
@@ -69,14 +82,14 @@ public partial class SchedulePage : ContentPage
             {
                 await _viewModel.SelectDayAsync(selectedDay);
                 BuildDayTabs(); // Rebuild to update selected state
-                BuildCards();
+                await BuildCardsAsync();
             };
 
             DayTabsContainer.Children.Add(btn);
         }
     }
 
-    private async void BuildCards()
+    private async Task BuildCardsAsync()
     {
         CardsContainer.Children.Clear();
 
@@ -116,12 +129,12 @@ public partial class SchedulePage : ContentPage
     {
         // Determinar colores según el tema actual
         var isDark = Application.Current?.RequestedTheme == AppTheme.Dark;
-        var cardBgColor = isDark ? Color.FromArgb("#1E1E1E") : Colors.White;
-        var textColor = isDark ? Color.FromArgb("#E0E0E0") : Color.FromArgb("#333333");
-        var secondaryTextColor = isDark ? Color.FromArgb("#A0A0A0") : Colors.Gray;
-        var nowBgColor = isDark ? Color.FromArgb("#FF5252") : Color.FromArgb("#E53E3E");
-        var cardBgNowColor = isDark ? Color.FromArgb("#2C1A1A") : Color.FromArgb("#FFF5F5");
-        var borderColor = isDark ? Color.FromArgb("#FF5252") : Color.FromArgb("#E53E3E");
+        var cardBgColor = isDark ? CachedDark1E1E1E : CachedWhite;
+        var textColor = isDark ? CachedDarkE0E0E0 : CachedLight333333;
+        var secondaryTextColor = isDark ? CachedDarkA0A0A0 : CachedLightGray;
+        var nowBgColor = isDark ? CachedDarkFF5252 : CachedLightE53E3E;
+        var cardBgNowColor = isDark ? CachedDark2C1A1A : CachedLightFFF5F5;
+        var borderColor = isDark ? CachedDarkFF5252 : CachedLightE53E3E;
 
         // Borde de color lateral
         var colorBar = new BoxView

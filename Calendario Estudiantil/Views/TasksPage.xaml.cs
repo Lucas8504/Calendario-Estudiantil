@@ -14,6 +14,17 @@ public partial class TasksPage : ContentPage
     private readonly ITaskService _taskService;
     private Dictionary<int, Subject> _subjectsDict = new();
 
+    // Cached colors to avoid repeated Color.FromArgb allocations
+    private static readonly Color CachedGray666 = Color.FromArgb("#666666");
+    private static readonly Color CachedWhite = Colors.White;
+    private static readonly Color CachedDark1E1E1E = Color.FromArgb("#1E1E1E");
+    private static readonly Color CachedDarkE0E0E0 = Color.FromArgb("#E0E0E0");
+    private static readonly Color CachedLight333333 = Color.FromArgb("#333333");
+    private static readonly Color CachedDarkA0A0A0 = Color.FromArgb("#A0A0A0");
+    private static readonly Color CachedLightGray = Colors.Gray;
+    private static readonly Color CachedDark2C2C2C = Color.FromArgb("#2C2C2C");
+    private static readonly Color CachedLightF9FAFB = Color.FromArgb("#F9FAFB");
+
     // Filtros disponibles
     private static readonly string[] FilterOptions = { "Todos", "Hoy", "Pendientes", "Vencidas" };
 
@@ -36,7 +47,7 @@ public partial class TasksPage : ContentPage
             BuildFilterTabs();
             await LoadSubjectsAsync();
             await _viewModel.LoadTasksAsync();
-            BuildTaskCards();
+            await BuildTaskCardsAsync();
         }
         catch (Exception ex)
         {
@@ -77,14 +88,14 @@ public partial class TasksPage : ContentPage
                 _viewModel.FilterMode = selectedFilter;
                 await _viewModel.LoadTasksAsync();
                 BuildFilterTabs();
-                BuildTaskCards();
+                await BuildTaskCardsAsync();
             };
 
             FilterTabsContainer.Children.Add(btn);
         }
     }
 
-    private async void BuildTaskCards()
+    private async Task BuildTaskCardsAsync()
     {
         TasksContainer.Children.Clear();
 
@@ -126,10 +137,10 @@ public partial class TasksPage : ContentPage
         
         // Determinar colores según el tema actual
         var isDark = Application.Current?.RequestedTheme == AppTheme.Dark;
-        var cardBgColor = isDark ? Color.FromArgb("#1E1E1E") : Colors.White;
-        var textColor = isDark ? Color.FromArgb("#E0E0E0") : Color.FromArgb("#333333");
-        var secondaryTextColor = isDark ? Color.FromArgb("#A0A0A0") : Colors.Gray;
-        var completedBgColor = isDark ? Color.FromArgb("#2C2C2C") : Color.FromArgb("#F9FAFB");
+        var cardBgColor = isDark ? CachedDark1E1E1E : CachedWhite;
+        var textColor = isDark ? CachedDarkE0E0E0 : CachedLight333333;
+        var secondaryTextColor = isDark ? CachedDarkA0A0A0 : CachedLightGray;
+        var completedBgColor = isDark ? CachedDark2C2C2C : CachedLightF9FAFB;
         var colorHex = task.SubjectId > 0 ? GetSubjectColor(task.SubjectId) : (isDark ? "#A0A0A0" : "#6B7280");
         
         // Borde de color lateral (usando color de la materia si existe)
@@ -270,7 +281,7 @@ public partial class TasksPage : ContentPage
                 if (action == "Completar")
                 {
                     await _viewModel.CompleteTaskAsync(taskDisplay);
-                    BuildTaskCards();
+                    await BuildTaskCardsAsync();
                 }
                 else if (action == "Eliminar")
                 {
@@ -278,7 +289,7 @@ public partial class TasksPage : ContentPage
                     if (confirm)
                     {
                         await _viewModel.DeleteTaskAsync(taskDisplay);
-                        BuildTaskCards();
+                        await BuildTaskCardsAsync();
                     }
                 }
             }

@@ -23,9 +23,10 @@ public class TaskItem
 
     public int SubjectId { get; set; }
 
-    [NotNull]
+    [NotNull, MaxLength(200)]
     public string Title { get; set; } = string.Empty;
 
+    [MaxLength(1000)]
     public string Description { get; set; } = string.Empty;
 
     /// <summary>

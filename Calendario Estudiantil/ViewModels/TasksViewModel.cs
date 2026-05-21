@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Calendario_Estudiantil.Helpers;
 using Calendario_Estudiantil.Models;
 using Calendario_Estudiantil.Services;
 
@@ -73,7 +74,7 @@ public partial class TasksViewModel : ObservableObject
                 t.TaskItem.Description?.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase) == true)
               .ToList();
 
-        Tasks = new ObservableCollection<TaskDisplay>(filtered);
+        Tasks.ReplaceWith(filtered);
     }
 
     /// <summary>

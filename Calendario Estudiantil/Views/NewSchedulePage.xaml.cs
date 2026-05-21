@@ -227,7 +227,7 @@ public partial class NewSchedulePage : ContentPage
                 var newSubject = new Subject
                 {
                     Name = newName,
-                    ColorHex = _subjectColor
+                    ColorHex = ColorValidation.Validate(_subjectColor)
                 };
                 await _subjectService.CreateAsync(newSubject);
                 subjectId = newSubject.Id; // <-- sqlite-net setea Id en el objeto, NO en el return value
@@ -238,7 +238,7 @@ public partial class NewSchedulePage : ContentPage
             else if (_subject != null)
             {
                 _subject.Name = newName;
-                _subject.ColorHex = _subjectColor;
+                _subject.ColorHex = ColorValidation.Validate(_subjectColor);
                 await _subjectService.UpdateAsync(_subject);
                 subjectId = _subject.Id;
             }

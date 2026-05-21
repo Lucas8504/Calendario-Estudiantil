@@ -4,31 +4,60 @@ using Calendario_Estudiantil.Models;
 namespace Calendario_Estudiantil.Services;
 
 /// <summary>
-/// Implementación del servicio de materias.
+/// Implementación del servicio de materias con caché.
 /// </summary>
 public class SubjectService : ISubjectService
 {
     private readonly IDatabaseService _databaseService;
+    private List<Subject>? _subjectsCache;
 
     public SubjectService(IDatabaseService databaseService)
     {
         _databaseService = databaseService;
     }
 
-    public Task<List<Subject>> GetAllAsync()
-        => _databaseService.GetAllSubjectsAsync();
+    public async Task<List<Subject>> GetAllAsync()
+    {
+        if (_subjectsCache != null)
+            return _subjectsCache;
 
-    public Task<Subject> GetByIdAsync(int id)
-        => _databaseService.GetSubjectByIdAsync(id);
+        _subjectsCache = await _databaseService.GetAllSubjectsAsync();
+        return _subjectsCache;
+    }
 
-    public Task<int> CreateAsync(Subject subject)
-        => _databaseService.InsertSubjectAsync(subject);
+    public async Task<Subject> GetByIdAsync(int id)
+    {
+        // Check cache first
+        if (_subjectsCache != null)
+        {
+            var cached = _subjectsCache.FirstOrDefault(s => s.Id == id);
+            if (cached != null)
+                return cached;
+        }
 
-    public Task<int> UpdateAsync(Subject subject)
-        => _databaseService.UpdateSubjectAsync(subject);
+        return await _databaseService.GetSubjectByIdAsync(id);
+    }
 
-    public Task<int> DeleteAsync(Subject subject)
-        => _databaseService.DeleteSubjectAsync(subject);
+    public async Task<int> CreateAsync(Subject subject)
+    {
+        var result = await _databaseService.InsertSubjectAsync(subject);
+        InvalidateCache();
+        return result;
+    }
+
+    public async Task<int> UpdateAsync(Subject subject)
+    {
+        var result = await _databaseService.UpdateSubjectAsync(subject);
+        InvalidateCache();
+        return result;
+    }
+
+    public async Task<int> DeleteAsync(Subject subject)
+    {
+        var result = await _databaseService.DeleteSubjectAsync(subject);
+        InvalidateCache();
+        return result;
+    }
 
     public Task<List<Schedule>> GetSchedulesAsync(int subjectId)
         => _databaseService.GetSchedulesBySubjectAsync(subjectId);
@@ -47,4 +76,9 @@ public class SubjectService : ISubjectService
     /// </summary>
     public Task<Dictionary<int, List<Schedule>>> GetSchedulesForSubjectsAsync(IEnumerable<int> subjectIds)
         => _databaseService.GetSchedulesForSubjectsAsync(subjectIds);
+
+    private void InvalidateCache()
+    {
+        _subjectsCache = null;
+    }
 }
