@@ -17,19 +17,14 @@ public partial class TasksPage : ContentPage
     // Filtros disponibles
     private static readonly string[] FilterOptions = { "Todos", "Hoy", "Pendientes", "Vencidas" };
 
-    public TasksPage()
+    public TasksPage(TasksViewModel viewModel, ISubjectService subjectService, ITaskService taskService)
     {
         InitializeComponent();
         
-        _subjectService = IPlatformApplication.Current?.Services
-            .GetRequiredService<ISubjectService>()
-            ?? throw new InvalidOperationException("ISubjectService not available");
+        _viewModel = viewModel;
+        _subjectService = subjectService;
+        _taskService = taskService;
         
-        _taskService = IPlatformApplication.Current?.Services
-            .GetRequiredService<ITaskService>()
-            ?? throw new InvalidOperationException("ITaskService not available");
-        
-        _viewModel = new TasksViewModel(_taskService);
         BindingContext = _viewModel;
     }
 
@@ -348,7 +343,9 @@ public partial class TasksPage : ContentPage
     {
         try
         {
-            await Navigation.PushAsync(new SettingsPage());
+            var settingsPage = IPlatformApplication.Current?.Services.GetService<SettingsPage>();
+            if (settingsPage != null)
+                await Navigation.PushAsync(settingsPage);
         }
         catch (Exception ex)
         {

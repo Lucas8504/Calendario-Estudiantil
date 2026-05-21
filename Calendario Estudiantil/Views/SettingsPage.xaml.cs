@@ -8,13 +8,11 @@ public partial class SettingsPage : ContentPage
 {
     private readonly IThemeService _themeService;
 
-    public SettingsPage()
+    public SettingsPage(IThemeService themeService)
     {
         InitializeComponent();
         
-        _themeService = IPlatformApplication.Current?.Services
-            .GetRequiredService<IThemeService>()
-            ?? throw new InvalidOperationException("IThemeService no disponible");
+        _themeService = themeService;
         
         // Seleccionar el tema actual
         SelectCurrentTheme();

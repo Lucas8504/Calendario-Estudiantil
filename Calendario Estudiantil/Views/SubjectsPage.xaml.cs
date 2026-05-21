@@ -13,19 +13,14 @@ public partial class SubjectsPage : ContentPage
     private readonly ISubjectService _subjectService;
     private readonly ITaskService _taskService;
 
-    public SubjectsPage()
+    public SubjectsPage(SubjectViewModel viewModel, ISubjectService subjectService, ITaskService taskService)
     {
         InitializeComponent();
         
-        _subjectService = IPlatformApplication.Current?.Services
-            .GetRequiredService<ISubjectService>()
-            ?? throw new InvalidOperationException("ISubjectService no disponible");
+        _viewModel = viewModel;
+        _subjectService = subjectService;
+        _taskService = taskService;
         
-        _taskService = IPlatformApplication.Current?.Services
-            .GetRequiredService<ITaskService>()
-            ?? throw new InvalidOperationException("ITaskService no disponible");
-        
-        _viewModel = new SubjectViewModel(_subjectService);
         BindingContext = _viewModel;
     }
 
@@ -77,7 +72,9 @@ public partial class SubjectsPage : ContentPage
     {
         try
         {
-            await Navigation.PushAsync(new SettingsPage());
+            var settingsPage = IPlatformApplication.Current?.Services.GetService<SettingsPage>();
+            if (settingsPage != null)
+                await Navigation.PushAsync(settingsPage);
         }
         catch (Exception ex)
         {

@@ -1,6 +1,8 @@
 using Calendario_Estudiantil.Configuration;
 using Calendario_Estudiantil.Data;
 using Calendario_Estudiantil.Services;
+using Calendario_Estudiantil.Views;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Maui.Controls;
 
 namespace Calendario_Estudiantil;
@@ -10,15 +12,25 @@ namespace Calendario_Estudiantil;
 /// </summary>
 public partial class App : Application
 {
-    public App()
+    private readonly IServiceProvider _services;
+
+    public App(IServiceProvider services)
     {
         InitializeComponent();
+        _services = services;
+    }
 
-        // NavigationPage como contenedor principal, SchedulePage como página raíz
-        var navPage = new NavigationPage(new Views.SchedulePage());
+    protected override Window CreateWindow(IActivationState? activationState)
+    {
+        // Resolver SchedulePage desde DI (inyección de dependencias)
+        var schedulePage = _services.GetRequiredService<SchedulePage>();
+        
+        var navPage = new NavigationPage(schedulePage);
         navPage.BarBackgroundColor = AppConstants.Theme.Accent;
         navPage.BarTextColor = Colors.White;
         MainPage = navPage;
+        
+        return base.CreateWindow(activationState);
     }
 
     protected override void OnStart()
@@ -36,9 +48,7 @@ public partial class App : Application
     {
         try
         {
-            var themeService = IPlatformApplication.Current?.Services
-                .GetRequiredService<IThemeService>();
-            
+            var themeService = _services.GetService<IThemeService>();
             themeService?.ApplyTheme();
         }
         catch (Exception ex)
@@ -51,9 +61,7 @@ public partial class App : Application
     {
         try
         {
-            // Acceder a la base de datos para forzar la creación de tablas
-            var dbService = IPlatformApplication.Current?.Services
-                .GetRequiredService<IDatabaseService>();
+            var dbService = _services.GetService<IDatabaseService>();
             if (dbService != null)
             {
                 _ = dbService.Database;

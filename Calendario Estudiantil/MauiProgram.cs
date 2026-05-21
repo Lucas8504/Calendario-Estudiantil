@@ -2,6 +2,9 @@ using Microsoft.Extensions.Logging;
 using CommunityToolkit.Maui;
 using Calendario_Estudiantil.Services;
 using Calendario_Estudiantil.Data;
+using Calendario_Estudiantil.ViewModels;
+using Calendario_Estudiantil.Views;
+using Calendario_Estudiantil.Controls;
 
 namespace Calendario_Estudiantil
 {
@@ -33,6 +36,22 @@ namespace Calendario_Estudiantil
             builder.Services.AddSingleton<ISubjectService, SubjectService>();
             builder.Services.AddSingleton<ITaskService, TaskService>();
             builder.Services.AddSingleton<IThemeService, ThemeService>();
+
+            // ViewModels (Transient - nueva instancia por página)
+            builder.Services.AddTransient<ScheduleDayViewModel>();
+            builder.Services.AddTransient<TasksViewModel>();
+            builder.Services.AddTransient<SubjectViewModel>();
+
+            // Views/Pages (Transient - nueva instancia por navegación)
+            builder.Services.AddTransient<SchedulePage>();
+            builder.Services.AddTransient<TasksPage>();
+            builder.Services.AddTransient<SubjectsPage>();
+            builder.Services.AddTransient<SettingsPage>();
+            builder.Services.AddTransient<NewSchedulePage>();
+            builder.Services.AddTransient<NewTaskPage>();
+
+            // Controles
+            builder.Services.AddTransient<BottomNavView>();
 
             // App principal (para que MAUI resuelva las dependencias)
             builder.Services.AddSingleton<App>();

@@ -15,23 +15,14 @@ public partial class SchedulePage : ContentPage
     private readonly ISubjectService _subjectService;
     private readonly ITaskService _taskService;
 
-    public SchedulePage()
+    public SchedulePage(ScheduleDayViewModel viewModel, ISubjectService subjectService, ITaskService taskService)
     {
         InitializeComponent();
         
-        var databaseService = IPlatformApplication.Current?.Services
-            .GetRequiredService<IDatabaseService>()
-            ?? throw new InvalidOperationException("IDatabaseService no disponible");
+        _viewModel = viewModel;
+        _subjectService = subjectService;
+        _taskService = taskService;
         
-        _subjectService = IPlatformApplication.Current?.Services
-            .GetRequiredService<ISubjectService>()
-            ?? throw new InvalidOperationException("ISubjectService no disponible");
-        
-        _taskService = IPlatformApplication.Current?.Services
-            .GetRequiredService<ITaskService>()
-            ?? throw new InvalidOperationException("ITaskService no disponible");
-        
-        _viewModel = new ScheduleDayViewModel(databaseService);
         BindingContext = _viewModel;
     }
 
@@ -303,7 +294,9 @@ public partial class SchedulePage : ContentPage
     {
         try
         {
-            await Navigation.PushAsync(new SettingsPage());
+            var settingsPage = IPlatformApplication.Current?.Services.GetService<SettingsPage>();
+            if (settingsPage != null)
+                await Navigation.PushAsync(settingsPage);
         }
         catch (Exception ex)
         {

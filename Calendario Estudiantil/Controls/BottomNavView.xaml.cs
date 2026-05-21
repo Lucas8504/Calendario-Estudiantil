@@ -92,9 +92,9 @@ public partial class BottomNavView : ContentView
 
     /// <summary>
     /// Navega a la página T, evitando duplicados en el stack.
-    /// Si ya existe una instancia, vuelve a ella; si no, la crea.
+    /// Si ya existe una instancia, vuelve a ella; si no, la resuelve desde DI.
     /// </summary>
-    private async Task NavigateToAsync<T>() where T : Page, new()
+    private async Task NavigateToAsync<T>() where T : Page
     {
         var nav = Application.Current?.MainPage?.Navigation;
         if (nav == null) return;
@@ -116,7 +116,12 @@ public partial class BottomNavView : ContentView
             }
         }
 
-        // No existe: crear nueva instancia
-        await nav.PushAsync(new T());
+        // No existe: resolver desde DI (inyección de dependencias)
+        var services = IPlatformApplication.Current?.Services;
+        var page = services?.GetService<T>();
+        if (page != null)
+        {
+            await nav.PushAsync(page);
+        }
     }
 }
