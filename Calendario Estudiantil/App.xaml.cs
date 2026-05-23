@@ -24,6 +24,10 @@ public partial class App : Application
     {
         // Resolver SchedulePage desde DI (inyección de dependencias)
         var schedulePage = _services.GetRequiredService<SchedulePage>();
+
+        // Pre-crear páginas secundarias (Singleton) para que el primer tap sea instantáneo
+        _ = _services.GetService<TasksPage>();
+        _ = _services.GetService<SubjectsPage>();
         
         var navPage = new NavigationPage(schedulePage);
         navPage.BarBackgroundColor = AppConstants.Theme.Accent;

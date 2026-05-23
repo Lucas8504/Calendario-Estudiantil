@@ -92,7 +92,9 @@ public partial class BottomNavView : ContentView
 
     /// <summary>
     /// Navega a la página T, evitando duplicados en el stack.
-    /// Si ya existe una instancia, vuelve a ella; si no, la resuelve desde DI.
+    /// Si ya existe una instancia, vuelve a ella.
+    /// Si no, la resuelve desde DI y reemplaza la página secundaria actual
+    /// para mantener el stack siempre en [Schedule, CurrentPage].
     /// </summary>
     private async Task NavigateToAsync<T>() where T : Page
     {
@@ -105,8 +107,8 @@ public partial class BottomNavView : ContentView
         if (stack.Count > 0 && stack[^1] is T)
             return;
 
-        // Buscar si ya existe en el stack y volver a ella
-        for (int i = 0; i < stack.Count; i++)
+        // Buscar si ya existe en el stack (excluyendo root) y volver a ella
+        for (int i = 1; i < stack.Count; i++)
         {
             if (stack[i] is T)
             {
@@ -116,10 +118,20 @@ public partial class BottomNavView : ContentView
             }
         }
 
-        // No existe: resolver desde DI (inyección de dependencias)
+        // No existe: resolver desde DI
         var services = IPlatformApplication.Current?.Services;
         var page = services?.GetService<T>();
-        if (page != null)
+        if (page == null) return;
+
+        // Reemplazar la página secundaria actual si existe,
+        // para que el stack nunca pase de [Schedule, CurrentPage]
+        if (stack.Count >= 2)
+        {
+            var currentTop = stack[^1];
+            nav.InsertPageBefore(page, currentTop);
+            nav.RemovePage(currentTop);
+        }
+        else
         {
             await nav.PushAsync(page);
         }

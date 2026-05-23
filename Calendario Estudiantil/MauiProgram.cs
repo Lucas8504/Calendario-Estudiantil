@@ -37,15 +37,15 @@ namespace Calendario_Estudiantil
             builder.Services.AddSingleton<ITaskService, TaskService>();
             builder.Services.AddSingleton<IThemeService, ThemeService>();
 
-            // ViewModels (Transient - nueva instancia por página)
-            builder.Services.AddTransient<ScheduleDayViewModel>();
-            builder.Services.AddTransient<TasksViewModel>();
-            builder.Services.AddTransient<SubjectViewModel>();
+            // ViewModels (Singleton - una instancia para toda la app)
+            builder.Services.AddSingleton<ScheduleDayViewModel>();
+            builder.Services.AddSingleton<TasksViewModel>();
+            builder.Services.AddSingleton<SubjectViewModel>();
 
-            // Views/Pages (Transient - nueva instancia por navegación)
-            builder.Services.AddTransient<SchedulePage>();
-            builder.Services.AddTransient<TasksPage>();
-            builder.Services.AddTransient<SubjectsPage>();
+            // Views/Pages (Singleton - misma instancia en cada navegación)
+            builder.Services.AddSingleton<SchedulePage>();
+            builder.Services.AddSingleton<TasksPage>();
+            builder.Services.AddSingleton<SubjectsPage>();
             builder.Services.AddTransient<SettingsPage>();
             builder.Services.AddTransient<NewSchedulePage>();
             builder.Services.AddTransient<NewTaskPage>();
