@@ -4,6 +4,7 @@ using Calendario_Estudiantil.Models;
 using Calendario_Estudiantil.Services;
 using Calendario_Estudiantil.ViewModels;
 using Microsoft.Maui.Controls;
+using System.Globalization;
 
 namespace Calendario_Estudiantil.Views;
 
@@ -16,6 +17,7 @@ public partial class SubjectsPage : ContentPage
     public SubjectsPage(SubjectViewModel viewModel, ISubjectService subjectService, ITaskService taskService)
     {
         InitializeComponent();
+        SubtitleLabel.Text = DateTime.Now.ToString("MMMM yyyy", CultureInfo.GetCultureInfo("es-ES")).ToUpperInvariant();
         
         _viewModel = viewModel;
         _subjectService = subjectService;

@@ -22,10 +22,37 @@ public partial class BottomNavView : ContentView
         set => SetValue(ActiveTabProperty, value);
     }
 
+    private static readonly Color InactiveColor = Color.FromArgb("#666666");
+    private static readonly Color InactiveColorDark = Color.FromArgb("#A0A0A0");
+
+    // Glyph codes for FluentUI icons
+    private const string CalendarGlyph = "\uE24F";
+    private const string TasksGlyph = "\uE35E";
+    private const string SubjectsGlyph = "\uF8FE";
+
     public BottomNavView()
     {
         InitializeComponent();
+        InitializeIcons();
         UpdateActiveTab(ActiveTab);
+    }
+
+    private void InitializeIcons()
+    {
+        ScheduleIcon.Source = CreateIconSource(CalendarGlyph);
+        TasksIcon.Source = CreateIconSource(TasksGlyph);
+        SubjectsIcon.Source = CreateIconSource(SubjectsGlyph);
+    }
+
+    private static FontImageSource CreateIconSource(string glyph, Color? color = null)
+    {
+        return new FontImageSource
+        {
+            Glyph = glyph,
+            FontFamily = "FluentIcons",
+            Color = color ?? InactiveColor,
+            Size = 20
+        };
     }
 
     private static void OnActiveTabChanged(BindableObject bindable, object oldValue, object newValue)
@@ -37,40 +64,43 @@ public partial class BottomNavView : ContentView
     private void UpdateActiveTab(string tab)
     {
         // Reset todos
-        ResetButton(ScheduleBtn, ScheduleIndicator);
-        ResetButton(TasksBtn, TasksIndicator);
-        ResetButton(SubjectsBtn, SubjectsIndicator);
+        ResetTab(ScheduleIcon, ScheduleLabel, ScheduleIndicator);
+        ResetTab(TasksIcon, TasksLabel, TasksIndicator);
+        ResetTab(SubjectsIcon, SubjectsLabel, SubjectsIndicator);
 
         // Resaltar el activo
         switch (tab)
         {
             case "Schedule":
-                HighlightButton(ScheduleBtn, ScheduleIndicator);
+                HighlightTab(ScheduleIcon, ScheduleLabel, ScheduleIndicator);
                 break;
             case "Tasks":
-                HighlightButton(TasksBtn, TasksIndicator);
+                HighlightTab(TasksIcon, TasksLabel, TasksIndicator);
                 break;
             case "Subjects":
-                HighlightButton(SubjectsBtn, SubjectsIndicator);
+                HighlightTab(SubjectsIcon, SubjectsLabel, SubjectsIndicator);
                 break;
         }
     }
 
-    private static void ResetButton(Button btn, BoxView indicator)
+    private static void ResetTab(Image icon, Label label, BoxView indicator)
     {
-        btn.TextColor = Color.FromArgb("#666666");
-        btn.FontAttributes = FontAttributes.None;
+        icon.Source = CreateIconSource(icon.Source is FontImageSource fis ? fis.Glyph : "");
+        label.TextColor = InactiveColor;
+        label.FontAttributes = FontAttributes.None;
         indicator.IsVisible = false;
     }
 
-    private static void HighlightButton(Button btn, BoxView indicator)
+    private static void HighlightTab(Image icon, Label label, BoxView indicator)
     {
-        btn.TextColor = AppConstants.Theme.Accent;
-        btn.FontAttributes = FontAttributes.Bold;
+        icon.Source = CreateIconSource(icon.Source is FontImageSource fis ? fis.Glyph : "", 
+                                        AppConstants.Theme.Accent);
+        label.TextColor = AppConstants.Theme.Accent;
+        label.FontAttributes = FontAttributes.Bold;
         indicator.IsVisible = true;
     }
 
-    private async void OnScheduleClicked(object sender, EventArgs e)
+    private async void OnScheduleClicked(object? sender, TappedEventArgs e)
     {
         if (ActiveTab == "Schedule") return;
         var nav = Application.Current?.MainPage?.Navigation;
@@ -78,13 +108,13 @@ public partial class BottomNavView : ContentView
         await nav.PopToRootAsync();
     }
 
-    private async void OnTasksClicked(object sender, EventArgs e)
+    private async void OnTasksClicked(object? sender, TappedEventArgs e)
     {
         if (ActiveTab == "Tasks") return;
         await NavigateToAsync<TasksPage>();
     }
 
-    private async void OnSubjectsClicked(object sender, EventArgs e)
+    private async void OnSubjectsClicked(object? sender, TappedEventArgs e)
     {
         if (ActiveTab == "Subjects") return;
         await NavigateToAsync<SubjectsPage>();

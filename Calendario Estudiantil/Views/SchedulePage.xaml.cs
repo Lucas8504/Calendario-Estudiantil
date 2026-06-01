@@ -6,6 +6,7 @@ using Calendario_Estudiantil.Models.Ui;
 using Calendario_Estudiantil.Services;
 using Calendario_Estudiantil.ViewModels;
 using CommunityToolkit.Maui.Views;
+using System.Globalization;
 using Microsoft.Maui.Controls;
 
 namespace Calendario_Estudiantil.Views;
@@ -32,6 +33,7 @@ public partial class SchedulePage : ContentPage
     public SchedulePage(ScheduleDayViewModel viewModel, ISubjectService subjectService, ITaskService taskService)
     {
         InitializeComponent();
+        SubtitleLabel.Text = DateTime.Now.ToString("MMMM yyyy", CultureInfo.GetCultureInfo("es-ES")).ToUpperInvariant();
         
         _viewModel = viewModel;
         _subjectService = subjectService;

@@ -8,7 +8,7 @@
     <Frame Margin="5,0,5,5" Padding="0" CornerRadius="12"
            BackgroundColor="{x:Static config:AppConstants.AccentLight}"
            BorderColor="Transparent" HasShadow="False">
-        <Grid ColumnSpacing="0" HeightRequest="48">
+        <Grid ColumnSpacing="0" HeightRequest="56">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
@@ -17,39 +17,57 @@
 
             <!-- Calendario -->
             <Grid Grid.Column="0">
-                <Button x:Name="ScheduleBtn" Text="📅 Calendario"
-                        Clicked="OnScheduleClicked"
-                        BackgroundColor="Transparent"
-                        FontSize="12"
-                        CornerRadius="0" HeightRequest="48"/>
+                <VerticalStackLayout x:Name="ScheduleTab" 
+                                     HorizontalOptions="Fill" VerticalOptions="Fill"
+                                     Spacing="0">
+                    <VerticalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnScheduleClicked"/>
+                    </VerticalStackLayout.GestureRecognizers>
+                    <Image x:Name="ScheduleIcon" HorizontalOptions="Center" 
+                           Margin="0,6,0,0" WidthRequest="22" HeightRequest="22"/>
+                    <Label x:Name="ScheduleLabel" Text="Calendario" FontSize="10"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
                 <BoxView x:Name="ScheduleIndicator" VerticalOptions="End"
-                         HeightRequest="3" Margin="15,0"
+                         HeightRequest="3" Margin="20,0"
                          BackgroundColor="{x:Static config:AppConstants.Accent}"
                          IsVisible="False"/>
             </Grid>
 
             <!-- Tareas -->
             <Grid Grid.Column="1">
-                <Button x:Name="TasksBtn" Text="📋 Tareas"
-                        Clicked="OnTasksClicked"
-                        BackgroundColor="Transparent"
-                        FontSize="12"
-                        CornerRadius="0" HeightRequest="48"/>
+                <VerticalStackLayout x:Name="TasksTab" 
+                                     HorizontalOptions="Fill" VerticalOptions="Fill"
+                                     Spacing="0">
+                    <VerticalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnTasksClicked"/>
+                    </VerticalStackLayout.GestureRecognizers>
+                    <Image x:Name="TasksIcon" HorizontalOptions="Center" 
+                           Margin="0,6,0,0" WidthRequest="22" HeightRequest="22"/>
+                    <Label x:Name="TasksLabel" Text="Tareas" FontSize="10"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
                 <BoxView x:Name="TasksIndicator" VerticalOptions="End"
-                         HeightRequest="3" Margin="15,0"
+                         HeightRequest="3" Margin="20,0"
                          BackgroundColor="{x:Static config:AppConstants.Accent}"
                          IsVisible="False"/>
             </Grid>
 
             <!-- Materias -->
             <Grid Grid.Column="2">
-                <Button x:Name="SubjectsBtn" Text="📚 Materias"
-                        Clicked="OnSubjectsClicked"
-                        BackgroundColor="Transparent"
-                        FontSize="12"
-                        CornerRadius="0" HeightRequest="48"/>
+                <VerticalStackLayout x:Name="SubjectsTab" 
+                                     HorizontalOptions="Fill" VerticalOptions="Fill"
+                                     Spacing="0">
+                    <VerticalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnSubjectsClicked"/>
+                    </VerticalStackLayout.GestureRecognizers>
+                    <Image x:Name="SubjectsIcon" HorizontalOptions="Center" 
+                           Margin="0,6,0,0" WidthRequest="22" HeightRequest="22"/>
+                    <Label x:Name="SubjectsLabel" Text="Materias" FontSize="10"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
                 <BoxView x:Name="SubjectsIndicator" VerticalOptions="End"
-                         HeightRequest="3" Margin="15,0"
+                         HeightRequest="3" Margin="20,0"
                          BackgroundColor="{x:Static config:AppConstants.Accent}"
                          IsVisible="False"/>
             </Grid>

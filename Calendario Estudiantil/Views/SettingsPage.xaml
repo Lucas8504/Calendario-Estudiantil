@@ -24,10 +24,15 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Botón volver -->
-                <Button Grid.Column="0" Text="←" BackgroundColor="Transparent"
+                <Button Grid.Column="0" BackgroundColor="Transparent"
                         WidthRequest="40" HeightRequest="40" CornerRadius="20"
-                        FontSize="20" Padding="0" TextColor="{AppThemeBinding Light=#666666, Dark=#A0A0A0}"
-                        Clicked="OnBackClicked"/>
+                        Padding="0"
+                        Clicked="OnBackClicked">
+                    <Button.ImageSource>
+                        <FontImageSource Glyph="&#xF15C;" FontFamily="FluentIcons"
+                                         Color="{AppThemeBinding Light=#666666, Dark=#A0A0A0}" Size="20"/>
+                    </Button.ImageSource>
+                </Button>
 
                 <!-- Título -->
                 <Label Grid.Column="1" Text="Configuración" FontSize="20" FontAttributes="Bold"

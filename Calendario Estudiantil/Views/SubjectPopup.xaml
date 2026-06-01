@@ -33,19 +33,19 @@
                 <Frame Grid.Column="1"
                        BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2C2C2C}"
                        BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#444444}"
-                       Padding="4"
+                       Padding="0"
                        CornerRadius="4"
                        HasShadow="False"
-                       VerticalOptions="Center">
-                    <Label Text="✏️" FontSize="14"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center"
-                           HorizontalTextAlignment="Center"
-                           VerticalTextAlignment="Center">
-                        <Label.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnEditSubject"/>
-                        </Label.GestureRecognizers>
-                    </Label>
+                       VerticalOptions="Center"
+                       WidthRequest="32" HeightRequest="32">
+                    <Button BackgroundColor="Transparent" Padding="0"
+                            WidthRequest="32" HeightRequest="32"
+                            Clicked="OnEditSubject">
+                        <Button.ImageSource>
+                            <FontImageSource Glyph="&#xF3DE;" FontFamily="FluentIcons"
+                                             Color="{AppThemeBinding Light=#666666, Dark=#A0A0A0}" Size="16"/>
+                        </Button.ImageSource>
+                    </Button>
                 </Frame>
             </Grid>
 
@@ -97,12 +97,15 @@
                         TextColor="White"/>
 
                 <Button Grid.Column="1"
-                        Text="✕"
-                        Clicked="OnCancel"
                         BackgroundColor="#9E9E9E"
-                        TextColor="White"
-                        WidthRequest="40"
-                        HeightRequest="40"/>
+                        WidthRequest="40" HeightRequest="40" CornerRadius="20"
+                        Padding="0"
+                        Clicked="OnCancel">
+                    <Button.ImageSource>
+                        <FontImageSource Glyph="&#xF36A;" FontFamily="FluentIcons"
+                                         Color="White" Size="18"/>
+                    </Button.ImageSource>
+                </Button>
             </Grid>
 
         </VerticalStackLayout>

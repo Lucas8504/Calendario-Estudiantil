@@ -20,6 +20,8 @@ namespace Calendario_Estudiantil
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                    fonts.AddFont("FluentSystemIcons-Regular.ttf", "FluentIcons");
+                    fonts.AddFont("FluentSystemIcons-Filled.ttf", "FluentIconsFilled");
                 });
 
 #if DEBUG
