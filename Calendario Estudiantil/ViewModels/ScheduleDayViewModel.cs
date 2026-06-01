@@ -32,13 +32,7 @@ public partial class ScheduleDayViewModel : ObservableObject
     private bool _hasNoClasses;
 
     [ObservableProperty]
-    private string _searchQuery = string.Empty;
-
-    [ObservableProperty]
     private bool _hasNotifications;
-
-    // Todas las cards sin filtrar (para búsqueda)
-    private List<ScheduleCard> _allCards = new();
 
     // Días de la semana en orden
     private static readonly string[] WeekDays = { "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo" };
@@ -77,15 +71,14 @@ public partial class ScheduleDayViewModel : ObservableObject
                 .OrderBy(s => s.Schedule.StartTime)
                 .ToList();
 
-            _allCards = daySchedules
+            Cards.ReplaceWith(daySchedules
                 .Select(s => new ScheduleCard 
                 { 
                     Subject = s.Subject, 
                     Schedule = s.Schedule 
                 })
-                .ToList();
-
-            ApplySearchFilter();
+                .ToList());
+            HasNoClasses = !Cards.Any();
             
             // Verificar notificaciones (tareas pendientes para hoy)
             await CheckNotificationsAsync();
@@ -111,42 +104,6 @@ public partial class ScheduleDayViewModel : ObservableObject
         {
             HasNotifications = false;
         }
-    }
-
-    /// <summary>
-    /// Aplica el filtro de búsqueda sobre las cards del día seleccionado.
-    /// </summary>
-    private void ApplySearchFilter()
-    {
-        var filtered = string.IsNullOrWhiteSpace(SearchQuery)
-            ? _allCards
-            : _allCards.Where(c => 
-                c.SubjectName.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase) ||
-                c.TimeRange.Contains(SearchQuery))
-              .ToList();
-
-        Cards.ReplaceWith(filtered);
-        HasNoClasses = !Cards.Any();
-    }
-
-    /// <summary>
-    /// Busca horarios por nombre de materia o horario.
-    /// </summary>
-    [RelayCommand]
-    public void Search(string query)
-    {
-        SearchQuery = query;
-        ApplySearchFilter();
-    }
-
-    /// <summary>
-    /// Limpia el filtro de búsqueda.
-    /// </summary>
-    [RelayCommand]
-    public void ClearSearch()
-    {
-        SearchQuery = string.Empty;
-        ApplySearchFilter();
     }
 
     private DiaSemana GetDiaSemana(string dayName)

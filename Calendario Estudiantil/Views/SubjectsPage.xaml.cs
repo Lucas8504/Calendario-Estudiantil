@@ -1,5 +1,5 @@
-using Calendario_Estudiantil.Configuration;
 using Calendario_Estudiantil.Helpers;
+using Calendario_Estudiantil.Configuration;
 using Calendario_Estudiantil.Models;
 using Calendario_Estudiantil.Services;
 using Calendario_Estudiantil.ViewModels;
@@ -53,21 +53,6 @@ public partial class SubjectsPage : ContentPage
                 await DisplayAlert("Error", $"No se pudo abrir la materia: {ex.Message}", "OK");
             }
         }
-    }
-
-    private void OnSearchClicked(object sender, EventArgs e)
-    {
-        SearchHelper.ToggleSearch(SearchBarFrame, SearchEntry);
-    }
-
-    private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
-    {
-        SearchHelper.UpdateSearch(_viewModel, (vm, q) => vm.Search(q), e.NewTextValue);
-    }
-
-    private void OnClearSearchClicked(object sender, EventArgs e)
-    {
-        SearchHelper.ClearSearch(_viewModel, (vm, _) => vm.ClearSearch(), SearchEntry, SearchBarFrame);
     }
 
     private async void OnSettingsClicked(object sender, EventArgs e)

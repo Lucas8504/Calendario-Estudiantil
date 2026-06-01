@@ -25,11 +25,7 @@ public partial class TasksViewModel : ObservableObject
     [ObservableProperty]
     private bool _isLoading;
 
-    [ObservableProperty]
-    private string _searchQuery = string.Empty;
 
-    // Todas las tareas sin filtrar (para búsqueda)
-    private List<TaskDisplay> _allTasks = new();
 
     public TasksViewModel(ITaskService taskService, ISubjectService? subjectService = null)
     {
@@ -65,48 +61,12 @@ public partial class TasksViewModel : ObservableObject
                 SubjectColor = _subjectsDict.TryGetValue(t.SubjectId, out var s2) ? s2.ColorHex : "#6B7280"
             }).ToList();
 
-            _allTasks = display;
-            ApplySearchFilter();
+            Tasks.ReplaceWith(display);
         }
         finally
         {
             IsLoading = false;
         }
-    }
-
-    /// <summary>
-    /// Aplica el filtro de búsqueda sobre las tareas.
-    /// </summary>
-    private void ApplySearchFilter()
-    {
-        var filtered = string.IsNullOrWhiteSpace(SearchQuery)
-            ? _allTasks
-            : _allTasks.Where(t => 
-                t.TaskItem.Title.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase) ||
-                t.TaskItem.Description?.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase) == true)
-              .ToList();
-
-        Tasks.ReplaceWith(filtered);
-    }
-
-    /// <summary>
-    /// Busca tareas por título o descripción.
-    /// </summary>
-    [RelayCommand]
-    public void Search(string query)
-    {
-        SearchQuery = query;
-        ApplySearchFilter();
-    }
-
-    /// <summary>
-    /// Limpia el filtro de búsqueda.
-    /// </summary>
-    [RelayCommand]
-    public void ClearSearch()
-    {
-        SearchQuery = string.Empty;
-        ApplySearchFilter();
     }
 
     [RelayCommand]

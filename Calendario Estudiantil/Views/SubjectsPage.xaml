@@ -11,7 +11,6 @@
     <Grid RowSpacing="0" ColumnSpacing="0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -24,7 +23,6 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
@@ -46,19 +44,8 @@
                            TextColor="{AppThemeBinding Light=#888888, Dark=#707070}"/>
                 </VerticalStackLayout>
                 
-                <!-- Ícono búsqueda -->
-                <Button Grid.Column="2" BackgroundColor="Transparent"
-                        WidthRequest="40" HeightRequest="40" CornerRadius="20"
-                        Padding="0"
-                        Clicked="OnSearchClicked">
-                    <Button.ImageSource>
-                        <FontImageSource Glyph="&#xF690;" FontFamily="FluentIcons"
-                                         Color="{AppThemeBinding Light=#666666, Dark=#A0A0A0}" Size="20"/>
-                    </Button.ImageSource>
-                </Button>
-                
                 <!-- Ícono configuración -->
-                <Button Grid.Column="3" BackgroundColor="Transparent"
+                <Button Grid.Column="2" BackgroundColor="Transparent"
                         WidthRequest="40" HeightRequest="40" CornerRadius="20"
                         Padding="0"
                         Clicked="OnSettingsClicked">
@@ -69,7 +56,7 @@
                 </Button>
                 
                 <!-- Ícono notificaciones -->
-                <Button Grid.Column="4" BackgroundColor="Transparent"
+                <Button Grid.Column="3" BackgroundColor="Transparent"
                         WidthRequest="40" HeightRequest="40" CornerRadius="20"
                         Padding="0"
                         Clicked="OnNotificationsClicked">
@@ -81,37 +68,8 @@
             </Grid>
         </Frame>
 
-        <!-- Barra de búsqueda (oculta por defecto) -->
-        <Frame Grid.Row="1" x:Name="SearchBarFrame" IsVisible="False"
-               Margin="16,0,16,8" Padding="12,8" CornerRadius="12"
-               BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2C2C2C}" BorderColor="Transparent" HasShadow="False">
-            <Grid ColumnSpacing="8">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                
-                <Entry Grid.Column="0" x:Name="SearchEntry" 
-                       Placeholder="Buscar materia..."
-                       Text="{Binding SearchQuery}"
-                       TextChanged="OnSearchTextChanged"
-                       FontSize="14" BackgroundColor="Transparent"
-                       TextColor="{AppThemeBinding Light=#1A1A1A, Dark=#E0E0E0}"/>
-                
-                <Button Grid.Column="1" BackgroundColor="Transparent"
-                        WidthRequest="32" HeightRequest="32" CornerRadius="16"
-                        Padding="0"
-                        Clicked="OnClearSearchClicked">
-                    <Button.ImageSource>
-                        <FontImageSource Glyph="&#xF36A;" FontFamily="FluentIcons"
-                                         Color="{AppThemeBinding Light=#666666, Dark=#A0A0A0}" Size="14"/>
-                    </Button.ImageSource>
-                </Button>
-            </Grid>
-        </Frame>
-
         <!-- Lista de materias -->
-        <CollectionView Grid.Row="2" x:Name="SubjectsList"
+        <CollectionView Grid.Row="1" x:Name="SubjectsList"
                         BackgroundColor="{AppThemeBinding Light=#F8F9FA, Dark=#121212}"
                         VerticalScrollBarVisibility="Always"
                         Margin="0,0,0,70">
@@ -158,7 +116,7 @@
         </CollectionView>
 
         <!-- FAB para agregar -->
-        <Button Grid.Row="2" Text="+" 
+        <Button Grid.Row="1" Text="+" 
                 FontSize="28" FontAttributes="Bold"
                 WidthRequest="56" HeightRequest="56" CornerRadius="16"
                 BackgroundColor="{x:Static config:AppConstants.Accent}"
@@ -169,6 +127,6 @@
                 Shadow="{Shadow Brush='Black', Opacity=0.3, Offset='0,2', Radius=4}"/>
 
         <!-- Barra de navegación inferior -->
-        <controls:BottomNavView Grid.Row="3" ActiveTab="Subjects"/>
+        <controls:BottomNavView Grid.Row="2" ActiveTab="Subjects"/>
     </Grid>
 </ContentPage>
