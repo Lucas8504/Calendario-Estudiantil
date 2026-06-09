@@ -9,6 +9,17 @@
              NavigationPage.HasNavigationBar="False"
              BackgroundColor="{AppThemeBinding Light=White, Dark=#151515}">
 
+    <ContentPage.Resources>
+        <LinearGradientBrush x:Key="CardGradientLight" StartPoint="0,1" EndPoint="1,0">
+            <GradientStop Offset="0.0" Color="#F5F7FA"/>
+            <GradientStop Offset="1.0" Color="#E8F0FE"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="CardGradientDark" StartPoint="0,1" EndPoint="1,0">
+            <GradientStop Offset="0.0" Color="#1E1E1E"/>
+            <GradientStop Offset="1.0" Color="#2A2A2A"/>
+        </LinearGradientBrush>
+    </ContentPage.Resources>
+
     <Grid RowSpacing="0" ColumnSpacing="0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -79,8 +90,12 @@
             </CollectionView.ItemsLayout>
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Frame BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}" CornerRadius="12" Padding="0" Margin="16,0"
+                    <Frame CornerRadius="12" Padding="0" Margin="16,0"
                            HasShadow="True" BorderColor="Transparent">
+                        <Frame.Background>
+                            <AppThemeBinding Light="{StaticResource CardGradientLight}" 
+                                             Dark="{StaticResource CardGradientDark}"/>
+                        </Frame.Background>
                         <Frame.Shadow>
                             <Shadow Brush="Black" Opacity="0.15" Offset="0,4" Radius="8"/>
                         </Frame.Shadow>
