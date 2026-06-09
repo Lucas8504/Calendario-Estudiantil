@@ -26,17 +26,16 @@ public partial class SubjectsPage : ContentPage
         BindingContext = _viewModel;
     }
 
-    protected override async void OnAppearing()
+    protected override void OnAppearing()
     {
         try
         {
             base.OnAppearing();
-            await _viewModel.LoadSubjectsAsync();
-            SubjectsList.SetBinding(CollectionView.ItemsSourceProperty, new Binding(nameof(_viewModel.Subjects)));
+            _ = _viewModel.LoadSubjectsAsync();
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"No se pudieron cargar las materias: {ex.Message}", "OK");
+            DisplayAlert("Error", $"Error al cargar materias: {ex.Message}", "OK");
         }
     }
 

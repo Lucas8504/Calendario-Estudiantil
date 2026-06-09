@@ -29,6 +29,11 @@ public partial class App : Application
         _ = _services.GetService<TasksPage>();
         _ = _services.GetService<SubjectsPage>();
         
+        // Pre-cargar datos de materias en caché para que aparezcan al instante
+        var subjectService = _services.GetService<ISubjectService>();
+        if (subjectService != null)
+            _ = subjectService.GetAllAsync();
+
         var navPage = new NavigationPage(schedulePage);
         navPage.BarBackgroundColor = AppConstants.Theme.Accent;
         navPage.BarTextColor = Colors.White;

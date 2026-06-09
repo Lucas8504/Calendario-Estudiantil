@@ -81,55 +81,63 @@
         </Frame>
 
         <!-- Lista de materias -->
-        <CollectionView Grid.Row="1" x:Name="SubjectsList"
-                        BackgroundColor="{AppThemeBinding Light=White, Dark=#121212}"
-                        VerticalScrollBarVisibility="Always"
-                        Margin="0,0,0,70">
-            <CollectionView.ItemsLayout>
-                <LinearItemsLayout Orientation="Vertical" ItemSpacing="12"/>
-            </CollectionView.ItemsLayout>
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Frame CornerRadius="12" Padding="0" Margin="16,0"
-                           HasShadow="True" BorderColor="Transparent">
-                        <Frame.Background>
-                            <AppThemeBinding Light="{StaticResource CardGradientLight}" 
-                                             Dark="{StaticResource CardGradientDark}"/>
-                        </Frame.Background>
-                        <Frame.Shadow>
-                            <Shadow Brush="Black" Opacity="0.15" Offset="0,4" Radius="8"/>
-                        </Frame.Shadow>
-                        <Grid>
-                            <Grid.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnSubjectTapped"/>
-                            </Grid.GestureRecognizers>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="6"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            
-                            <!-- Barra de color lateral -->
-                            <BoxView Grid.Column="0" Color="{Binding ColorHex}" 
-                                     HorizontalOptions="Fill" VerticalOptions="Fill" InputTransparent="True"/>
-                            
-                            <!-- Contenido -->
-                            <VerticalStackLayout Grid.Column="1" Padding="12" Spacing="4" InputTransparent="True">
-                                <Label Text="{Binding Name}" FontSize="18" FontAttributes="Bold" 
-                                       TextColor="{AppThemeBinding Light=#333333, Dark=#E0E0E0}" InputTransparent="True"/>
-                                <Label Text="Tocá para ver horarios" FontSize="13" 
-                                       TextColor="{AppThemeBinding Light=#666666, Dark=#A0A0A0}" InputTransparent="True"/>
-                            </VerticalStackLayout>
-                        </Grid>
-                    </Frame>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-            <CollectionView.EmptyView>
-                <Label Text=" No hay materias. Agregá una nueva." 
-                       FontSize="16" TextColor="{AppThemeBinding Light=#888888, Dark=#707070}" 
-                       HorizontalOptions="Center" VerticalOptions="Center"
-                       Margin="0,40,0,0"/>
-            </CollectionView.EmptyView>
-        </CollectionView>
+        <Grid Grid.Row="1">
+            <CollectionView x:Name="SubjectsList"
+                            ItemsSource="{Binding Subjects}"
+                            BackgroundColor="{AppThemeBinding Light=White, Dark=#121212}"
+                            VerticalScrollBarVisibility="Always"
+                            Margin="0,0,0,70">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="12"/>
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame CornerRadius="12" Padding="0" Margin="16,0"
+                               HasShadow="False" BorderColor="Transparent">
+                            <Frame.Background>
+                                <AppThemeBinding Light="{StaticResource CardGradientLight}" 
+                                                 Dark="{StaticResource CardGradientDark}"/>
+                            </Frame.Background>
+                            <Frame.Shadow>
+                                <Shadow Brush="Black" Opacity="0.15" Offset="0,4" Radius="8"/>
+                            </Frame.Shadow>
+                            <Grid>
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnSubjectTapped"/>
+                                </Grid.GestureRecognizers>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <!-- Barra de color lateral -->
+                                <BoxView Grid.Column="0" Color="{Binding ColorHex}" 
+                                         HorizontalOptions="Fill" VerticalOptions="Fill" InputTransparent="True"/>
+                                
+                                <!-- Contenido -->
+                                <VerticalStackLayout Grid.Column="1" Padding="12" Spacing="4" InputTransparent="True">
+                                    <Label Text="{Binding Name}" FontSize="18" FontAttributes="Bold" 
+                                           TextColor="{AppThemeBinding Light=#333333, Dark=#E0E0E0}" InputTransparent="True"/>
+                                    <Label Text="Tocá para ver horarios" FontSize="13" 
+                                           TextColor="{AppThemeBinding Light=#666666, Dark=#A0A0A0}" InputTransparent="True"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.EmptyView>
+                    <Label Text="No hay materias. Agregá una nueva." 
+                           FontSize="16" TextColor="{AppThemeBinding Light=#888888, Dark=#707070}" 
+                           HorizontalOptions="Center" VerticalOptions="Center"
+                           Margin="0,40,0,0"/>
+                </CollectionView.EmptyView>
+            </CollectionView>
+
+            <!-- Indicador de carga -->
+            <ActivityIndicator IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}"
+                               HorizontalOptions="Center" VerticalOptions="Center"
+                               Color="{x:Static config:AppConstants.Accent}"/>
+        </Grid>
 
         <!-- FAB para agregar -->
         <Button Grid.Row="1" Text="+" 

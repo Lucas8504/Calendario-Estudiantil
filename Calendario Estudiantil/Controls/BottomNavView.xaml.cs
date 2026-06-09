@@ -163,7 +163,7 @@ public partial class BottomNavView : ContentView
         }
         else
         {
-            await nav.PushAsync(page);
+            await nav.PushAsync(page, animated: false);
         }
     }
 }
