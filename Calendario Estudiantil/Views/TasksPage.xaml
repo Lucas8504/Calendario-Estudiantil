@@ -7,7 +7,8 @@
              x:Class="Calendario_Estudiantil.Views.TasksPage"
              Title="Tareas"
              Padding="0"
-             NavigationPage.HasNavigationBar="False">
+             NavigationPage.HasNavigationBar="False"
+             BackgroundColor="{AppThemeBinding Light=White, Dark=#151515}">
 
     <ContentPage.Resources>
         <converters:HexToColorConverter x:Key="HexToColorConverter"/>
@@ -25,7 +26,7 @@
 
         <!-- Header limpio -->
         <Frame Grid.Row="0" Padding="16,12" CornerRadius="0"
-               BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}"
+               BackgroundColor="{AppThemeBinding Light=White, Dark=#151515}"
                BorderColor="Transparent" HasShadow="False">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -79,7 +80,7 @@
         <!-- Tabs de filtros estilo pill -->
         <ScrollView Grid.Row="1" Orientation="Horizontal" 
                     HorizontalScrollBarVisibility="Never"
-                    BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
+                    BackgroundColor="{AppThemeBinding Light=White, Dark=#151515}">
             <HorizontalStackLayout x:Name="FilterTabsContainer" 
                                    Spacing="8" Padding="16,8"
                                    HorizontalOptions="Start"/>
@@ -97,7 +98,8 @@
             </CollectionView.ItemsLayout>
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Frame Padding="0" CornerRadius="12" HasShadow="True" BorderColor="Transparent">
+                    <Frame Padding="0" CornerRadius="12" HasShadow="True" BorderColor="Transparent"
+                           BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
                         <Frame.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnTaskTapped"/>
                         </Frame.GestureRecognizers>

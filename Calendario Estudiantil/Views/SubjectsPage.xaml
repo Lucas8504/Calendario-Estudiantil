@@ -6,7 +6,8 @@
              x:Class="Calendario_Estudiantil.Views.SubjectsPage"
              Title="Materias"
              Padding="0"
-             NavigationPage.HasNavigationBar="False">
+             NavigationPage.HasNavigationBar="False"
+             BackgroundColor="{AppThemeBinding Light=White, Dark=#151515}">
 
     <Grid RowSpacing="0" ColumnSpacing="0">
         <Grid.RowDefinitions>
@@ -17,7 +18,7 @@
 
         <!-- Header limpio -->
         <Frame Grid.Row="0" Padding="16,12" CornerRadius="0"
-               BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}"
+               BackgroundColor="{AppThemeBinding Light=White, Dark=#151515}"
                BorderColor="Transparent" HasShadow="False">
             <Grid>
                 <Grid.ColumnDefinitions>

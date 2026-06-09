@@ -6,8 +6,8 @@
              x:Name="NavView">
 
     <Frame Margin="5,0,5,5" Padding="0" CornerRadius="12"
-           BackgroundColor="{x:Static config:AppConstants.AccentLight}"
-           BorderColor="Transparent" HasShadow="False">
+           BackgroundColor="{AppThemeBinding Light={x:Static config:AppConstants.AccentLight}, Dark=#2C2C2C}"
+           BorderColor="{AppThemeBinding Light=Transparent, Dark=#3C3C3C}" HasShadow="False">
         <Grid ColumnSpacing="0" HeightRequest="56">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>

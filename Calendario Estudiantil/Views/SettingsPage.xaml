@@ -15,7 +15,7 @@
 
         <!-- Header -->
         <Frame Grid.Row="0" Padding="16,12" CornerRadius="0"
-               BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}"
+               BackgroundColor="{AppThemeBinding Light=White, Dark=#151515}"
                BorderColor="Transparent" HasShadow="False">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -45,7 +45,7 @@
             <VerticalStackLayout Padding="16" Spacing="16">
 
                 <!-- Sección de tema -->
-                <Frame BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}" CornerRadius="12" Padding="16"
+                <Frame BackgroundColor="{AppThemeBinding Light=White, Dark=#151515}" CornerRadius="12" Padding="16"
                        HasShadow="True" BorderColor="Transparent">
                     <Frame.Shadow>
                         <Shadow Brush="Black" Opacity="0.1" Offset="0,2" Radius="4"/>
@@ -90,7 +90,7 @@
                 </Frame>
 
                 <!-- Información de la app -->
-                <Frame BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}" CornerRadius="12" Padding="16"
+                <Frame BackgroundColor="{AppThemeBinding Light=White, Dark=#151515}" CornerRadius="12" Padding="16"
                        HasShadow="True" BorderColor="Transparent">
                     <Frame.Shadow>
                         <Shadow Brush="Black" Opacity="0.1" Offset="0,2" Radius="4"/>

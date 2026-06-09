@@ -3,10 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:config="clr-namespace:Calendario_Estudiantil.Configuration"
              xmlns:controls="clr-namespace:Calendario_Estudiantil.Controls"
-             x:Class="Calendario_Estudiantil.Views.SchedulePage"
-             Title="Calendario"
-             Padding="0"
-             NavigationPage.HasNavigationBar="False">
+              x:Class="Calendario_Estudiantil.Views.SchedulePage"
+              Title="Calendario"
+              Padding="0"
+              NavigationPage.HasNavigationBar="False"
+              BackgroundColor="{AppThemeBinding Light=White, Dark=#151515}">
 
     <Grid RowSpacing="0" ColumnSpacing="0">
         <Grid.RowDefinitions>
@@ -18,7 +19,7 @@
 
         <!-- Header limpio -->
         <Frame Grid.Row="0" Padding="16,12" CornerRadius="0"
-               BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}"
+               BackgroundColor="{AppThemeBinding Light=White, Dark=#151515}"
                BorderColor="Transparent" HasShadow="False">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -81,7 +82,7 @@
         <!-- Tabs de días estilo pill -->
         <ScrollView Grid.Row="1" Orientation="Horizontal"
                     HorizontalScrollBarVisibility="Never"
-                    BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
+                    BackgroundColor="{AppThemeBinding Light=White, Dark=#151515}">
             <HorizontalStackLayout x:Name="DayTabsContainer"
                                    Spacing="8" Padding="16,8"
                                    HorizontalOptions="Start"/>
