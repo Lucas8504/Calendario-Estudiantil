@@ -98,7 +98,7 @@
         <CollectionView x:Name="TasksCollectionView"
                         Grid.Row="2"
                         ItemsSource="{Binding Tasks}"
-                        BackgroundColor="{AppThemeBinding Light=#F8F9FA, Dark=#121212}"
+                         BackgroundColor="{AppThemeBinding Light=White, Dark=#121212}"
                         SelectionMode="None"
                         ItemSizingStrategy="MeasureAllItems">
             <CollectionView.ItemsLayout>

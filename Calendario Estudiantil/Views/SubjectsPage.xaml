@@ -82,7 +82,7 @@
 
         <!-- Lista de materias -->
         <CollectionView Grid.Row="1" x:Name="SubjectsList"
-                        BackgroundColor="{AppThemeBinding Light=#F8F9FA, Dark=#121212}"
+                        BackgroundColor="{AppThemeBinding Light=White, Dark=#121212}"
                         VerticalScrollBarVisibility="Always"
                         Margin="0,0,0,70">
             <CollectionView.ItemsLayout>
