@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Calendario_Estudiantil.Helpers;
 using Calendario_Estudiantil.Configuration;
 using Calendario_Estudiantil.Models;
@@ -38,21 +39,35 @@ public partial class TasksPage : ContentPage
         _taskService = taskService;
         
         BindingContext = _viewModel;
+        BuildFilterTabs();
     }
 
-    protected override async void OnAppearing()
+    protected override void OnAppearing()
     {
+        base.OnAppearing();
+        _ = LoadTasksDataAsync();
+    }
+
+    private async Task LoadTasksDataAsync()
+    {
+        var sw = Stopwatch.StartNew();
+        Debug.WriteLine($"[TIMING] TasksPage.LoadTasksDataAsync START");
+
         try
         {
-            base.OnAppearing();
-            BuildFilterTabs();
             await _viewModel.LoadSubjectsAsync();
+            Debug.WriteLine($"[TIMING]   LoadSubjectsAsync: {sw.ElapsedMilliseconds}ms");
+
             await _viewModel.LoadTasksAsync();
+            Debug.WriteLine($"[TIMING]   LoadTasksAsync: {sw.ElapsedMilliseconds}ms");
         }
         catch (Exception ex)
         {
+            Debug.WriteLine($"[TIMING]   EXCEPTION: {ex.Message}");
             await DisplayAlert("Error", $"No se pudieron cargar las tareas: {ex.Message}", "OK");
         }
+
+        Debug.WriteLine($"[TIMING] TasksPage.LoadTasksDataAsync DONE: {sw.ElapsedMilliseconds}ms");
     }
 
     private void BuildFilterTabs()

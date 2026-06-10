@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Calendario_Estudiantil.Helpers;
@@ -36,14 +37,19 @@ public partial class TasksViewModel : ObservableObject
     public async Task LoadSubjectsAsync()
     {
         if (_subjectService == null) return;
+        var sw = Stopwatch.StartNew();
         var subjects = await _subjectService.GetAllAsync();
         _subjectsDict = subjects.ToDictionary(s => s.Id);
+        Debug.WriteLine($"[TIMING] TasksVM.LoadSubjectsAsync: {sw.ElapsedMilliseconds}ms ({subjects.Count} subjects)");
     }
 
     [RelayCommand]
     public async Task LoadTasksAsync()
     {
         IsLoading = true;
+        var sw = Stopwatch.StartNew();
+        Debug.WriteLine($"[TIMING] TasksVM.LoadTasksAsync START (filter={FilterMode})");
+
         try
         {
             List<TaskItem> list = FilterMode switch
@@ -52,6 +58,7 @@ public partial class TasksViewModel : ObservableObject
                 "Pendientes" => await _taskService.GetPendingAsync(),
                 _ => await _taskService.GetAllAsync()
             };
+            Debug.WriteLine($"[TIMING]   DB query: {sw.ElapsedMilliseconds}ms ({list.Count} tasks)");
 
             var display = list.Select(t => new TaskDisplay
             {
@@ -62,10 +69,12 @@ public partial class TasksViewModel : ObservableObject
             }).ToList();
 
             Tasks.ReplaceWith(display);
+            Debug.WriteLine($"[TIMING]   ReplaceWith + Select: {sw.ElapsedMilliseconds}ms");
         }
         finally
         {
             IsLoading = false;
+            Debug.WriteLine($"[TIMING] TasksVM.LoadTasksAsync DONE: {sw.ElapsedMilliseconds}ms");
         }
     }
 

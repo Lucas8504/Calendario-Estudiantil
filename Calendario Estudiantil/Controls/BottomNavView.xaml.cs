@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Calendario_Estudiantil.Configuration;
 using Calendario_Estudiantil.Views;
 using Microsoft.Maui.Controls;
@@ -128,22 +129,32 @@ public partial class BottomNavView : ContentView
     /// </summary>
     private async Task NavigateToAsync<T>() where T : Page
     {
+        var sw = Stopwatch.StartNew();
+        var typeName = typeof(T).Name;
+        Debug.WriteLine($"[TIMING] NavigateToAsync<{typeName}> START");
+
         var nav = Application.Current?.MainPage?.Navigation;
         if (nav == null) return;
 
         var stack = nav.NavigationStack;
+        Debug.WriteLine($"[TIMING]   stack count={stack.Count}: {sw.ElapsedMilliseconds}ms");
 
         // Ya estamos en esa página
         if (stack.Count > 0 && stack[^1] is T)
+        {
+            Debug.WriteLine($"[TIMING]   already on page: {sw.ElapsedMilliseconds}ms");
             return;
+        }
 
         // Buscar si ya existe en el stack (excluyendo root) y volver a ella
         for (int i = 1; i < stack.Count; i++)
         {
             if (stack[i] is T)
             {
+                Debug.WriteLine($"[TIMING]   found at stack[{i}], removing pages above: {sw.ElapsedMilliseconds}ms");
                 while (stack.Count > i + 1)
                     nav.RemovePage(stack[^1]);
+                Debug.WriteLine($"[TIMING] NavigateToAsync<{typeName}> DONE (restore): {sw.ElapsedMilliseconds}ms");
                 return;
             }
         }
@@ -153,17 +164,25 @@ public partial class BottomNavView : ContentView
         var page = services?.GetService<T>();
         if (page == null) return;
 
+        Debug.WriteLine($"[TIMING]   resolved from DI: {sw.ElapsedMilliseconds}ms");
+
         // Reemplazar la página secundaria actual si existe,
         // para que el stack nunca pase de [Schedule, CurrentPage]
         if (stack.Count >= 2)
         {
             var currentTop = stack[^1];
+            Debug.WriteLine($"[TIMING]   swapping: InsertPageBefore + RemovePage: {sw.ElapsedMilliseconds}ms");
             nav.InsertPageBefore(page, currentTop);
             nav.RemovePage(currentTop);
+            Debug.WriteLine($"[TIMING]   swap done: {sw.ElapsedMilliseconds}ms");
         }
         else
         {
+            Debug.WriteLine($"[TIMING]   PushAsync start: {sw.ElapsedMilliseconds}ms");
             await nav.PushAsync(page, animated: false);
+            Debug.WriteLine($"[TIMING]   PushAsync done: {sw.ElapsedMilliseconds}ms");
         }
+
+        Debug.WriteLine($"[TIMING] NavigateToAsync<{typeName}> DONE: {sw.ElapsedMilliseconds}ms");
     }
 }

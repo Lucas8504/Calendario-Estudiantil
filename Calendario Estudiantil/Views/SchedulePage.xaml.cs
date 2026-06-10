@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Calendario_Estudiantil.Configuration;
 using Calendario_Estudiantil.Data;
 using Calendario_Estudiantil.Helpers;
@@ -40,21 +41,42 @@ public partial class SchedulePage : ContentPage
         _taskService = taskService;
         
         BindingContext = _viewModel;
+        BuildDayTabs();
     }
 
-    protected override async void OnAppearing()
+    protected override void OnAppearing()
     {
+        base.OnAppearing();
+        _ = LoadScheduleAsync();
+    }
+
+    private async Task LoadScheduleAsync()
+    {
+        var sw = Stopwatch.StartNew();
+        Debug.WriteLine($"[TIMING] SchedulePage.LoadScheduleAsync START");
+
         try
         {
-            base.OnAppearing();
-            BuildDayTabs();
-            await _viewModel.LoadDayAsync();
-            await BuildCardsAsync();
+            var dataLoaded = await _viewModel.LoadDayAsync();
+            Debug.WriteLine($"[TIMING]   LoadDayAsync: {sw.ElapsedMilliseconds}ms (loaded={dataLoaded})");
+
+            if (dataLoaded)
+            {
+                await BuildCardsAsync();
+                Debug.WriteLine($"[TIMING]   BuildCardsAsync: {sw.ElapsedMilliseconds}ms");
+            }
+            else
+            {
+                Debug.WriteLine($"[TIMING]   BuildCardsAsync: SKIPPED (cache)");
+            }
         }
         catch (Exception ex)
         {
+            Debug.WriteLine($"[TIMING]   EXCEPTION: {ex.Message}");
             await DisplayAlert("Error", $"No se pudo cargar el calendario: {ex.Message}", "OK");
         }
+
+        Debug.WriteLine($"[TIMING] SchedulePage.LoadScheduleAsync DONE: {sw.ElapsedMilliseconds}ms");
     }
 
     private void BuildDayTabs()
@@ -281,6 +303,7 @@ public partial class SchedulePage : ContentPage
 
     private async void OnAddScheduleClicked(object sender, EventArgs e)
     {
+        _viewModel.InvalidateCache();
         try
         {
             await Navigation.PushAsync(new NewSchedulePage(_subjectService));
@@ -293,6 +316,7 @@ public partial class SchedulePage : ContentPage
 
     private async void OnSettingsClicked(object sender, EventArgs e)
     {
+        _viewModel.InvalidateCache();
         try
         {
             var settingsPage = IPlatformApplication.Current?.Services.GetService<SettingsPage>();

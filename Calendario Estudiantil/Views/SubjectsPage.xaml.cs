@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Calendario_Estudiantil.Helpers;
 using Calendario_Estudiantil.Configuration;
 using Calendario_Estudiantil.Models;
@@ -28,15 +29,28 @@ public partial class SubjectsPage : ContentPage
 
     protected override void OnAppearing()
     {
+        var sw = Stopwatch.StartNew();
+        Debug.WriteLine($"[TIMING] SubjectsPage.OnAppearing START");
+
         try
         {
             base.OnAppearing();
-            _ = _viewModel.LoadSubjectsAsync();
+            Debug.WriteLine($"[TIMING]   base.OnAppearing: {sw.ElapsedMilliseconds}ms");
+            _ = _viewModel.LoadSubjectsAsync().ContinueWith(t =>
+            {
+                if (t.IsFaulted)
+                    Debug.WriteLine($"[TIMING]   LoadSubjectsAsync FAILED: {t.Exception?.InnerException?.Message}");
+                Debug.WriteLine($"[TIMING]   LoadSubjectsAsync completed: {sw.ElapsedMilliseconds}ms");
+                Debug.WriteLine($"[TIMING] SubjectsPage.OnAppearing DONE (total async): {sw.ElapsedMilliseconds}ms");
+            }, TaskScheduler.Default);
         }
         catch (Exception ex)
         {
+            Debug.WriteLine($"[TIMING]   EXCEPTION: {ex.Message}");
             DisplayAlert("Error", $"Error al cargar materias: {ex.Message}", "OK");
         }
+
+        Debug.WriteLine($"[TIMING] SubjectsPage.OnAppearing returned: {sw.ElapsedMilliseconds}ms");
     }
 
     private async void OnSubjectTapped(object sender, TappedEventArgs e)

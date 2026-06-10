@@ -10,6 +10,7 @@ public class TaskService : ITaskService
 {
     private readonly INotificationService _notificationService;
     private readonly IDatabaseService _databaseService;
+    private List<TaskItem>? _tasksCache;
 
     public TaskService(INotificationService notificationService, IDatabaseService databaseService)
     {
@@ -17,8 +18,12 @@ public class TaskService : ITaskService
         _databaseService = databaseService;
     }
 
-    public Task<List<TaskItem>> GetAllAsync()
-        => _databaseService.GetAllTasksAsync();
+    public async Task<List<TaskItem>> GetAllAsync()
+    {
+        if (_tasksCache != null) return _tasksCache;
+        _tasksCache = await _databaseService.GetAllTasksAsync();
+        return _tasksCache;
+    }
 
     public Task<List<TaskItem>> GetBySubjectAsync(int subjectId)
         => _databaseService.GetTasksBySubjectAsync(subjectId);
@@ -40,11 +45,16 @@ public class TaskService : ITaskService
             task.Id = id;
             await ScheduleNotificationAsync(task);
         }
+        InvalidateCache();
         return id;
     }
 
-    public Task<int> UpdateAsync(TaskItem task)
-        => _databaseService.UpdateTaskAsync(task);
+    public async Task<int> UpdateAsync(TaskItem task)
+    {
+        var result = await _databaseService.UpdateTaskAsync(task);
+        InvalidateCache();
+        return result;
+    }
 
     public async Task<int> UpdateStatusAsync(int taskId, ItemStatus status)
     {
@@ -57,6 +67,7 @@ public class TaskService : ITaskService
         if (status == ItemStatus.Completed)
             await CancelNotificationAsync(taskId);
 
+        InvalidateCache();
         return taskId;
     }
 
@@ -64,7 +75,14 @@ public class TaskService : ITaskService
     {
         await CancelNotificationAsync(task.Id);
         await _databaseService.DeleteSubtasksByTaskAsync(task.Id);
-        return await _databaseService.DeleteTaskAsync(task);
+        var result = await _databaseService.DeleteTaskAsync(task);
+        InvalidateCache();
+        return result;
+    }
+
+    private void InvalidateCache()
+    {
+        _tasksCache = null;
     }
 
     public Task<List<Subtask>> GetSubtasksAsync(int taskItemId)

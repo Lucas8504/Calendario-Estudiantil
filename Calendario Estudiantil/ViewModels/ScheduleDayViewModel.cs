@@ -37,6 +37,8 @@ public partial class ScheduleDayViewModel : ObservableObject
     // Días de la semana en orden
     private static readonly string[] WeekDays = { "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo" };
 
+    private bool _dataLoaded = false;
+
     public ScheduleDayViewModel(IDatabaseService databaseService)
     {
         _databaseService = databaseService;
@@ -53,9 +55,11 @@ public partial class ScheduleDayViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public async Task LoadDayAsync()
+    public async Task<bool> LoadDayAsync()
     {
-        if (string.IsNullOrEmpty(SelectedDay)) return;
+        if (string.IsNullOrEmpty(SelectedDay)) return false;
+
+        if (_dataLoaded) return false;
 
         IsLoading = true;
         HasNoClasses = false;
@@ -86,7 +90,15 @@ public partial class ScheduleDayViewModel : ObservableObject
         finally
         {
             IsLoading = false;
+            _dataLoaded = true;
         }
+
+        return true;
+    }
+
+    public void InvalidateCache()
+    {
+        _dataLoaded = false;
     }
 
     /// <summary>
@@ -146,6 +158,7 @@ public partial class ScheduleDayViewModel : ObservableObject
     public async Task SelectDayAsync(string day)
     {
         SelectedDay = day;
+        _dataLoaded = false;
         await LoadDayAsync();
     }
 }

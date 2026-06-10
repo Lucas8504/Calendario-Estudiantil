@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Calendario_Estudiantil.Helpers;
 using Calendario_Estudiantil.Models;
@@ -31,14 +32,20 @@ public partial class SubjectViewModel : ObservableObject
     public async Task LoadSubjectsAsync()
     {
         IsLoading = true;
+        var sw = Stopwatch.StartNew();
+        Debug.WriteLine($"[TIMING] SubjectVM.LoadSubjectsAsync START");
+
         try
         {
             var list = await _subjectService.GetAllAsync();
+            Debug.WriteLine($"[TIMING]   GetAllAsync: {sw.ElapsedMilliseconds}ms ({list.Count} subjects)");
             Subjects.ReplaceWith(list);
+            Debug.WriteLine($"[TIMING]   ReplaceWith: {sw.ElapsedMilliseconds}ms");
         }
         finally
         {
             IsLoading = false;
+            Debug.WriteLine($"[TIMING] SubjectVM.LoadSubjectsAsync DONE: {sw.ElapsedMilliseconds}ms");
         }
     }
 
