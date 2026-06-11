@@ -39,8 +39,8 @@ public partial class SubjectViewModel : ObservableObject
         {
             var list = await _subjectService.GetAllAsync();
             Debug.WriteLine($"[TIMING]   GetAllAsync: {sw.ElapsedMilliseconds}ms ({list.Count} subjects)");
-            Subjects.ReplaceWith(list);
-            Debug.WriteLine($"[TIMING]   ReplaceWith: {sw.ElapsedMilliseconds}ms");
+            Subjects = new ObservableCollection<Subject>(list);
+            Debug.WriteLine($"[TIMING]   Replace collection: {sw.ElapsedMilliseconds}ms");
         }
         finally
         {

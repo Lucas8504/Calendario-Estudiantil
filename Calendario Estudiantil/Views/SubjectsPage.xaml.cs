@@ -36,13 +36,19 @@ public partial class SubjectsPage : ContentPage
         {
             base.OnAppearing();
             Debug.WriteLine($"[TIMING]   base.OnAppearing: {sw.ElapsedMilliseconds}ms");
-            _ = _viewModel.LoadSubjectsAsync().ContinueWith(t =>
+            _ = Task.Run(async () =>
             {
-                if (t.IsFaulted)
-                    Debug.WriteLine($"[TIMING]   LoadSubjectsAsync FAILED: {t.Exception?.InnerException?.Message}");
-                Debug.WriteLine($"[TIMING]   LoadSubjectsAsync completed: {sw.ElapsedMilliseconds}ms");
-                Debug.WriteLine($"[TIMING] SubjectsPage.OnAppearing DONE (total async): {sw.ElapsedMilliseconds}ms");
-            }, TaskScheduler.Default);
+                try
+                {
+                    await _viewModel.LoadSubjectsAsync();
+                    Debug.WriteLine($"[TIMING]   LoadSubjectsAsync completed: {sw.ElapsedMilliseconds}ms");
+                    Debug.WriteLine($"[TIMING] SubjectsPage.OnAppearing DONE (total async): {sw.ElapsedMilliseconds}ms");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[TIMING]   LoadSubjectsAsync FAILED: {ex.Message}");
+                }
+            });
         }
         catch (Exception ex)
         {

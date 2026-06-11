@@ -68,8 +68,8 @@ public partial class TasksViewModel : ObservableObject
                 SubjectColor = _subjectsDict.TryGetValue(t.SubjectId, out var s2) ? s2.ColorHex : "#6B7280"
             }).ToList();
 
-            Tasks.ReplaceWith(display);
-            Debug.WriteLine($"[TIMING]   ReplaceWith + Select: {sw.ElapsedMilliseconds}ms");
+            Tasks = new ObservableCollection<TaskDisplay>(display);
+            Debug.WriteLine($"[TIMING]   Replace collection + Select: {sw.ElapsedMilliseconds}ms");
         }
         finally
         {

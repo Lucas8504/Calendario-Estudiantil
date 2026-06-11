@@ -44,30 +44,39 @@ public partial class TasksPage : ContentPage
 
     protected override void OnAppearing()
     {
-        base.OnAppearing();
-        _ = LoadTasksDataAsync();
-    }
-
-    private async Task LoadTasksDataAsync()
-    {
         var sw = Stopwatch.StartNew();
-        Debug.WriteLine($"[TIMING] TasksPage.LoadTasksDataAsync START");
+        Debug.WriteLine($"[TIMING] TasksPage.OnAppearing START");
 
         try
         {
-            await _viewModel.LoadSubjectsAsync();
-            Debug.WriteLine($"[TIMING]   LoadSubjectsAsync: {sw.ElapsedMilliseconds}ms");
+            base.OnAppearing();
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _viewModel.LoadSubjectsAsync();
+                    Debug.WriteLine($"[TIMING]   LoadSubjectsAsync: {sw.ElapsedMilliseconds}ms");
 
-            await _viewModel.LoadTasksAsync();
-            Debug.WriteLine($"[TIMING]   LoadTasksAsync: {sw.ElapsedMilliseconds}ms");
+                    await _viewModel.LoadTasksAsync();
+                    Debug.WriteLine($"[TIMING]   LoadTasksAsync: {sw.ElapsedMilliseconds}ms");
+
+                    Debug.WriteLine($"[TIMING] TasksPage.LoadTasksDataAsync DONE: {sw.ElapsedMilliseconds}ms");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[TIMING]   EXCEPTION: {ex.Message}");
+                    MainThread.BeginInvokeOnMainThread(() =>
+                        _ = DisplayAlert("Error", $"No se pudieron cargar las tareas: {ex.Message}", "OK"));
+                }
+            });
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"[TIMING]   EXCEPTION: {ex.Message}");
-            await DisplayAlert("Error", $"No se pudieron cargar las tareas: {ex.Message}", "OK");
+            DisplayAlert("Error", $"No se pudieron cargar las tareas: {ex.Message}", "OK");
         }
 
-        Debug.WriteLine($"[TIMING] TasksPage.LoadTasksDataAsync DONE: {sw.ElapsedMilliseconds}ms");
+        Debug.WriteLine($"[TIMING] TasksPage.OnAppearing returned: {sw.ElapsedMilliseconds}ms");
     }
 
     private void BuildFilterTabs()
