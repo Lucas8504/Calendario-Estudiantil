@@ -23,8 +23,10 @@
                     <VerticalStackLayout.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnScheduleClicked"/>
                     </VerticalStackLayout.GestureRecognizers>
-                    <Image x:Name="ScheduleIcon" HorizontalOptions="Center" 
-                           Margin="0,6,0,0" WidthRequest="22" HeightRequest="22"/>
+                    <Label x:Name="ScheduleIcon" Text="&#xE24F;" FontFamily="FluentIcons"
+                           FontSize="20" TextColor="#666666"
+                           HorizontalOptions="Center" HorizontalTextAlignment="Center"
+                           Margin="0,6,0,0"/>
                     <Label x:Name="ScheduleLabel" Text="Calendario" FontSize="10"
                            HorizontalOptions="Center"/>
                 </VerticalStackLayout>
@@ -42,8 +44,10 @@
                     <VerticalStackLayout.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnTasksClicked"/>
                     </VerticalStackLayout.GestureRecognizers>
-                    <Image x:Name="TasksIcon" HorizontalOptions="Center" 
-                           Margin="0,6,0,0" WidthRequest="22" HeightRequest="22"/>
+                    <Label x:Name="TasksIcon" Text="&#xE35E;" FontFamily="FluentIcons"
+                           FontSize="20" TextColor="#666666"
+                           HorizontalOptions="Center" HorizontalTextAlignment="Center"
+                           Margin="0,6,0,0"/>
                     <Label x:Name="TasksLabel" Text="Tareas" FontSize="10"
                            HorizontalOptions="Center"/>
                 </VerticalStackLayout>
@@ -61,8 +65,10 @@
                     <VerticalStackLayout.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnSubjectsClicked"/>
                     </VerticalStackLayout.GestureRecognizers>
-                    <Image x:Name="SubjectsIcon" HorizontalOptions="Center" 
-                           Margin="0,6,0,0" WidthRequest="22" HeightRequest="22"/>
+                    <Label x:Name="SubjectsIcon" Text="&#xF8FE;" FontFamily="FluentIcons"
+                           FontSize="20" TextColor="#666666"
+                           HorizontalOptions="Center" HorizontalTextAlignment="Center"
+                           Margin="0,6,0,0"/>
                     <Label x:Name="SubjectsLabel" Text="Materias" FontSize="10"
                            HorizontalOptions="Center"/>
                 </VerticalStackLayout>

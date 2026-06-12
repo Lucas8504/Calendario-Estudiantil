@@ -13,7 +13,6 @@ public partial class BottomNavView : ContentView
 
     /// <summary>
     /// Tab activo: "Schedule", "Tasks" o "Subjects".
-    /// Controla qué botón se muestra resaltado.
     /// </summary>
     public string ActiveTab
     {
@@ -30,40 +29,12 @@ public partial class BottomNavView : ContentView
     private static readonly Color InactiveColor = Color.FromArgb("#666666");
     private static readonly Color HighlightColor = AppConstants.Theme.Accent;
 
-    // Glyph codes for FluentUI icons
-    private const string CalendarGlyph = "\uE24F";
-    private const string TasksGlyph = "\uE35E";
-    private const string SubjectsGlyph = "\uF8FE";
-
     public BottomNavView()
     {
         InitializeComponent();
-        InitializeIcons();
 
-        // Marcar el tab inicial como activo sin animación intermedia
+        // Marcar el tab inicial como activo (el Source ya viene del XAML)
         SetTabVisual("Schedule", isActive: true);
-    }
-
-    /// <summary>
-    /// Crea los FontImageSource UNA SOLA VEZ y los asigna a cada Image.
-    /// Desde acá en adelante solo se muta la propiedad Color, no se reemplaza el Source.
-    /// </summary>
-    private void InitializeIcons()
-    {
-        ScheduleIcon.Source = CreateIconSource(CalendarGlyph, InactiveColor);
-        TasksIcon.Source = CreateIconSource(TasksGlyph, InactiveColor);
-        SubjectsIcon.Source = CreateIconSource(SubjectsGlyph, InactiveColor);
-    }
-
-    private static FontImageSource CreateIconSource(string glyph, Color color)
-    {
-        return new FontImageSource
-        {
-            Glyph = glyph,
-            FontFamily = "FluentIcons",
-            Color = color,
-            Size = 20
-        };
     }
 
     private static void OnActiveTabChanged(BindableObject bindable, object oldValue, object newValue)
@@ -87,27 +58,25 @@ public partial class BottomNavView : ContentView
     }
 
     /// <summary>
-    /// Aplica el estado visual a un tab sin recrear objetos.
-    /// Solo muta propiedades: Color del FontImageSource, TextColor, FontAttributes, visibilidad del indicator.
+    /// Aplica el estado visual a un tab cambiando solo TextColor y FontAttributes.
+    /// Usa Labels con FontFamily="FluentIcons" — más rápido que FontImageSource
+    /// porque renderiza con el text engine nativo sin rasterizar a bitmap.
     /// </summary>
     private void SetTabVisual(string tab, bool isActive)
     {
-        var (icon, label, indicator) = GetTabControls(tab);
+        var (iconLabel, textLabel, indicator) = GetTabControls(tab);
         var color = isActive ? HighlightColor : InactiveColor;
 
-        // Mutar el Color del FontImageSource existente — NO reemplazar el Source
-        if (icon.Source is FontImageSource fis)
-            fis.Color = color;
-
-        label.TextColor = color;
-        label.FontAttributes = isActive ? FontAttributes.Bold : FontAttributes.None;
+        iconLabel.TextColor = color;
+        textLabel.TextColor = color;
+        textLabel.FontAttributes = isActive ? FontAttributes.Bold : FontAttributes.None;
         indicator.IsVisible = isActive;
     }
 
     /// <summary>
     /// Devuelve los controles visuales de un tab.
     /// </summary>
-    private (Image Icon, Label Label, BoxView Indicator) GetTabControls(string tab) => tab switch
+    private (Label IconLabel, Label TextLabel, BoxView Indicator) GetTabControls(string tab) => tab switch
     {
         "Tasks" => (TasksIcon, TasksLabel, TasksIndicator),
         "Subjects" => (SubjectsIcon, SubjectsLabel, SubjectsIndicator),
