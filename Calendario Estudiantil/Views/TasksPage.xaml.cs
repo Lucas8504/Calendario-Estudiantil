@@ -42,41 +42,37 @@ public partial class TasksPage : ContentPage
         BuildFilterTabs();
     }
 
-    protected override void OnAppearing()
+    /// <summary>
+    /// Carga/refresca los datos de la página.
+    /// Llamado por MainPage cuando este tab se vuelve visible.
+    /// </summary>
+    public Task LoadDataAsync()
     {
         var sw = Stopwatch.StartNew();
-        Debug.WriteLine($"[TIMING] TasksPage.OnAppearing START");
+        Debug.WriteLine($"[TIMING] TasksPage.LoadDataAsync START");
 
-        try
+        var task = Task.Run(async () =>
         {
-            base.OnAppearing();
-            _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await _viewModel.LoadSubjectsAsync();
-                    Debug.WriteLine($"[TIMING]   LoadSubjectsAsync: {sw.ElapsedMilliseconds}ms");
+                await _viewModel.LoadSubjectsAsync();
+                Debug.WriteLine($"[TIMING]   LoadSubjectsAsync: {sw.ElapsedMilliseconds}ms");
 
-                    await _viewModel.LoadTasksAsync();
-                    Debug.WriteLine($"[TIMING]   LoadTasksAsync: {sw.ElapsedMilliseconds}ms");
+                await _viewModel.LoadTasksAsync();
+                Debug.WriteLine($"[TIMING]   LoadTasksAsync: {sw.ElapsedMilliseconds}ms");
 
-                    Debug.WriteLine($"[TIMING] TasksPage.LoadTasksDataAsync DONE: {sw.ElapsedMilliseconds}ms");
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"[TIMING]   EXCEPTION: {ex.Message}");
-                    MainThread.BeginInvokeOnMainThread(() =>
-                        _ = DisplayAlert("Error", $"No se pudieron cargar las tareas: {ex.Message}", "OK"));
-                }
-            });
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"[TIMING]   EXCEPTION: {ex.Message}");
-            DisplayAlert("Error", $"No se pudieron cargar las tareas: {ex.Message}", "OK");
-        }
+                Debug.WriteLine($"[TIMING] TasksPage.LoadTasksDataAsync DONE: {sw.ElapsedMilliseconds}ms");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[TIMING]   EXCEPTION: {ex.Message}");
+                MainThread.BeginInvokeOnMainThread(() =>
+                    _ = DisplayAlert("Error", $"No se pudieron cargar las tareas: {ex.Message}", "OK"));
+            }
+        });
 
-        Debug.WriteLine($"[TIMING] TasksPage.OnAppearing returned: {sw.ElapsedMilliseconds}ms");
+        Debug.WriteLine($"[TIMING] TasksPage.LoadDataAsync returned: {sw.ElapsedMilliseconds}ms");
+        return task;
     }
 
     private void BuildFilterTabs()

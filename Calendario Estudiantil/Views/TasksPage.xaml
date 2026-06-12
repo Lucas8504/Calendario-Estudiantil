@@ -2,7 +2,6 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:config="clr-namespace:Calendario_Estudiantil.Configuration"
-             xmlns:controls="clr-namespace:Calendario_Estudiantil.Controls"
              xmlns:converters="clr-namespace:Calendario_Estudiantil.Converters"
              x:Class="Calendario_Estudiantil.Views.TasksPage"
              Title="Tareas"
@@ -29,7 +28,6 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Header limpio -->
@@ -162,7 +160,5 @@
                 Clicked="OnCreateTask"
                 Shadow="{Shadow Brush='Black', Opacity=0.3, Offset='0,2', Radius=4}"/>
 
-        <!-- Barra de navegación inferior -->
-        <controls:BottomNavView Grid.Row="3" ActiveTab="Tasks"/>
     </Grid>
 </ContentPage>

@@ -2,7 +2,6 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:config="clr-namespace:Calendario_Estudiantil.Configuration"
-             xmlns:controls="clr-namespace:Calendario_Estudiantil.Controls"
              x:Class="Calendario_Estudiantil.Views.SubjectsPage"
              Title="Materias"
              Padding="0"
@@ -24,7 +23,6 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Header limpio -->
@@ -150,7 +148,5 @@
                 Clicked="OnAddSubject"
                 Shadow="{Shadow Brush='Black', Opacity=0.3, Offset='0,2', Radius=4}"/>
 
-        <!-- Barra de navegación inferior -->
-        <controls:BottomNavView Grid.Row="2" ActiveTab="Subjects"/>
     </Grid>
 </ContentPage>

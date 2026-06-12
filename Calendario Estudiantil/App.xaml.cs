@@ -22,19 +22,15 @@ public partial class App : Application
 
     protected override Window CreateWindow(IActivationState? activationState)
     {
-        // Resolver SchedulePage desde DI (inyección de dependencias)
-        var schedulePage = _services.GetRequiredService<SchedulePage>();
-
-        // Pre-crear páginas secundarias (Singleton) para que el primer tap sea instantáneo
-        _ = _services.GetService<TasksPage>();
-        _ = _services.GetService<SubjectsPage>();
+        // Resolver MainPage desde DI (inyecta SchedulePage, TasksPage, SubjectsPage como singletons)
+        var mainPage = _services.GetRequiredService<MainPage>();
         
         // Pre-cargar datos de materias en caché para que aparezcan al instante
         var subjectService = _services.GetService<ISubjectService>();
         if (subjectService != null)
             _ = subjectService.GetAllAsync();
 
-        var navPage = new NavigationPage(schedulePage);
+        var navPage = new NavigationPage(mainPage);
         navPage.BarBackgroundColor = AppConstants.Theme.Accent;
         navPage.BarTextColor = Colors.White;
         MainPage = navPage;

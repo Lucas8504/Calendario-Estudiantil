@@ -48,6 +48,7 @@ namespace Calendario_Estudiantil
             builder.Services.AddSingleton<SchedulePage>();
             builder.Services.AddSingleton<TasksPage>();
             builder.Services.AddSingleton<SubjectsPage>();
+            builder.Services.AddSingleton<MainPage>();
             builder.Services.AddTransient<SettingsPage>();
             builder.Services.AddTransient<NewSchedulePage>();
             builder.Services.AddTransient<NewTaskPage>();

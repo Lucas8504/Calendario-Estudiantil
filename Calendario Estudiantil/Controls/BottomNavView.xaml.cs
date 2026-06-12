@@ -1,6 +1,4 @@
-using System.Diagnostics;
 using Calendario_Estudiantil.Configuration;
-using Calendario_Estudiantil.Views;
 using Microsoft.Maui.Controls;
 
 namespace Calendario_Estudiantil.Controls;
@@ -23,8 +21,14 @@ public partial class BottomNavView : ContentView
         set => SetValue(ActiveTabProperty, value);
     }
 
+    /// <summary>
+    /// Se dispara cuando el usuario toca un tab.
+    /// MainPage se suscribe para cambiar el contenido visible.
+    /// </summary>
+    public event EventHandler<string>? TabSelected;
+
     private static readonly Color InactiveColor = Color.FromArgb("#666666");
-    private static readonly Color InactiveColorDark = Color.FromArgb("#A0A0A0");
+    private static readonly Color HighlightColor = AppConstants.Theme.Accent;
 
     // Glyph codes for FluentUI icons
     private const string CalendarGlyph = "\uE24F";
@@ -35,23 +39,29 @@ public partial class BottomNavView : ContentView
     {
         InitializeComponent();
         InitializeIcons();
-        UpdateActiveTab(ActiveTab);
+
+        // Marcar el tab inicial como activo sin animación intermedia
+        SetTabVisual("Schedule", isActive: true);
     }
 
+    /// <summary>
+    /// Crea los FontImageSource UNA SOLA VEZ y los asigna a cada Image.
+    /// Desde acá en adelante solo se muta la propiedad Color, no se reemplaza el Source.
+    /// </summary>
     private void InitializeIcons()
     {
-        ScheduleIcon.Source = CreateIconSource(CalendarGlyph);
-        TasksIcon.Source = CreateIconSource(TasksGlyph);
-        SubjectsIcon.Source = CreateIconSource(SubjectsGlyph);
+        ScheduleIcon.Source = CreateIconSource(CalendarGlyph, InactiveColor);
+        TasksIcon.Source = CreateIconSource(TasksGlyph, InactiveColor);
+        SubjectsIcon.Source = CreateIconSource(SubjectsGlyph, InactiveColor);
     }
 
-    private static FontImageSource CreateIconSource(string glyph, Color? color = null)
+    private static FontImageSource CreateIconSource(string glyph, Color color)
     {
         return new FontImageSource
         {
             Glyph = glyph,
             FontFamily = "FluentIcons",
-            Color = color ?? InactiveColor,
+            Color = color,
             Size = 20
         };
     }
@@ -59,130 +69,66 @@ public partial class BottomNavView : ContentView
     private static void OnActiveTabChanged(BindableObject bindable, object oldValue, object newValue)
     {
         var view = (BottomNavView)bindable;
-        view.UpdateActiveTab((string)newValue);
-    }
-
-    private void UpdateActiveTab(string tab)
-    {
-        // Reset todos
-        ResetTab(ScheduleIcon, ScheduleLabel, ScheduleIndicator);
-        ResetTab(TasksIcon, TasksLabel, TasksIndicator);
-        ResetTab(SubjectsIcon, SubjectsLabel, SubjectsIndicator);
-
-        // Resaltar el activo
-        switch (tab)
-        {
-            case "Schedule":
-                HighlightTab(ScheduleIcon, ScheduleLabel, ScheduleIndicator);
-                break;
-            case "Tasks":
-                HighlightTab(TasksIcon, TasksLabel, TasksIndicator);
-                break;
-            case "Subjects":
-                HighlightTab(SubjectsIcon, SubjectsLabel, SubjectsIndicator);
-                break;
-        }
-    }
-
-    private static void ResetTab(Image icon, Label label, BoxView indicator)
-    {
-        icon.Source = CreateIconSource(icon.Source is FontImageSource fis ? fis.Glyph : "");
-        label.TextColor = InactiveColor;
-        label.FontAttributes = FontAttributes.None;
-        indicator.IsVisible = false;
-    }
-
-    private static void HighlightTab(Image icon, Label label, BoxView indicator)
-    {
-        icon.Source = CreateIconSource(icon.Source is FontImageSource fis ? fis.Glyph : "", 
-                                        AppConstants.Theme.Accent);
-        label.TextColor = AppConstants.Theme.Accent;
-        label.FontAttributes = FontAttributes.Bold;
-        indicator.IsVisible = true;
-    }
-
-    private async void OnScheduleClicked(object? sender, TappedEventArgs e)
-    {
-        if (ActiveTab == "Schedule") return;
-        var nav = Application.Current?.MainPage?.Navigation;
-        if (nav == null) return;
-        await nav.PopToRootAsync();
-    }
-
-    private async void OnTasksClicked(object? sender, TappedEventArgs e)
-    {
-        if (ActiveTab == "Tasks") return;
-        await NavigateToAsync<TasksPage>();
-    }
-
-    private async void OnSubjectsClicked(object? sender, TappedEventArgs e)
-    {
-        if (ActiveTab == "Subjects") return;
-        await NavigateToAsync<SubjectsPage>();
+        view.UpdateActiveTab((string)oldValue, (string)newValue);
     }
 
     /// <summary>
-    /// Navega a la página T, evitando duplicados en el stack.
-    /// Si ya existe una instancia, vuelve a ella.
-    /// Si no, la resuelve desde DI y reemplaza la página secundaria actual
-    /// para mantener el stack siempre en [Schedule, CurrentPage].
+    /// Actualiza SOLO el tab que cambió: resetea el anterior, resalta el nuevo.
+    /// No toca los otros 2 tabs, evitando re-render innecesario.
     /// </summary>
-    private async Task NavigateToAsync<T>() where T : Page
+    private void UpdateActiveTab(string? oldTab, string newTab)
     {
-        var sw = Stopwatch.StartNew();
-        var typeName = typeof(T).Name;
-        Debug.WriteLine($"[TIMING] NavigateToAsync<{typeName}> START");
+        if (oldTab == newTab) return;
 
-        var nav = Application.Current?.MainPage?.Navigation;
-        if (nav == null) return;
+        if (oldTab != null)
+            SetTabVisual(oldTab, isActive: false);
 
-        var stack = nav.NavigationStack;
-        Debug.WriteLine($"[TIMING]   stack count={stack.Count}: {sw.ElapsedMilliseconds}ms");
+        SetTabVisual(newTab, isActive: true);
+    }
 
-        // Ya estamos en esa página
-        if (stack.Count > 0 && stack[^1] is T)
-        {
-            Debug.WriteLine($"[TIMING]   already on page: {sw.ElapsedMilliseconds}ms");
-            return;
-        }
+    /// <summary>
+    /// Aplica el estado visual a un tab sin recrear objetos.
+    /// Solo muta propiedades: Color del FontImageSource, TextColor, FontAttributes, visibilidad del indicator.
+    /// </summary>
+    private void SetTabVisual(string tab, bool isActive)
+    {
+        var (icon, label, indicator) = GetTabControls(tab);
+        var color = isActive ? HighlightColor : InactiveColor;
 
-        // Buscar si ya existe en el stack (excluyendo root) y volver a ella
-        for (int i = 1; i < stack.Count; i++)
-        {
-            if (stack[i] is T)
-            {
-                Debug.WriteLine($"[TIMING]   found at stack[{i}], removing pages above: {sw.ElapsedMilliseconds}ms");
-                while (stack.Count > i + 1)
-                    nav.RemovePage(stack[^1]);
-                Debug.WriteLine($"[TIMING] NavigateToAsync<{typeName}> DONE (restore): {sw.ElapsedMilliseconds}ms");
-                return;
-            }
-        }
+        // Mutar el Color del FontImageSource existente — NO reemplazar el Source
+        if (icon.Source is FontImageSource fis)
+            fis.Color = color;
 
-        // No existe: resolver desde DI
-        var services = IPlatformApplication.Current?.Services;
-        var page = services?.GetService<T>();
-        if (page == null) return;
+        label.TextColor = color;
+        label.FontAttributes = isActive ? FontAttributes.Bold : FontAttributes.None;
+        indicator.IsVisible = isActive;
+    }
 
-        Debug.WriteLine($"[TIMING]   resolved from DI: {sw.ElapsedMilliseconds}ms");
+    /// <summary>
+    /// Devuelve los controles visuales de un tab.
+    /// </summary>
+    private (Image Icon, Label Label, BoxView Indicator) GetTabControls(string tab) => tab switch
+    {
+        "Tasks" => (TasksIcon, TasksLabel, TasksIndicator),
+        "Subjects" => (SubjectsIcon, SubjectsLabel, SubjectsIndicator),
+        _ => (ScheduleIcon, ScheduleLabel, ScheduleIndicator),
+    };
 
-        // Reemplazar la página secundaria actual si existe,
-        // para que el stack nunca pase de [Schedule, CurrentPage]
-        if (stack.Count >= 2)
-        {
-            var currentTop = stack[^1];
-            Debug.WriteLine($"[TIMING]   swapping: InsertPageBefore + RemovePage: {sw.ElapsedMilliseconds}ms");
-            nav.InsertPageBefore(page, currentTop);
-            nav.RemovePage(currentTop);
-            Debug.WriteLine($"[TIMING]   swap done: {sw.ElapsedMilliseconds}ms");
-        }
-        else
-        {
-            Debug.WriteLine($"[TIMING]   PushAsync start: {sw.ElapsedMilliseconds}ms");
-            await nav.PushAsync(page, animated: false);
-            Debug.WriteLine($"[TIMING]   PushAsync done: {sw.ElapsedMilliseconds}ms");
-        }
+    private void OnScheduleClicked(object? sender, TappedEventArgs e)
+    {
+        if (ActiveTab == "Schedule") return;
+        TabSelected?.Invoke(this, "Schedule");
+    }
 
-        Debug.WriteLine($"[TIMING] NavigateToAsync<{typeName}> DONE: {sw.ElapsedMilliseconds}ms");
+    private void OnTasksClicked(object? sender, TappedEventArgs e)
+    {
+        if (ActiveTab == "Tasks") return;
+        TabSelected?.Invoke(this, "Tasks");
+    }
+
+    private void OnSubjectsClicked(object? sender, TappedEventArgs e)
+    {
+        if (ActiveTab == "Subjects") return;
+        TabSelected?.Invoke(this, "Subjects");
     }
 }

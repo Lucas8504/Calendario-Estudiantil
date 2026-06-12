@@ -44,10 +44,13 @@ public partial class SchedulePage : ContentPage
         BuildDayTabs();
     }
 
-    protected override void OnAppearing()
+    /// <summary>
+    /// Carga/refresca los datos de la página.
+    /// Llamado por MainPage cuando este tab se vuelve visible.
+    /// </summary>
+    public Task LoadDataAsync()
     {
-        base.OnAppearing();
-        _ = LoadScheduleAsync();
+        return LoadScheduleAsync();
     }
 
     private async Task LoadScheduleAsync()

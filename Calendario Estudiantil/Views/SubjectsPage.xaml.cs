@@ -27,36 +27,31 @@ public partial class SubjectsPage : ContentPage
         BindingContext = _viewModel;
     }
 
-    protected override void OnAppearing()
+    /// <summary>
+    /// Carga/refresca los datos de la página.
+    /// Llamado por MainPage cuando este tab se vuelve visible.
+    /// </summary>
+    public Task LoadDataAsync()
     {
         var sw = Stopwatch.StartNew();
-        Debug.WriteLine($"[TIMING] SubjectsPage.OnAppearing START");
+        Debug.WriteLine($"[TIMING] SubjectsPage.LoadDataAsync START");
 
-        try
+        var task = Task.Run(async () =>
         {
-            base.OnAppearing();
-            Debug.WriteLine($"[TIMING]   base.OnAppearing: {sw.ElapsedMilliseconds}ms");
-            _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await _viewModel.LoadSubjectsAsync();
-                    Debug.WriteLine($"[TIMING]   LoadSubjectsAsync completed: {sw.ElapsedMilliseconds}ms");
-                    Debug.WriteLine($"[TIMING] SubjectsPage.OnAppearing DONE (total async): {sw.ElapsedMilliseconds}ms");
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"[TIMING]   LoadSubjectsAsync FAILED: {ex.Message}");
-                }
-            });
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"[TIMING]   EXCEPTION: {ex.Message}");
-            DisplayAlert("Error", $"Error al cargar materias: {ex.Message}", "OK");
-        }
+                await _viewModel.LoadSubjectsAsync();
+                Debug.WriteLine($"[TIMING]   LoadSubjectsAsync completed: {sw.ElapsedMilliseconds}ms");
+                Debug.WriteLine($"[TIMING] SubjectsPage.LoadDataAsync DONE (total async): {sw.ElapsedMilliseconds}ms");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[TIMING]   LoadSubjectsAsync FAILED: {ex.Message}");
+            }
+        });
 
-        Debug.WriteLine($"[TIMING] SubjectsPage.OnAppearing returned: {sw.ElapsedMilliseconds}ms");
+        Debug.WriteLine($"[TIMING] SubjectsPage.LoadDataAsync returned: {sw.ElapsedMilliseconds}ms");
+        return task;
     }
 
     private async void OnSubjectTapped(object sender, TappedEventArgs e)
