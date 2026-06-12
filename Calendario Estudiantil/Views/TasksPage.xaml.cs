@@ -9,10 +9,24 @@ using System.Globalization;
 
 namespace Calendario_Estudiantil.Views;
 
-public partial class TasksPage : ContentPage
-{
-    private readonly TasksViewModel _viewModel;
-    private readonly ISubjectService _subjectService;
+    public partial class TasksPage : ContentPage
+    {
+        /// <summary>
+        /// Navigation del NavigationPage raíz (MainPage está embebida, no tiene navegación propia).
+        /// Siempre disponible porque App.CreateWindow asigna MainPage antes del primer navegación.
+        /// </summary>
+        private INavigation RootNavigation => Application.Current!.MainPage!.Navigation;
+
+        /// <summary>
+        /// Página actual visible en el NavigationPage (la única conectada al árbol visual).
+        /// Necesaria para DisplayAlert y popups de CommunityToolkit.Maui.
+        /// </summary>
+        private Page CurrentPage => Application.Current!.MainPage is NavigationPage nav
+            ? nav.CurrentPage
+            : Application.Current!.MainPage!;
+
+        private readonly TasksViewModel _viewModel;
+        private readonly ISubjectService _subjectService;
     private readonly ITaskService _taskService;
 
     // Cached colors to avoid repeated Color.FromArgb allocations
@@ -67,7 +81,7 @@ public partial class TasksPage : ContentPage
             {
                 Debug.WriteLine($"[TIMING]   EXCEPTION: {ex.Message}");
                 MainThread.BeginInvokeOnMainThread(() =>
-                    _ = DisplayAlert("Error", $"No se pudieron cargar las tareas: {ex.Message}", "OK"));
+                    _ = CurrentPage.DisplayAlert("Error", $"No se pudieron cargar las tareas: {ex.Message}", "OK"));
             }
         });
 
@@ -119,7 +133,7 @@ public partial class TasksPage : ContentPage
                     ? new[] { "Eliminar" }
                     : new[] { "Completar", "Eliminar" };
 
-                var action = await DisplayActionSheet(
+                var action = await CurrentPage.DisplayActionSheet(
                     task.Title,
                     "Cancelar",
                     null,
@@ -131,7 +145,7 @@ public partial class TasksPage : ContentPage
                 }
                 else if (action == "Eliminar")
                 {
-                    var confirm = await DisplayAlert("Confirmar", "¿Eliminar esta tarea?", "Sí", "No");
+                    var confirm = await CurrentPage.DisplayAlert("Confirmar", "¿Eliminar esta tarea?", "Sí", "No");
                     if (confirm)
                     {
                         await _viewModel.DeleteTaskAsync(taskDisplay);
@@ -140,7 +154,7 @@ public partial class TasksPage : ContentPage
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", ex.Message, "OK");
+                await CurrentPage.DisplayAlert("Error", ex.Message, "OK");
             }
         }
     }
@@ -151,28 +165,28 @@ public partial class TasksPage : ContentPage
         {
             var settingsPage = IPlatformApplication.Current?.Services.GetService<SettingsPage>();
             if (settingsPage != null)
-                await Navigation.PushAsync(settingsPage);
+                await RootNavigation.PushAsync(settingsPage);
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"No se pudo abrir la configuración: {ex.Message}", "OK");
+            await CurrentPage.DisplayAlert("Error", $"No se pudo abrir la configuración: {ex.Message}", "OK");
         }
     }
 
     private async void OnNotificationsClicked(object sender, EventArgs e)
     {
-        await NotificationHelper.ShowPendingTasksAsync(this, _taskService, _subjectService);
+        await NotificationHelper.ShowPendingTasksAsync(CurrentPage, _taskService, _subjectService);
     }
 
     private async void OnCreateTask(object sender, EventArgs e)
     {
         try
         {
-            await Navigation.PushAsync(new NewTaskPage(_subjectService, _taskService));
+            await RootNavigation.PushAsync(new NewTaskPage(_subjectService, _taskService));
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"No se pudo abrir la página de nueva tarea: {ex.Message}", "OK");
+            await CurrentPage.DisplayAlert("Error", $"No se pudo abrir la página de nueva tarea: {ex.Message}", "OK");
         }
     }
 }

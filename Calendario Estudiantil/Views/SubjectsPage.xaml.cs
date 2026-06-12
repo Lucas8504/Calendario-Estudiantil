@@ -9,10 +9,24 @@ using System.Globalization;
 
 namespace Calendario_Estudiantil.Views;
 
-public partial class SubjectsPage : ContentPage
-{
-    private readonly SubjectViewModel _viewModel;
-    private readonly ISubjectService _subjectService;
+    public partial class SubjectsPage : ContentPage
+    {
+        /// <summary>
+        /// Navigation del NavigationPage raíz (MainPage está embebida, no tiene navegación propia).
+        /// Siempre disponible porque App.CreateWindow asigna MainPage antes del primer navegación.
+        /// </summary>
+        private INavigation RootNavigation => Application.Current!.MainPage!.Navigation;
+
+        /// <summary>
+        /// Página actual visible en el NavigationPage (la única conectada al árbol visual).
+        /// Necesaria para DisplayAlert y popups de CommunityToolkit.Maui.
+        /// </summary>
+        private Page CurrentPage => Application.Current!.MainPage is NavigationPage nav
+            ? nav.CurrentPage
+            : Application.Current!.MainPage!;
+
+        private readonly SubjectViewModel _viewModel;
+        private readonly ISubjectService _subjectService;
     private readonly ITaskService _taskService;
 
     public SubjectsPage(SubjectViewModel viewModel, ISubjectService subjectService, ITaskService taskService)
@@ -60,11 +74,11 @@ public partial class SubjectsPage : ContentPage
         {
             try
             {
-                await Navigation.PushAsync(new SubjectSchedulesPage(subject, _subjectService));
+                await RootNavigation.PushAsync(new SubjectSchedulesPage(subject, _subjectService));
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", $"No se pudo abrir la materia: {ex.Message}", "OK");
+                await CurrentPage.DisplayAlert("Error", $"No se pudo abrir la materia: {ex.Message}", "OK");
             }
         }
     }
@@ -75,28 +89,28 @@ public partial class SubjectsPage : ContentPage
         {
             var settingsPage = IPlatformApplication.Current?.Services.GetService<SettingsPage>();
             if (settingsPage != null)
-                await Navigation.PushAsync(settingsPage);
+                await RootNavigation.PushAsync(settingsPage);
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"No se pudo abrir la configuración: {ex.Message}", "OK");
+            await CurrentPage.DisplayAlert("Error", $"No se pudo abrir la configuración: {ex.Message}", "OK");
         }
     }
 
     private async void OnNotificationsClicked(object sender, EventArgs e)
     {
-        await NotificationHelper.ShowPendingTasksAsync(this, _taskService, _subjectService);
+        await NotificationHelper.ShowPendingTasksAsync(CurrentPage, _taskService, _subjectService);
     }
 
     private async void OnAddSubject(object sender, EventArgs e)
     {
         try
         {
-            await Navigation.PushAsync(new NewSchedulePage(_subjectService));
+            await RootNavigation.PushAsync(new NewSchedulePage(_subjectService));
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"No se pudo abrir el formulario: {ex.Message}", "OK");
+            await CurrentPage.DisplayAlert("Error", $"No se pudo abrir el formulario: {ex.Message}", "OK");
         }
     }
 }
