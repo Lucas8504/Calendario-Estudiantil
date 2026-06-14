@@ -18,8 +18,8 @@
             <GradientStop Offset="1.0" Color="#2A2A2A"/>
         </LinearGradientBrush>
     </ContentPage.Resources>
-
-    <Grid RowSpacing="0" ColumnSpacing="0">
+    <Grid RowSpacing="0" ColumnSpacing="0"
+          BackgroundColor="{AppThemeBinding Light=White, Dark=#151515}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -36,7 +36,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                
+
                 <!-- Avatar circular -->
                 <Frame Grid.Column="0" WidthRequest="40" HeightRequest="40" CornerRadius="20"
                        Padding="0" HasShadow="False" BorderColor="Transparent"
@@ -45,7 +45,7 @@
                     <Label Text="M" FontSize="18" FontAttributes="Bold"
                            TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
                 </Frame>
-                
+
                 <!-- Título y subtítulo -->
                 <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
                     <Label Text="Mis Materias" FontSize="20" FontAttributes="Bold"
@@ -53,7 +53,7 @@
                     <Label x:Name="SubtitleLabel" Text="CICLO LECTIVO 2026" FontSize="12"
                            TextColor="{AppThemeBinding Light=#888888, Dark=#707070}"/>
                 </VerticalStackLayout>
-                
+
                 <!-- Ícono configuración -->
                 <Button Grid.Column="2" BackgroundColor="Transparent"
                         WidthRequest="40" HeightRequest="40" CornerRadius="20"
@@ -64,7 +64,7 @@
                                          Color="{AppThemeBinding Light=#666666, Dark=#A0A0A0}" Size="20"/>
                     </Button.ImageSource>
                 </Button>
-                
+
                 <!-- Ícono notificaciones -->
                 <Button Grid.Column="3" BackgroundColor="Transparent"
                         WidthRequest="40" HeightRequest="40" CornerRadius="20"
@@ -82,7 +82,7 @@
         <Grid Grid.Row="1">
             <CollectionView x:Name="SubjectsList"
                             ItemsSource="{Binding Subjects}"
-                            BackgroundColor="{AppThemeBinding Light=White, Dark=#121212}"
+                            BackgroundColor="{AppThemeBinding Light=White, Dark=#151515}"
                             VerticalScrollBarVisibility="Always"
                             Margin="0,0,0,70">
                 <CollectionView.ItemsLayout>
@@ -93,7 +93,7 @@
                         <Frame CornerRadius="12" Padding="0" Margin="16,0"
                                HasShadow="False" BorderColor="Transparent">
                             <Frame.Background>
-                                <AppThemeBinding Light="{StaticResource CardGradientLight}" 
+                                <AppThemeBinding Light="{StaticResource CardGradientLight}"
                                                  Dark="{StaticResource CardGradientDark}"/>
                             </Frame.Background>
                             <Frame.Shadow>
@@ -107,16 +107,16 @@
                                     <ColumnDefinition Width="6"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                
+
                                 <!-- Barra de color lateral -->
-                                <BoxView Grid.Column="0" Color="{Binding ColorHex}" 
+                                <BoxView Grid.Column="0" Color="{Binding ColorHex}"
                                          HorizontalOptions="Fill" VerticalOptions="Fill" InputTransparent="True"/>
-                                
+
                                 <!-- Contenido -->
                                 <VerticalStackLayout Grid.Column="1" Padding="12" Spacing="4" InputTransparent="True">
-                                    <Label Text="{Binding Name}" FontSize="18" FontAttributes="Bold" 
+                                    <Label Text="{Binding Name}" FontSize="18" FontAttributes="Bold"
                                            TextColor="{AppThemeBinding Light=#333333, Dark=#E0E0E0}" InputTransparent="True"/>
-                                    <Label Text="Tocá para ver horarios" FontSize="13" 
+                                    <Label Text="Tocá para ver horarios" FontSize="13"
                                            TextColor="{AppThemeBinding Light=#666666, Dark=#A0A0A0}" InputTransparent="True"/>
                                 </VerticalStackLayout>
                             </Grid>
@@ -124,8 +124,8 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
                 <CollectionView.EmptyView>
-                    <Label Text="No hay materias. Agregá una nueva." 
-                           FontSize="16" TextColor="{AppThemeBinding Light=#888888, Dark=#707070}" 
+                    <Label Text="No hay materias. Agregá una nueva."
+                           FontSize="16" TextColor="{AppThemeBinding Light=#888888, Dark=#707070}"
                            HorizontalOptions="Center" VerticalOptions="Center"
                            Margin="0,40,0,0"/>
                 </CollectionView.EmptyView>
@@ -138,7 +138,7 @@
         </Grid>
 
         <!-- FAB para agregar -->
-        <Button Grid.Row="1" Text="+" 
+        <Button Grid.Row="1" Text="+"
                 FontSize="28" FontAttributes="Bold"
                 WidthRequest="56" HeightRequest="56" CornerRadius="16"
                 BackgroundColor="{x:Static config:AppConstants.Accent}"
