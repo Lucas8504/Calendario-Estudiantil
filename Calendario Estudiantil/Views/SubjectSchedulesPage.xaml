@@ -4,7 +4,18 @@
              x:Class="Calendario_Estudiantil.Views.SubjectSchedulesPage"
              Title="{Binding SubjectName, StringFormat='Horario: {0}'}">
 
-    <Grid Margin="10">
+    <ContentPage.Resources>
+        <LinearGradientBrush x:Key="CardGradientLight" StartPoint="0,1" EndPoint="1,0">
+            <GradientStop Offset="0.0" Color="#F5F7FA"/>
+            <GradientStop Offset="1.0" Color="#E8F0FE"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="CardGradientDark" StartPoint="0,1" EndPoint="1,0">
+            <GradientStop Offset="0.0" Color="#1E1E1E"/>
+            <GradientStop Offset="1.0" Color="#2A2A2A"/>
+        </LinearGradientBrush>
+    </ContentPage.Resources>
+
+    <Grid Margin="10" BackgroundColor="{AppThemeBinding Light=White, Dark=#151515}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -13,28 +24,46 @@
 
         <!-- Info de la materia -->
         <StackLayout Grid.Row="0" Margin="0,0,0,10">
-            <Label Text="{Binding SubjectName}" FontSize="10" FontAttributes="Bold"/>
-            <Label Text="Agregá los días y horarios de clase" FontSize="14" TextColor="Gray"/>
+            <Label Text="{Binding SubjectName}" FontSize="18" FontAttributes="Bold"
+                   TextColor="{AppThemeBinding Light=#1A1A1A, Dark=#E0E0E0}"/>
+            <Label Text="Agregá los días y horarios de clase" FontSize="14"
+                   TextColor="{AppThemeBinding Light=#888888, Dark=#707070}"/>
         </StackLayout>
 
         <!-- Lista de horarios -->
         <ScrollView Grid.Row="1">
-            <CollectionView x:Name="SchedulesList" EmptyView="Sin horarios. Agregá uno.">
+            <CollectionView x:Name="SchedulesList"
+                            BackgroundColor="{AppThemeBinding Light=White, Dark=#151515}"
+                            VerticalScrollBarVisibility="Always">
+                <CollectionView.EmptyView>
+                    <Label Text="Sin horarios. Agregá uno."
+                           FontSize="16"
+                           TextColor="{AppThemeBinding Light=#888888, Dark=#707070}"
+                           HorizontalOptions="Center" VerticalOptions="Center"
+                           Margin="0,40,0,0"/>
+                </CollectionView.EmptyView>
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Frame Margin="0,4" Padding="12" BackgroundColor="#F5F5F5">
-                            <Grid>
+                        <Frame Margin="0,4" Padding="0" CornerRadius="12" HasShadow="False" BorderColor="Transparent">
+                            <Frame.Background>
+                                <AppThemeBinding Light="{StaticResource CardGradientLight}"
+                                                 Dark="{StaticResource CardGradientDark}"/>
+                            </Frame.Background>
+                            <Grid Padding="12">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <StackLayout Grid.Column="0">
-                                    <Label Text="{Binding DayName}" FontSize="16" FontAttributes="Bold"/>
-                                    <Label Text="{Binding TimeDisplay}" FontSize="14" TextColor="Gray"/>
+                                <StackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="{Binding DayName}" FontSize="16" FontAttributes="Bold"
+                                           TextColor="{AppThemeBinding Light=#333333, Dark=#E0E0E0}"/>
+                                    <Label Text="{Binding TimeDisplay}" FontSize="14"
+                                           TextColor="{AppThemeBinding Light=#666666, Dark=#A0A0A0}"/>
                                 </StackLayout>
                                 <Button Grid.Column="1" Text="X" Clicked="OnDeleteSchedule"
                                         WidthRequest="40" HeightRequest="40"
-                                        BackgroundColor="#FFCDD2" TextColor="#D32F2F"/>
+                                        BackgroundColor="{AppThemeBinding Light=#FFCDD2, Dark=#4A2525}"
+                                        TextColor="{AppThemeBinding Light=#D32F2F, Dark=#EF9A9A}"/>
                             </Grid>
                         </Frame>
                     </DataTemplate>
