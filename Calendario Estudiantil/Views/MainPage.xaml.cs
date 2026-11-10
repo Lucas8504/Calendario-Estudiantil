@@ -125,6 +125,14 @@ public partial class MainPage : ContentPage
         ResetFab();
     }
 
+    private async void OnVoiceOverlayTapped(object? sender, TappedEventArgs e)
+    {
+        if (_isBusy || !_audioRecorder.IsRecording)
+            return;
+
+        await StopAndProcessAsync();
+    }
+
     private async Task StartListeningAsync()
     {
         try
@@ -300,7 +308,7 @@ public partial class MainPage : ContentPage
     private void ShowListeningOverlay()
     {
         VoiceOverlayTitle.Text = "Escuchando...";
-        VoiceOverlayHint.Text = "Hablá y tocá el micrófono de nuevo para terminar.";
+        VoiceOverlayHint.Text = "Hablá y tocá el micrófono o la pantalla para terminar.";
         VoiceOverlaySpinner.IsVisible = false;
         VoiceOverlaySpinner.IsRunning = false;
         VoiceOverlayCancelButton.IsEnabled = true;

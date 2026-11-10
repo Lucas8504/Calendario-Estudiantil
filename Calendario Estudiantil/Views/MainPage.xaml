@@ -19,7 +19,49 @@
         <!-- Barra de navegación inferior única -->
         <controls:BottomNavView x:Name="BottomNav" Grid.Row="1" ActiveTab="Schedule"/>
 
-        <!-- FAB global del asistente de voz -->
+        <!-- Overlay de escucha / procesamiento (debajo del FAB para que el micrófono siga accesible) -->
+        <Grid x:Name="VoiceOverlay"
+              Grid.Row="0" Grid.RowSpan="2"
+              IsVisible="False"
+              BackgroundColor="#99000000">
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnVoiceOverlayTapped"/>
+            </Grid.GestureRecognizers>
+            <Border WidthRequest="280"
+                    Padding="24"
+                    HorizontalOptions="Center" VerticalOptions="Center"
+                    BackgroundColor="{AppThemeBinding Light=White, Dark=#2C2C2C}"
+                    StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="16"/>
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="14">
+                    <Label x:Name="VoiceOverlayTitle"
+                           Text="Escuchando..."
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"/>
+                    <Label x:Name="VoiceOverlayHint"
+                           Text="Hablá y tocá el micrófono o la pantalla para terminar."
+                           FontSize="12"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"/>
+                    <ActivityIndicator x:Name="VoiceOverlaySpinner"
+                                       IsRunning="False"
+                                       IsVisible="False"
+                                       HorizontalOptions="Center"/>
+                    <Button x:Name="VoiceOverlayCancelButton"
+                            Text="Cancelar"
+                            Clicked="OnVoiceCancelClicked"
+                            BackgroundColor="{AppThemeBinding Light=#E8F0FE, Dark=#3C3C3C}"
+                            TextColor="{AppThemeBinding Light=#1B48A3, Dark=White}"
+                            CornerRadius="10"/>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+        <!-- FAB global del asistente de voz (encima del overlay para poder cortar la grabación) -->
         <Border x:Name="VoiceFab"
                 Grid.Row="0"
                 WidthRequest="56" HeightRequest="56"
@@ -41,45 +83,6 @@
                 <TapGestureRecognizer Tapped="OnVoiceFabTapped"/>
             </Border.GestureRecognizers>
         </Border>
-
-        <!-- Overlay de escucha / procesamiento -->
-        <Grid x:Name="VoiceOverlay"
-              Grid.Row="0" Grid.RowSpan="2"
-              IsVisible="False"
-              BackgroundColor="#99000000">
-            <Border WidthRequest="280"
-                    Padding="24"
-                    HorizontalOptions="Center" VerticalOptions="Center"
-                    BackgroundColor="{AppThemeBinding Light=White, Dark=#2C2C2C}"
-                    StrokeThickness="0">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="16"/>
-                </Border.StrokeShape>
-                <VerticalStackLayout Spacing="14">
-                    <Label x:Name="VoiceOverlayTitle"
-                           Text="Escuchando..."
-                           FontSize="16"
-                           FontAttributes="Bold"
-                           HorizontalOptions="Center"
-                           HorizontalTextAlignment="Center"/>
-                    <Label x:Name="VoiceOverlayHint"
-                           Text="Hablá y tocá el micrófono de nuevo para terminar."
-                           FontSize="12"
-                           HorizontalOptions="Center"
-                           HorizontalTextAlignment="Center"/>
-                    <ActivityIndicator x:Name="VoiceOverlaySpinner"
-                                       IsRunning="False"
-                                       IsVisible="False"
-                                       HorizontalOptions="Center"/>
-                    <Button x:Name="VoiceOverlayCancelButton"
-                            Text="Cancelar"
-                            Clicked="OnVoiceCancelClicked"
-                            BackgroundColor="{AppThemeBinding Light=#E8F0FE, Dark=#3C3C3C}"
-                            TextColor="{AppThemeBinding Light=#1B48A3, Dark=White}"
-                            CornerRadius="10"/>
-                </VerticalStackLayout>
-            </Border>
-        </Grid>
     </Grid>
 
 </ContentPage>
