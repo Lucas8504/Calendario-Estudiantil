@@ -27,9 +27,14 @@ S9. API keys MUST NOT be hardcoded or committed. `GEMINI_API_KEY` comes from env
 
 ## Tasks
 
-- [x] T1 - Microphone permissions + `Plugin.Maui.Audio` package (Android/iOS/MacCatalyst/Windows) | S4, S9 | inline | Evidence: `dotnet build -f net8.0-windows10.0.19041.0` and `-f net8.0-android` both OK (0 errors/warnings). Plugin.Maui.Audio pinned to **3.1.0** (4.0.0 requires net9.0; project targets net8.0). iOS/MacCatalyst build not run (Windows host). | commit: see branch
-- [ ] T2 - `IGeminiClient` (HttpClient, base64 audio, timeout + backoff, 429 handling) | S4, S5, S9 | pending | WAITING: user authorized work "hasta T1" only (L7)
-- [ ] T3 - Function-calling tool schema (mirror of TaskService/SubjectService operations) | S2, S5, S7 | route: pending
+- [x] T1 - Microphone permissions + `Plugin.Maui.Audio` package (Android/iOS/MacCatalyst/Windows) | S4, S9 | inline | Evidence: `dotnet build -f net8.0-windows10.0.19041.0` and `-f net8.0-android` both OK (0 errors/warnings). Plugin.Maui.Audio pinned to **3.1.0** (4.0.0 requires net9.0; project targets net8.0). iOS/MacCatalyst build not run (Windows host). | commit: 2eacaf3
+- [x] T2 - `IGeminiClient` (HttpClient, base64 audio + function calling, timeout + backoff, 429 handling, GEMINI_API_KEY via env) | S4, S5, S9 | inline | Evidence: `dotnet build -f net8.0-windows10.0.19041.0` OK (0 errors). Files: Models/VoiceCommand.cs, Models/VoiceCommandResult.cs, Services/Voice/IGeminiClient.cs, Services/Voice/GeminiVoiceClient.cs, Services/Voice/FunctionDeclaration.cs (schema helpers, needed by T2 signature). Registered `HttpClient` + `IGeminiClient` in DI. | commit: (this commit)
+- [ ] T3 - Function-calling tool schema (mirror of TaskService/SubjectService operations) + tool dispatch registry | S2, S5, S7 | inline | Route: T3 depends on T2 | commit: (pending)
+- [ ] T4 - Tool dispatcher + tools + internal lookups | S2, S7 | pending | WAITING: user authorized T2+T3
+- [ ] T5 - `IVoiceAssistant` orchestrator (listen -> LLM -> confirm -> dispatch) | S1, S2 | pending | WAITING
+- [ ] T6 - Global FAB mic + listening UI, confirmation dialog with mutation summary | S3, S7 | pending | WAITING
+- [ ] T7 - Error handling UX (429, timeout, malformed JSON, subject not found) | S4, S7 | pending | WAITING
+- [ ] T8 - Unit tests for parser/dispatcher + manual end-to-end verification | S8 | pending | WAITING
 - [ ] T4 - Tool dispatcher + tools + internal lookups | S2, S7 | route: pending
 - [ ] T5 - `IVoiceAgent` orchestrator (listen -> LLM -> confirm -> dispatch) | S1, S2 | route: pending
 - [ ] T6 - Global FAB mic + listening UI, confirmation dialog with mutation summary | S3, S7 | route: pending

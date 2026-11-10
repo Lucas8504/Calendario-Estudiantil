@@ -5,6 +5,7 @@ using Calendario_Estudiantil.Data;
 using Calendario_Estudiantil.ViewModels;
 using Calendario_Estudiantil.Views;
 using Calendario_Estudiantil.Controls;
+using Calendario_Estudiantil.Services.Voice;
 
 namespace Calendario_Estudiantil
 {
@@ -29,6 +30,10 @@ namespace Calendario_Estudiantil
 #endif
 
             // ==================== REGISTRO DE SERVICIOS (DI) ====================
+            
+            // HttpClient para el cliente de IA (Gemini)
+            builder.Services.AddSingleton(_ => new HttpClient { Timeout = TimeSpan.FromSeconds(60) });
+            builder.Services.AddSingleton<IGeminiClient, GeminiVoiceClient>();
             
             // Base de datos (Singleton - una sola instancia para toda la app)
             builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
