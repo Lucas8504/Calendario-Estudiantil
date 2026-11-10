@@ -34,6 +34,8 @@ namespace Calendario_Estudiantil
             // HttpClient para el cliente de IA (Gemini)
             builder.Services.AddSingleton(_ => new HttpClient { Timeout = TimeSpan.FromSeconds(60) });
             builder.Services.AddSingleton<IGeminiClient, GeminiVoiceClient>();
+            builder.Services.AddSingleton<IToolRegistry, ToolRegistry>();
+            builder.Services.AddSingleton<IVoiceAssistant, VoiceAssistant>();
             
             // Base de datos (Singleton - una sola instancia para toda la app)
             builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
