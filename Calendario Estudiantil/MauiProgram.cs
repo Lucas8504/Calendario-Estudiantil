@@ -36,6 +36,8 @@ namespace Calendario_Estudiantil
             builder.Services.AddSingleton<IGeminiClient, GeminiVoiceClient>();
             builder.Services.AddSingleton<IToolRegistry, ToolRegistry>();
             builder.Services.AddSingleton<IVoiceAssistant, VoiceAssistant>();
+            builder.Services.AddSingleton<Plugin.Maui.Audio.IAudioManager>(_ => Plugin.Maui.Audio.AudioManager.Current);
+            builder.Services.AddSingleton<IAudioRecorderService, AudioRecorderService>();
             
             // Base de datos (Singleton - una sola instancia para toda la app)
             builder.Services.AddSingleton<IDatabaseService, DatabaseService>();

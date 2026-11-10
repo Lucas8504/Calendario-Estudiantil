@@ -8,7 +8,7 @@ using System.Text.Json;
 using Calendario_Estudiantil.Models;
 
 /// <summary>
-/// Errores que lanza el cliente cuando Gemini responde con error HTTP.
+/// Error genérico devuelto por la API de Gemini.
 /// </summary>
 public sealed class GeminiRequestException : Exception
 {
@@ -16,7 +16,7 @@ public sealed class GeminiRequestException : Exception
 }
 
 /// <summary>
-/// Excepción específica cuando se excede el límite de peticiones de Gemini.
+/// Error específico cuando se excede el límite de peticiones de Gemini (HTTP 429).
 /// </summary>
 public sealed class GeminiRateLimitException : Exception
 {
@@ -25,16 +25,18 @@ public sealed class GeminiRateLimitException : Exception
 
 /// <summary>
 /// Cliente HTTP hacia la API de Gemini para la capa de voz.
+/// Envía audio WAV inline (base64) junto con las function declarations y
+/// devuelve las function calls que el modelo decidió ejecutar.
 /// </summary>
 public sealed class GeminiVoiceClient : IGeminiClient
 {
-    private readonly HttpClient _httpClient;
-    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
+    private const string ModelUrl =
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
-    /// <summary>
-    /// Número de reintentos (backoff exponencial) ante 429/5xx.
-    /// </summary>
+    /// <summary>Reintentos con backoff exponencial ante errores transitorios.</summary>
     private const int MaxRetries = 3;
+
+    private readonly HttpClient _httpClient;
 
     public GeminiVoiceClient(HttpClient httpClient) => _httpClient = httpClient;
 
@@ -45,137 +47,178 @@ public sealed class GeminiVoiceClient : IGeminiClient
         CancellationToken ct = default)
     {
         string? key = Environment.GetEnvironmentVariable("GEMINI_API_KEY");
-        if (key is null)
+        if (string.IsNullOrWhiteSpace(key))
             throw new InvalidOperationException(
                 "Falta la variable de entorno GEMINI_API_KEY. Configurala en tu entorno local " +
-                "(nunca se commita la clave) y vuelve a intentar.");
+                "(nunca se commitea la clave) y volvé a intentar.");
 
         byte[] audioBytes = await ReadAudioBytesAsync(audioStream, ct);
         string audioBase64 = Convert.ToBase64String(audioBytes);
-
-        var requestBody = BuildRequest(audioBase64, tools, today);
-        string json = JsonSerializer.Serialize(requestBody, new JsonSerializerOptions { WriteIndented = false });
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-        var url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+        string json = JsonSerializer.Serialize(
+            BuildRequest(audioBase64, tools, today),
+            new JsonSerializerOptions { WriteIndented = false });
 
         int attempt = 0;
         while (true)
         {
+            ct.ThrowIfCancellationRequested();
+
+            HttpResponseMessage response;
             try
             {
-                HttpResponseMessage response = await _httpClient.PostAsync(url, content, ct);
-                if (response.IsSuccessStatusCode)
-                    return ParseResponse(await response.Content.ReadAsStringAsync(ct));
-
-                attempt++;
-                if (!IsTransient(response.StatusCode) || attempt >= MaxRetries)
-                {
-                    var errorBody = await response.Content.ReadAsStringAsync(ct);
-                    if (response.StatusCode == HttpStatusCode.TooManyRequests)
-                        throw new GeminiRateLimitException($"Límite de peticiones excedido ({response.StatusCode}): {errorBody}");
-                    throw new GeminiRequestException($"Error de Gemini ({response.StatusCode}): {errorBody}");
-                }
-
-                int delayMs = (int)(Math.Pow(2, attempt) * 1000); // 2s, 4s, 8s...
-                await Task.Delay(delayMs, ct);
+                using var content = new StringContent(json, Encoding.UTF8, "application/json");
+                response = await _httpClient.PostAsync(ModelUrl, content, ct);
             }
-            catch (HttpRequestException ex) when (attempt++ < MaxRetries && !ct.IsCancellationRequested)
+            catch (HttpRequestException) when (attempt < MaxRetries)
             {
-                await Task.Delay((int)(Math.Pow(2, attempt) * 1000), ct);
+                attempt++;
+                await Task.Delay(BackoffDelay(attempt), ct);
                 continue;
             }
+            catch (TaskCanceledException) when (!ct.IsCancellationRequested)
+            {
+                throw new TimeoutException("Gemini tardó demasiado en responder.");
+            }
+
+            if (response.IsSuccessStatusCode)
+                return ParseResponse(await response.Content.ReadAsStringAsync(ct));
+
+            attempt++;
+            if (!IsTransient(response.StatusCode) || attempt > MaxRetries)
+            {
+                string errorBody = await response.Content.ReadAsStringAsync(ct);
+                if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                    throw new GeminiRateLimitException($"Límite de peticiones excedido (429): {errorBody}");
+
+                throw new GeminiRequestException($"Error de Gemini ({(int)response.StatusCode}): {errorBody}");
+            }
+
+            await Task.Delay(BackoffDelay(attempt), ct);
         }
     }
 
-    private async Task<byte[]> ReadAudioBytesAsync(Stream audioStream, CancellationToken ct)
+    private static int BackoffDelay(int attempt) => (int)(Math.Pow(2, attempt) * 1000);
+
+    private static async Task<byte[]> ReadAudioBytesAsync(Stream audioStream, CancellationToken ct)
     {
         using var ms = new MemoryStream();
         await audioStream.CopyToAsync(ms, 81920, ct);
         return ms.ToArray();
     }
 
-    private object BuildRequest(string audioBase64, List<FunctionDeclaration> tools, DateTime today)
+    private static object BuildRequest(string audioBase64, List<FunctionDeclaration> tools, DateTime today)
     {
         string todayText = today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) +
                            " (" + today.ToString("dddd", CultureInfo.InvariantCulture) + ")";
 
         string systemInstruction =
-            "Hoy es " + todayText + ". ";
-        systemInstruction +=
+            $"Hoy es {todayText}. " +
             "Eres el asistente de voz de la app 'Calendario Estudiantil'. " +
-            "Solo puedes actuar respondiendo con llamadas a las funciones disponibles. " +
-            "Nunca respondas con texto salvo que el audio sea ruido o no puedas ejecutar ninguna función. " +
-            "Si no alcanzás a entender, devolvé un tool_call con 'find_subject' y el nombre tal cual lo escuchaste, " +
-            "sin inventar materias ni fechas.";
+            "Solo puedes actuar llamando a las funciones disponibles; nunca respondas con texto " +
+            "salvo que el audio sea ruido o no puedas ejecutar ninguna función. " +
+            "Cuando el usuario nombre una materia, pasá ese nombre tal cual en subject_name; " +
+            "nunca inventes subject_id ni fechas. " +
+            "Si necesitás saber qué materias existen, usá find_subject. " +
+            "Las fechas van en ISO 8601 (ej. 2026-11-13T18:00:00) y las horas en HH:mm. " +
+            "Las operaciones de edición y borrado las confirma la app, así que no pidas confirmación por texto.";
 
-        var systemPart = new { text = systemInstruction };
         var audioPart = new { inlineData = new { mimeType = "audio/wav", data = audioBase64 } };
-        var content = new[] { new { parts = new object[] { systemPart, audioPart } } };
+        var contents = new[] { new { role = "user", parts = new object[] { audioPart } } };
 
         var functionDeclarations = tools
-            .Select(t => JsonSerializer.Deserialize<Dictionary<string, object>>(t.ParametersJson, JsonOptions)!)
+            .Select(t => new
+            {
+                name = t.Name,
+                description = t.Description,
+                parameters = JsonSerializer.Deserialize<JsonElement>(t.ParametersJson)
+            })
             .ToArray();
-        var toolsPayload = new[] { new { functionDeclarations } };
 
         return new
         {
-            contents = content,
-            tools = toolsPayload,
-            toolConfig = new { functionCallingConfig = new { mode = "AUTO" } }
+            systemInstruction = new { parts = new[] { new { text = systemInstruction } } },
+            contents,
+            tools = new[] { new { functionDeclarations } },
+            toolConfig = new { functionCallingConfig = new { mode = "AUTO" } },
+            generationConfig = new { temperature = 0.2 }
         };
     }
 
-    private VoiceCommandResult ParseResponse(string json)
+    private static VoiceCommandResult ParseResponse(string json)
     {
-        var root = JsonSerializer.Deserialize<Dictionary<string, object>>(json, JsonOptions);
-        var candidates = root?["candidates"] as List<object>;
-        var choices = root?["choices"] as List<object>;
-
-        object? content = null;
-        if (candidates != null && candidates.Count > 0 && candidates[0] is Dictionary<string, object> candidate)
-            content = candidate["content"];
-        else if (choices != null && choices.Count > 0 && choices[0] is Dictionary<string, object> choice)
+        JsonDocument document;
+        try
         {
-            content = choice.TryGetValue("message", out var messageObj) && messageObj is Dictionary<string, object> message
-                ? message["content"]
-                : null;
+            document = JsonDocument.Parse(json);
+        }
+        catch (JsonException)
+        {
+            return new VoiceCommandResult(new List<ToolCall>(), "La respuesta de Gemini no es JSON válido.");
         }
 
-        if (content is not Dictionary<string, object> contentDict)
-            return new VoiceCommandResult(new List<ToolCall>(), "La respuesta de Gemini no tiene una estructura válida.");
-
-        var parts = contentDict["parts"] as List<object>;
-        if (parts != null && parts.Count > 0)
+        using (document)
         {
+            var root = document.RootElement;
+
+            if (root.TryGetProperty("promptFeedback", out var feedback)
+                && feedback.TryGetProperty("blockReason", out var blockReason)
+                && blockReason.ValueKind == JsonValueKind.String)
+            {
+                return new VoiceCommandResult(new List<ToolCall>(),
+                    $"El audio fue bloqueado por los filtros de seguridad ({blockReason.GetString()}). Probá decirlo de otra forma.");
+            }
+
+            if (!root.TryGetProperty("candidates", out var candidates)
+                || candidates.ValueKind != JsonValueKind.Array
+                || candidates.GetArrayLength() == 0)
+            {
+                return new VoiceCommandResult(new List<ToolCall>(), "La respuesta de Gemini no tiene candidatos válidos.");
+            }
+
+            var candidate = candidates[0];
+            if (!candidate.TryGetProperty("content", out var content)
+                || !content.TryGetProperty("parts", out var parts)
+                || parts.ValueKind != JsonValueKind.Array)
+            {
+                return new VoiceCommandResult(new List<ToolCall>(), "La respuesta de Gemini no contiene partes.");
+            }
+
             var calls = new List<ToolCall>();
             string? text = null;
 
-            foreach (var part in parts)
+            foreach (var part in parts.EnumerateArray())
             {
-                var dict = (Dictionary<string, object>)part;
-                if (dict.TryGetValue("functionCall", out var fc) && fc is Dictionary<string, object> fcDict)
+                if (part.TryGetProperty("functionCall", out var functionCall)
+                    && functionCall.TryGetProperty("name", out var nameElement)
+                    && nameElement.ValueKind == JsonValueKind.String)
                 {
-                    calls.Add(new ToolCall(
-                        (string?)fcDict["name"]!,
-                        (string?)fcDict["args"] ?? "{}"));
+                    string name = nameElement.GetString()!;
+                    string args = functionCall.TryGetProperty("args", out var argsElement)
+                        ? argsElement.ValueKind == JsonValueKind.String
+                            ? argsElement.GetString() ?? "{}"
+                            : argsElement.GetRawText()
+                        : "{}";
+
+                    calls.Add(new ToolCall(name, args));
                 }
-                else if (dict.TryGetValue("text", out var t))
+                else if (part.TryGetProperty("text", out var textElement)
+                         && textElement.ValueKind == JsonValueKind.String)
                 {
-                    text = (string?)t;
+                    text = textElement.GetString();
                 }
             }
 
             if (calls.Count > 0)
                 return new VoiceCommandResult(calls, null);
-            return new VoiceCommandResult(new List<ToolCall>(), text);
-        }
 
-        return new VoiceCommandResult(new List<ToolCall>(), "La respuesta de Gemini no contiene partes.");
+            return new VoiceCommandResult(
+                new List<ToolCall>(),
+                string.IsNullOrWhiteSpace(text) ? "No te entendí. ¿Podés repetirlo?" : text);
+        }
     }
 
     /// <summary>
-    /// ¿Se puede reintentar esta respuesta sin lanzar inmediatamente?
+    /// ¿Vale la pena reintentar esta respuesta? (timeouts y errores de servidor)
     /// </summary>
     private static bool IsTransient(HttpStatusCode status) =>
         status == HttpStatusCode.RequestTimeout ||

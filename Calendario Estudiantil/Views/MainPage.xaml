@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:controls="clr-namespace:Calendario_Estudiantil.Controls"
+             xmlns:config="clr-namespace:Calendario_Estudiantil.Configuration"
              x:Class="Calendario_Estudiantil.Views.MainPage"
              Shell.NavBarIsVisible="False"
              NavigationPage.HasNavigationBar="False">
@@ -17,6 +18,68 @@
 
         <!-- Barra de navegación inferior única -->
         <controls:BottomNavView x:Name="BottomNav" Grid.Row="1" ActiveTab="Schedule"/>
+
+        <!-- FAB global del asistente de voz -->
+        <Border x:Name="VoiceFab"
+                Grid.Row="0"
+                WidthRequest="56" HeightRequest="56"
+                HorizontalOptions="End" VerticalOptions="End"
+                Margin="0,0,18,18"
+                BackgroundColor="{x:Static config:AppConstants.Accent}"
+                StrokeThickness="0"
+                IsVisible="True">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="28"/>
+            </Border.StrokeShape>
+            <Label x:Name="VoiceFabIcon"
+                   Text="&#xE720;"
+                   FontFamily="FluentIcons"
+                   FontSize="22"
+                   TextColor="White"
+                   HorizontalOptions="Center" VerticalOptions="Center"/>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnVoiceFabTapped"/>
+            </Border.GestureRecognizers>
+        </Border>
+
+        <!-- Overlay de escucha / procesamiento -->
+        <Grid x:Name="VoiceOverlay"
+              Grid.Row="0" Grid.RowSpan="2"
+              IsVisible="False"
+              BackgroundColor="#99000000">
+            <Border WidthRequest="280"
+                    Padding="24"
+                    HorizontalOptions="Center" VerticalOptions="Center"
+                    BackgroundColor="{AppThemeBinding Light=White, Dark=#2C2C2C}"
+                    StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="16"/>
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="14">
+                    <Label x:Name="VoiceOverlayTitle"
+                           Text="Escuchando..."
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"/>
+                    <Label x:Name="VoiceOverlayHint"
+                           Text="Hablá y tocá el micrófono de nuevo para terminar."
+                           FontSize="12"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"/>
+                    <ActivityIndicator x:Name="VoiceOverlaySpinner"
+                                       IsRunning="False"
+                                       IsVisible="False"
+                                       HorizontalOptions="Center"/>
+                    <Button x:Name="VoiceOverlayCancelButton"
+                            Text="Cancelar"
+                            Clicked="OnVoiceCancelClicked"
+                            BackgroundColor="{AppThemeBinding Light=#E8F0FE, Dark=#3C3C3C}"
+                            TextColor="{AppThemeBinding Light=#1B48A3, Dark=White}"
+                            CornerRadius="10"/>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
     </Grid>
 
 </ContentPage>
