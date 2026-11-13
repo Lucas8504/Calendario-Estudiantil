@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>Calendario_Estudiantil.Voice.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageReference Include="sqlite-net-pcl" Version="1.8.116" />
+  </ItemGroup>
+
+  <!--
+    El proyecto MAUI multi-target no es referenciable desde un test net8.0 puro,
+    así que enlazamos únicamente los archivos sin dependencias de MAUI.
+    Todo lo que toca UI (Views, AudioRecorderService, MauiProgram) queda afuera.
+  -->
+  <ItemGroup>
+    <Compile Include="..\..\Calendario Estudiantil\Models\TaskItem.cs" Link="Linked\Models\TaskItem.cs" />
+    <Compile Include="..\..\Calendario Estudiantil\Models\Subject.cs" Link="Linked\Models\Subject.cs" />
+    <Compile Include="..\..\Calendario Estudiantil\Models\Schedule.cs" Link="Linked\Models\Schedule.cs" />
+    <Compile Include="..\..\Calendario Estudiantil\Models\Subtask.cs" Link="Linked\Models\Subtask.cs" />
+    <Compile Include="..\..\Calendario Estudiantil\Models\DayOfWeek.cs" Link="Linked\Models\DayOfWeek.cs" />
+    <Compile Include="..\..\Calendario Estudiantil\Models\VoiceCommand.cs" Link="Linked\Models\VoiceCommand.cs" />
+    <Compile Include="..\..\Calendario Estudiantil\Models\VoiceCommandResult.cs" Link="Linked\Models\VoiceCommandResult.cs" />
+    <Compile Include="..\..\Calendario Estudiantil\Models\ToolCallResult.cs" Link="Linked\Models\ToolCallResult.cs" />
+
+    <Compile Include="..\..\Calendario Estudiantil\Data\IDatabaseService.cs" Link="Linked\Data\IDatabaseService.cs" />
+
+    <Compile Include="..\..\Calendario Estudiantil\Services\ITaskService.cs" Link="Linked\Services\ITaskService.cs" />
+    <Compile Include="..\..\Calendario Estudiantil\Services\ISubjectService.cs" Link="Linked\Services\ISubjectService.cs" />
+
+    <Compile Include="..\..\Calendario Estudiantil\Services\Voice\FunctionDeclaration.cs" Link="Linked\Voice\FunctionDeclaration.cs" />
+    <Compile Include="..\..\Calendario Estudiantil\Services\Voice\GeminiResponseParser.cs" Link="Linked\Voice\GeminiResponseParser.cs" />
+    <Compile Include="..\..\Calendario Estudiantil\Services\Voice\IGeminiClient.cs" Link="Linked\Voice\IGeminiClient.cs" />
+    <Compile Include="..\..\Calendario Estudiantil\Services\Voice\IToolRegistry.cs" Link="Linked\Voice\IToolRegistry.cs" />
+    <Compile Include="..\..\Calendario Estudiantil\Services\Voice\ToolRegistry.cs" Link="Linked\Voice\ToolRegistry.cs" />
+    <Compile Include="..\..\Calendario Estudiantil\Services\Voice\IVoiceAssistant.cs" Link="Linked\Voice\IVoiceAssistant.cs" />
+    <Compile Include="..\..\Calendario Estudiantil\Services\Voice\VoiceAssistant.cs" Link="Linked\Voice\VoiceAssistant.cs" />
+  </ItemGroup>
+
+</Project>

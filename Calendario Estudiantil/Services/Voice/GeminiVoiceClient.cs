@@ -81,7 +81,7 @@ public sealed class GeminiVoiceClient : IGeminiClient
             }
 
             if (response.IsSuccessStatusCode)
-                return ParseResponse(await response.Content.ReadAsStringAsync(ct));
+                return GeminiResponseParser.Parse(await response.Content.ReadAsStringAsync(ct));
 
             attempt++;
             if (!IsTransient(response.StatusCode) || attempt > MaxRetries)
@@ -144,79 +144,6 @@ public sealed class GeminiVoiceClient : IGeminiClient
         };
     }
 
-    private static VoiceCommandResult ParseResponse(string json)
-    {
-        JsonDocument document;
-        try
-        {
-            document = JsonDocument.Parse(json);
-        }
-        catch (JsonException)
-        {
-            return new VoiceCommandResult(new List<ToolCall>(), "La respuesta de Gemini no es JSON válido.");
-        }
-
-        using (document)
-        {
-            var root = document.RootElement;
-
-            if (root.TryGetProperty("promptFeedback", out var feedback)
-                && feedback.TryGetProperty("blockReason", out var blockReason)
-                && blockReason.ValueKind == JsonValueKind.String)
-            {
-                return new VoiceCommandResult(new List<ToolCall>(),
-                    $"El audio fue bloqueado por los filtros de seguridad ({blockReason.GetString()}). Probá decirlo de otra forma.");
-            }
-
-            if (!root.TryGetProperty("candidates", out var candidates)
-                || candidates.ValueKind != JsonValueKind.Array
-                || candidates.GetArrayLength() == 0)
-            {
-                return new VoiceCommandResult(new List<ToolCall>(), "La respuesta de Gemini no tiene candidatos válidos.");
-            }
-
-            var candidate = candidates[0];
-            if (!candidate.TryGetProperty("content", out var content)
-                || !content.TryGetProperty("parts", out var parts)
-                || parts.ValueKind != JsonValueKind.Array)
-            {
-                return new VoiceCommandResult(new List<ToolCall>(), "La respuesta de Gemini no contiene partes.");
-            }
-
-            var calls = new List<ToolCall>();
-            string? text = null;
-
-            foreach (var part in parts.EnumerateArray())
-            {
-                if (part.TryGetProperty("functionCall", out var functionCall)
-                    && functionCall.TryGetProperty("name", out var nameElement)
-                    && nameElement.ValueKind == JsonValueKind.String)
-                {
-                    string name = nameElement.GetString()!;
-                    string args = functionCall.TryGetProperty("args", out var argsElement)
-                        ? argsElement.ValueKind == JsonValueKind.String
-                            ? argsElement.GetString() ?? "{}"
-                            : argsElement.GetRawText()
-                        : "{}";
-
-                    calls.Add(new ToolCall(name, args));
-                }
-                else if (part.TryGetProperty("text", out var textElement)
-                         && textElement.ValueKind == JsonValueKind.String)
-                {
-                    text = textElement.GetString();
-                }
-            }
-
-            if (calls.Count > 0)
-                return new VoiceCommandResult(calls, null);
-
-            return new VoiceCommandResult(
-                new List<ToolCall>(),
-                string.IsNullOrWhiteSpace(text) ? "No te entendí. ¿Podés repetirlo?" : text);
-        }
-    }
-
     /// <summary>
     /// ¿Vale la pena reintentar esta respuesta? (timeouts y errores de servidor)
     /// </summary>
@@ -226,3 +153,4 @@ public sealed class GeminiVoiceClient : IGeminiClient
         status == HttpStatusCode.ServiceUnavailable ||
         status == HttpStatusCode.GatewayTimeout;
 }
+
