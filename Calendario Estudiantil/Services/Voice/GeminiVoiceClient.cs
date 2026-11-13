@@ -30,8 +30,10 @@ public sealed class GeminiRateLimitException : Exception
 /// </summary>
 public sealed class GeminiVoiceClient : IGeminiClient
 {
+    private const string DefaultModel = "gemini-3.8-flash";
+
     private const string ModelUrl =
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+        "https://generativelanguage.googleapis.com/v1beta/models/" + DefaultModel + ":generateContent";
 
     /// <summary>Reintentos con backoff exponencial ante errores transitorios.</summary>
     private const int MaxRetries = 3;
