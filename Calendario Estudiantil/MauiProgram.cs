@@ -34,6 +34,7 @@ namespace Calendario_Estudiantil
             // HttpClient para el cliente de IA (Gemini)
             builder.Services.AddSingleton(_ => new HttpClient { Timeout = TimeSpan.FromSeconds(60) });
             builder.Services.AddSingleton<IGeminiClient, GeminiVoiceClient>();
+            builder.Services.AddSingleton<IApiKeyStore, SecureApiKeyStore>();
             builder.Services.AddSingleton<IToolRegistry, ToolRegistry>();
             builder.Services.AddSingleton<IVoiceAssistant, VoiceAssistant>();
             builder.Services.AddSingleton<Plugin.Maui.Audio.IAudioManager>(_ => Plugin.Maui.Audio.AudioManager.Current);

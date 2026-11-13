@@ -283,9 +283,9 @@ public partial class MainPage : ContentPage
     {
         string message = ex switch
         {
-            InvalidOperationException inv when inv.Message.Contains("GEMINI_API_KEY", StringComparison.Ordinal) =>
+            InvalidOperationException inv when inv.Message.Contains("API key", StringComparison.Ordinal) =>
                 "Falta configurar la API key de Gemini.\n\n" +
-                "Definí la variable de entorno GEMINI_API_KEY y reiniciá la app.",
+                "Andá a Configuración → Asistente de voz y pegá tu key.",
             InvalidOperationException inv =>
                 inv.Message,
             GeminiRateLimitException =>

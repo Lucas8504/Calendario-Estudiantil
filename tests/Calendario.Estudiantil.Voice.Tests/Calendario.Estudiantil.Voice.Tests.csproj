@@ -37,6 +37,7 @@
     <Compile Include="..\..\Calendario Estudiantil\Services\ISubjectService.cs" Link="Linked\Services\ISubjectService.cs" />
 
     <Compile Include="..\..\Calendario Estudiantil\Services\Voice\FunctionDeclaration.cs" Link="Linked\Voice\FunctionDeclaration.cs" />
+    <Compile Include="..\..\Calendario Estudiantil\Services\Voice\IApiKeyStore.cs" Link="Linked\Voice\IApiKeyStore.cs" />
     <Compile Include="..\..\Calendario Estudiantil\Services\Voice\GeminiResponseParser.cs" Link="Linked\Voice\GeminiResponseParser.cs" />
     <Compile Include="..\..\Calendario Estudiantil\Services\Voice\IGeminiClient.cs" Link="Linked\Voice\IGeminiClient.cs" />
     <Compile Include="..\..\Calendario Estudiantil\Services\Voice\IToolRegistry.cs" Link="Linked\Voice\IToolRegistry.cs" />

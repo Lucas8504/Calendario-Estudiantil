@@ -37,8 +37,13 @@ public sealed class GeminiVoiceClient : IGeminiClient
     private const int MaxRetries = 3;
 
     private readonly HttpClient _httpClient;
+    private readonly IApiKeyStore _apiKeyStore;
 
-    public GeminiVoiceClient(HttpClient httpClient) => _httpClient = httpClient;
+    public GeminiVoiceClient(HttpClient httpClient, IApiKeyStore apiKeyStore)
+    {
+        _httpClient = httpClient;
+        _apiKeyStore = apiKeyStore;
+    }
 
     public async Task<VoiceCommandResult> GetVoiceCommandsAsync(
         Stream audioStream,
@@ -46,11 +51,11 @@ public sealed class GeminiVoiceClient : IGeminiClient
         DateTime today,
         CancellationToken ct = default)
     {
-        string? key = Environment.GetEnvironmentVariable("GEMINI_API_KEY");
+        string? key = await _apiKeyStore.GetGeminiApiKeyAsync();
         if (string.IsNullOrWhiteSpace(key))
             throw new InvalidOperationException(
-                "Falta la variable de entorno GEMINI_API_KEY. Configurala en tu entorno local " +
-                "(nunca se commitea la clave) y volvé a intentar.");
+                "Falta la API key de Gemini. Configurala en Ajustes → Asistente de voz " +
+                "(o definí GEMINI_API_KEY en escritorio) y volvé a intentar.");
 
         byte[] audioBytes = await ReadAudioBytesAsync(audioStream, ct);
         string audioBase64 = Convert.ToBase64String(audioBytes);
@@ -66,8 +71,10 @@ public sealed class GeminiVoiceClient : IGeminiClient
             HttpResponseMessage response;
             try
             {
-                using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                response = await _httpClient.PostAsync(ModelUrl, content, ct);
+                using var request = new HttpRequestMessage(HttpMethod.Post, ModelUrl);
+                request.Headers.TryAddWithoutValidation("x-goog-api-key", key);
+                request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+                response = await _httpClient.SendAsync(request, ct);
             }
             catch (HttpRequestException) when (attempt < MaxRetries)
             {
