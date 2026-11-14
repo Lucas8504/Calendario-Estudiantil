@@ -281,26 +281,59 @@ public partial class MainPage : ContentPage
 
     private Task ShowErrorAsync(Exception ex)
     {
+        // Logueo el error completo: sin esto la captura de pantalla no alcanza para diagnosticar.
+        System.Diagnostics.Debug.WriteLine($"[VoiceAssistant] {ex}");
+
         string message = ex switch
         {
             InvalidOperationException inv when inv.Message.Contains("API key", StringComparison.Ordinal) =>
                 "Falta configurar la API key de Gemini.\n\n" +
                 "Andá a Configuración → Asistente de voz y pegá tu key.",
-            InvalidOperationException inv =>
-                inv.Message,
             GeminiRateLimitException =>
                 "Se alcanzó el límite gratuito de Gemini. Esperá un minuto y volvé a intentar.",
             TimeoutException =>
                 "Gemini tardó demasiado en responder. Revisá tu conexión e intentá de nuevo.",
-            GeminiRequestException =>
-                "El servicio de IA devolvió un error. Intentá de nuevo en unos segundos.",
+            GeminiRequestException gem =>
+                // Muestro el código HTTP y el cuerpo que devolvió Google: es el síntoma que
+                // permite distinguir un modelo no disponible (404) de un problema de key/JSON.
+                $"{Truncate(gem.Message, 500)}",
             HttpRequestException =>
                 "No pude conectarme al servicio de IA. Revisá tu conexión a internet.",
+            IOException =>
+                "Se cortó la conexión con el servicio de IA. Revisá tu conexión e intentá de nuevo.",
+            Exception transport when IsTransportFailure(transport) =>
+                // SocketException no hereda de IOException, así que sin este brazo los fallos
+                // de transporte crudos ("Socket closed", "Connection reset") llegan sin traducir.
+                "Se cortó la conexión con el servicio de IA. Revisá tu conexión e intentá de nuevo.",
+            InvalidOperationException inv =>
+                inv.Message,
             _ =>
                 $"Ocurrió un error con el asistente de voz: {ex.Message}"
         };
 
         return DisplayAlert("Asistente de voz", message, "OK");
+    }
+
+    private static string Truncate(string value, int max)
+    {
+        if (string.IsNullOrEmpty(value) || value.Length <= max)
+            return value;
+
+        return value[..max] + "…";
+    }
+
+    private static bool IsTransportFailure(Exception ex)
+    {
+        if (ex is System.Net.Sockets.SocketException)
+            return true;
+
+        string haystack = $"{ex.GetType().Name} {ex.Message}";
+
+        return haystack.Contains("Socket", StringComparison.OrdinalIgnoreCase)
+            || haystack.Contains("Connection reset", StringComparison.OrdinalIgnoreCase)
+            || haystack.Contains("broken pipe", StringComparison.OrdinalIgnoreCase)
+            || haystack.Contains("Connection refused", StringComparison.OrdinalIgnoreCase)
+            || haystack.Contains("Unexpected end", StringComparison.OrdinalIgnoreCase);
     }
 
     // ==================== Overlay ====================
