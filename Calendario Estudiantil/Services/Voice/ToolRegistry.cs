@@ -640,9 +640,7 @@ public sealed class ToolRegistry : IToolRegistry
             case "pendiente":
                 status = ItemStatus.Pending;
                 return true;
-            case "in progress": // Normalize colapsa el "_" del valor del esquema a espacio
-            case "inprogress":
-            case "en progreso":
+            case "inprogress": // Normalize elimina el "_" del valor del esquema: "in_progress" -> "inprogress"
             case "enprogreso":
                 status = ItemStatus.InProgress;
                 return true;
@@ -676,9 +674,10 @@ public sealed class ToolRegistry : IToolRegistry
     };
 
     /// <summary>
-    /// Normaliza texto: minúsculas, sin acentos y con cualquier separador
-    /// (espacios, guiones, puntuación) colapsado a un solo espacio.
-    /// Así "Físico-Química", "Físico Química" y "Físico - Química" comparan igual.
+    /// Normaliza texto: minúsculas, sin acentos y conservando solo letras y dígitos.
+    /// Los separadores (espacios, guiones, puntuación) se eliminan por completo, así
+    /// "Físico-Química", "Físico Química" y la forma unida que devuelve el STT,
+    /// "Fisicoquimica", comparan todas igual.
     /// </summary>
     private static string Normalize(string value)
     {
@@ -696,21 +695,11 @@ public sealed class ToolRegistry : IToolRegistry
 
         var cleaned = stripped.ToString().Normalize(NormalizationForm.FormC);
         var builder = new StringBuilder(cleaned.Length);
-        bool pendingSeparator = false;
 
         foreach (char c in cleaned)
         {
             if (char.IsLetterOrDigit(c))
-            {
-                if (pendingSeparator && builder.Length > 0)
-                    builder.Append(' ');
-                pendingSeparator = false;
                 builder.Append(c);
-            }
-            else
-            {
-                pendingSeparator = true;
-            }
         }
 
         return builder.ToString();

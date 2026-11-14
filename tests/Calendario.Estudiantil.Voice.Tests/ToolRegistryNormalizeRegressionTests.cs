@@ -65,4 +65,45 @@ public class ToolRegistryNormalizeRegressionTests
         Assert.False(result.Success);
         Assert.Empty(store.Schedules);
     }
+
+    // El STT de Gemini suele devolver el nombre como una sola palabra sin separadores.
+    [Theory]
+    [InlineData("Fisicoquimica")]
+    [InlineData("fisicoquimica")]
+    [InlineData("FÍSICOQUIMICA")]
+    public async Task FindSubject_JoinedQuery_MatchesSeparatedSubject(string query)
+    {
+        var (registry, store) = Create();
+        store.AddSubject("Físico-Química");
+
+        var result = await registry.ExecuteAsync("find_subject", $$"""{"name":"{{query}}"}""");
+
+        Assert.True(result.Success);
+        Assert.Contains("Físico-Química", result.Message);
+    }
+
+    [Fact]
+    public async Task FindSubject_SeparatedQuery_MatchesJoinedSubject()
+    {
+        var (registry, store) = Create();
+        store.AddSubject("Fisicoquimica");
+
+        var result = await registry.ExecuteAsync("find_subject", """{"name":"Físico Química"}""");
+
+        Assert.True(result.Success);
+        Assert.Contains("Fisicoquimica", result.Message);
+    }
+
+    [Fact]
+    public async Task AddTask_JoinedSubjectName_ResolvesHyphenatedSubject()
+    {
+        var (registry, store) = Create();
+        var subject = store.AddSubject("Físico-Química");
+
+        var result = await registry.ExecuteAsync("add_task",
+            """{"title":"Informe de laboratorio","subject_name":"Fisicoquimica","due_date":"2026-12-01T18:00:00"}""");
+
+        Assert.True(result.Success);
+        Assert.Equal(subject.Id, Assert.Single(store.Tasks).SubjectId);
+    }
 }
