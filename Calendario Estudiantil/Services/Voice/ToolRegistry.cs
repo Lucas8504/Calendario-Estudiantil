@@ -96,6 +96,9 @@ public sealed class ToolRegistry : IToolRegistry
 
                 var all = await _subjects.GetAllAsync();
                 var normalized = Normalize(name);
+                if (normalized.Length == 0)
+                    return ToolCallResult.Failure("find_subject", $"No encontré ninguna materia que se parezca a '{name}'.");
+
                 var matches = all
                     .Where(s =>
                     {
@@ -516,6 +519,9 @@ public sealed class ToolRegistry : IToolRegistry
 
         var all = await _subjects.GetAllAsync();
         var normalized = Normalize(subjectName);
+        if (normalized.Length == 0)
+            return null;
+
         return all.FirstOrDefault(s => Normalize(s.Name) == normalized)
             ?? all.FirstOrDefault(s =>
             {
