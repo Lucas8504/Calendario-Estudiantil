@@ -178,6 +178,22 @@ public class ToolRegistryTests
     }
 
     [Fact]
+    public async Task UpdateTask_Confirmed_WithInProgressStatus_Applies()
+    {
+        var (registry, store) = Create();
+        var subject = store.AddSubject("Matemática");
+        var task = store.AddTask(subject.Id, "Original", new DateTime(2026, 11, 20, 10, 0, 0));
+
+        string args = $$"""{"task_id":{{task.Id}},"status":"in_progress"}""";
+
+        await registry.ExecuteAsync("update_task", args);
+        var result = await registry.ExecuteConfirmedAsync("update_task", args);
+
+        Assert.True(result.Success);
+        Assert.Equal(ItemStatus.InProgress, store.Tasks[0].Status);
+    }
+
+    [Fact]
     public async Task UpdateTask_WithoutConfirmation_DoesNotMutate()
     {
         var (registry, store) = Create();
@@ -335,6 +351,19 @@ public class ToolRegistryTests
         store.AddSubject("Álgebra");
 
         var result = await registry.ExecuteAsync("add_subject", """{"name":"algebra"}""");
+
+        Assert.False(result.Success);
+        Assert.Contains("ya existe", result.Message);
+        Assert.Single(store.Subjects);
+    }
+
+    [Fact]
+    public async Task AddSubject_SeparatorVariantOfExistingName_Fails()
+    {
+        var (registry, store) = Create();
+        store.AddSubject("Físico-Química");
+
+        var result = await registry.ExecuteAsync("add_subject", """{"name":"Físico Química"}""");
 
         Assert.False(result.Success);
         Assert.Contains("ya existe", result.Message);

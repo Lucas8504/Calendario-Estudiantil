@@ -634,7 +634,7 @@ public sealed class ToolRegistry : IToolRegistry
             case "pendiente":
                 status = ItemStatus.Pending;
                 return true;
-            case "in_progress":
+            case "in progress": // Normalize colapsa el "_" del valor del esquema a espacio
             case "inprogress":
             case "en progreso":
             case "enprogreso":
