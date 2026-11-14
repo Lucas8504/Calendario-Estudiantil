@@ -670,7 +670,9 @@ public sealed class ToolRegistry : IToolRegistry
     };
 
     /// <summary>
-    /// Normaliza texto: minúsculas, sin acentos y sin espacios extra.
+    /// Normaliza texto: minúsculas, sin acentos y con cualquier separador
+    /// (espacios, guiones, puntuación) colapsado a un solo espacio.
+    /// Así "Físico-Química", "Físico Química" y "Físico - Química" comparan igual.
     /// </summary>
     private static string Normalize(string value)
     {
@@ -678,14 +680,33 @@ public sealed class ToolRegistry : IToolRegistry
             return string.Empty;
 
         var decomposed = value.Trim().ToLowerInvariant().Normalize(NormalizationForm.FormD);
-        var builder = new StringBuilder(decomposed.Length);
+        var stripped = new StringBuilder(decomposed.Length);
 
         foreach (char c in decomposed)
         {
             if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
-                builder.Append(c);
+                stripped.Append(c);
         }
 
-        return builder.ToString().Normalize(NormalizationForm.FormC);
+        var cleaned = stripped.ToString().Normalize(NormalizationForm.FormC);
+        var builder = new StringBuilder(cleaned.Length);
+        bool pendingSeparator = false;
+
+        foreach (char c in cleaned)
+        {
+            if (char.IsLetterOrDigit(c))
+            {
+                if (pendingSeparator && builder.Length > 0)
+                    builder.Append(' ');
+                pendingSeparator = false;
+                builder.Append(c);
+            }
+            else
+            {
+                pendingSeparator = true;
+            }
+        }
+
+        return builder.ToString();
     }
 }

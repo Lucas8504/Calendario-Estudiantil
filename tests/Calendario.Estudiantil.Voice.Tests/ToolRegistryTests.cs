@@ -72,6 +72,43 @@ public class ToolRegistryTests
     }
 
     [Fact]
+    public async Task FindSubject_QueryWithSpaces_MatchesSubjectWithHyphen()
+    {
+        var (registry, store) = Create();
+        store.AddSubject("Físico-Química");
+
+        var result = await registry.ExecuteAsync("find_subject", """{"name":"Físico Química"}""");
+
+        Assert.True(result.Success);
+        Assert.Contains("Físico-Química", result.Message);
+    }
+
+    [Fact]
+    public async Task FindSubject_QueryWithHyphen_MatchesSubjectWithSpaces()
+    {
+        var (registry, store) = Create();
+        store.AddSubject("Físico Química");
+
+        var result = await registry.ExecuteAsync("find_subject", """{"name":"Físico-Química"}""");
+
+        Assert.True(result.Success);
+        Assert.Contains("Físico Química", result.Message);
+    }
+
+    [Fact]
+    public async Task AddTask_SubjectNameWithHyphen_ResolvesSubjectStoredWithSpaces()
+    {
+        var (registry, store) = Create();
+        var subject = store.AddSubject("Físico Química");
+
+        var result = await registry.ExecuteAsync("add_task",
+            """{"title":"Práctica 3","subject_name":"Físico-Química","due_date":"2026-12-01T18:00:00"}""");
+
+        Assert.True(result.Success);
+        Assert.Equal(subject.Id, Assert.Single(store.Tasks).SubjectId);
+    }
+
+    [Fact]
     public async Task FindSubject_WithoutMatches_ReturnsFailure()
     {
         var (registry, _) = Create();
