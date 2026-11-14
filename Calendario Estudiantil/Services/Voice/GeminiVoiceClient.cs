@@ -30,7 +30,9 @@ public sealed class GeminiRateLimitException : Exception
 /// </summary>
 public sealed class GeminiVoiceClient : IGeminiClient
 {
-    private const string DefaultModel = "gemini-3.8-flash";
+    // 3.8-flash venía devolviendo 503 "high demand" de forma sostenida (verificado
+    // con probe real el 2026-11-14); 3.5-flash respondió 200 con audio + tools.
+    private const string DefaultModel = "gemini-3.5-flash";
 
     private const string ModelUrl =
         "https://generativelanguage.googleapis.com/v1beta/models/" + DefaultModel + ":generateContent";
