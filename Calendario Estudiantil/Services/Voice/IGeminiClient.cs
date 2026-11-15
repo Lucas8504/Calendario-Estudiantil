@@ -17,6 +17,7 @@ public interface IGeminiClient
     /// <param name="audioStream">Stream de audio WAV PCM mono 16 kHz (Mono, 16 bits).</param>
     /// <param name="tools">Declaraciones de las funciones disponibles para la IA.</param>
     /// <param name="today">Hoy (para que la IA resuelva "mañana"/"el viernes").</param>
+    /// <param name="voiceContext">Resumen del estado actual de la app (materias, tareas pendientes, horarios).</param>
     /// <param name="ct">Token de cancelación.</param>
     /// <returns>Las function calls de Gemini (o texto si no llamó a ninguna función).</returns>
     /// <exception cref="InvalidOperationException">Si GEMINI_API_KEY no está configurada.</exception>
@@ -24,5 +25,6 @@ public interface IGeminiClient
         Stream audioStream,
         List<FunctionDeclaration> tools,
         DateTime today,
+        string? voiceContext = null,
         CancellationToken ct = default);
 }

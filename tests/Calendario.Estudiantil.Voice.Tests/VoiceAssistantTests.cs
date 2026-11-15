@@ -94,5 +94,21 @@ public class VoiceAssistantTests
         Assert.NotNull(client.LastTools);
         Assert.Equal(10, client.LastTools!.Count);
     }
+
+    [Fact]
+    public async Task ProcessAudioAsync_PassesVoiceContextToClient()
+    {
+        var (assistant, client, store) = Create();
+        var subject = store.AddSubject("Física");
+        store.AddTask(subject.Id, "Tarea 1", new DateTime(2026, 11, 15, 9, 0, 0), ItemStatus.Pending);
+        client.Result = new VoiceCommandResult(new List<ToolCall>(), null);
+
+        await assistant.ProcessAudioAsync(Stream.Null);
+
+        Assert.NotNull(client.LastVoiceContext);
+        Assert.Contains("CONTEXTO DE LA APLICACIÓN", client.LastVoiceContext);
+        Assert.Contains("Física", client.LastVoiceContext);
+        Assert.Contains("Tarea 1", client.LastVoiceContext);
+    }
 }
 

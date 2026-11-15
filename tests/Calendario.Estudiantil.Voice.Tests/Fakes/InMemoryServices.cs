@@ -222,15 +222,19 @@ public sealed class FakeGeminiClient : IGeminiClient
 
     public DateTime LastToday { get; private set; }
 
+    public string? LastVoiceContext { get; private set; }
+
     public Task<VoiceCommandResult> GetVoiceCommandsAsync(
         Stream audioStream,
         List<FunctionDeclaration> tools,
         DateTime today,
+        string? voiceContext = null,
         CancellationToken ct = default)
     {
         CallCount++;
         LastTools = tools;
         LastToday = today;
+        LastVoiceContext = voiceContext;
         return Task.FromResult(Result);
     }
 }

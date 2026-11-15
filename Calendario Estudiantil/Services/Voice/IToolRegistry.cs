@@ -22,4 +22,11 @@ public interface IToolRegistry
     /// que devolvió RequiresConfirmation).
     /// </summary>
     Task<ToolCallResult> ExecuteConfirmedAsync(string toolName, string argsJson, CancellationToken ct = default);
+
+    /// <summary>
+    /// Devuelve un resumen legible del estado actual de la app (materias, tareas
+    /// pendientes y horarios) para inyectarlo como contexto en el system prompt de Gemini.
+    /// Así la IA puede resolver nombres aproximados contra lo que realmente está cargado.
+    /// </summary>
+    Task<string> GetVoiceContextAsync(CancellationToken ct = default);
 }

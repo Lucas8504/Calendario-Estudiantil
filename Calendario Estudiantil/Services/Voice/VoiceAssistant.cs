@@ -21,10 +21,12 @@ public sealed class VoiceAssistant : IVoiceAssistant
 
     public async Task<VoiceAssistantResult> ProcessAudioAsync(Stream audioStream, CancellationToken ct = default)
     {
+        var voiceContext = await _registry.GetVoiceContextAsync(ct);
         var response = await _client.GetVoiceCommandsAsync(
             audioStream,
             _registry.GetFunctionDeclarations(),
             DateTime.Now,
+            voiceContext,
             ct);
 
         if (response.ToolCalls.Count == 0)

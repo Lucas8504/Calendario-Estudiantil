@@ -704,4 +704,56 @@ public sealed class ToolRegistry : IToolRegistry
 
         return builder.ToString();
     }
+
+    public async Task<string> GetVoiceContextAsync(CancellationToken ct = default)
+    {
+        var now = DateTime.Now;
+        var subjects = (await _subjects.GetAllAsync()).ToList();
+        var tasks = (await _tasks.GetAllAsync()).ToList();
+        var schedules = (await _database.GetAllSchedulesAsync()).ToList();
+        var subjectsById = subjects.ToDictionary(s => s.Id);
+
+        var sb = new StringBuilder();
+        sb.AppendLine("CONTEXTO DE LA APLICACIÓN:");
+        sb.AppendLine($"Fecha y hora actual: {now:yyyy-MM-dd HH:mm} ({now:dddd}).");
+        sb.AppendLine();
+
+        if (subjects.Count > 0)
+        {
+            sb.AppendLine("Materias existentes:");
+            foreach (var s in subjects.OrderBy(s => s.Name))
+                sb.AppendLine($"- {s.Name} (id {s.Id})");
+            sb.AppendLine();
+        }
+
+        var pending = tasks.Where(t => t.Status == ItemStatus.Pending).OrderBy(t => t.DueDate).ToList();
+        if (pending.Count > 0)
+        {
+            sb.AppendLine("Tareas pendientes:");
+            foreach (var t in pending)
+            {
+                var subj = subjectsById.TryGetValue(t.SubjectId, out var s) ? s : null;
+                sb.AppendLine($"- '{t.Title}' (materia: {(subj is null ? "desconocida" : subj.Name)}, vence {t.DueDate:yyyy-MM-dd})");
+            }
+            sb.AppendLine();
+        }
+
+        if (schedules.Count > 0)
+        {
+            sb.AppendLine("Horarios semanales:");
+            foreach (var sch in schedules.OrderBy(s => (int)s.Day).ThenBy(s => s.StartTime))
+            {
+                var subj = subjectsById.TryGetValue(sch.SubjectId, out var s) ? s : null;
+                sb.AppendLine($"- {(subj is null ? "desconocida" : subj.Name)}: {DayLabel(sch.Day)} {sch.StartTime:hh\\:mm} a {sch.EndTime:hh\\:mm}");
+            }
+            sb.AppendLine();
+        }
+
+        sb.AppendLine("Usá este contexto para resolver nombres aproximados de materias cuando el usuario hable.");
+        sb.AppendLine("Si el usuario dice un nombre que se parece a una materia existente, usá esa materia.");
+        sb.AppendLine("No inventes materias que no estén en la lista.");
+        sb.AppendLine("Si no estás seguro de a qué materia se refiere, pedí aclaración antes de crear o modificar algo.");
+
+        return sb.ToString();
+    }
 }

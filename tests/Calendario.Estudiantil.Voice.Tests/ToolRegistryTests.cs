@@ -404,5 +404,39 @@ public class ToolRegistryTests
         Assert.False(result.Success);
         Assert.Contains("JSON", result.Message);
     }
+
+    [Fact]
+    public async Task GetVoiceContextAsync_IncludesSubjectsPendingTasksAndSchedules()
+    {
+        var (registry, store) = Create();
+        var subject = store.AddSubject("Físico-Química");
+        store.AddTask(subject.Id, "Informe de laboratorio", new DateTime(2026, 12, 1, 18, 0, 0), ItemStatus.Pending);
+        store.AddTask(subject.Id, "Ya hecha", new DateTime(2026, 10, 1, 10, 0, 0), ItemStatus.Completed);
+        store.AddSchedule(subject.Id, DiaSemana.Lunes, new TimeSpan(18, 0, 0), new TimeSpan(20, 0, 0));
+
+        var context = await registry.GetVoiceContextAsync();
+
+        Assert.Contains("CONTEXTO DE LA APLICACIÓN", context);
+        Assert.Contains("Fecha y hora actual", context);
+        Assert.Contains("Físico-Química", context);
+        Assert.Contains("id 1", context);
+        Assert.Contains("Informe de laboratorio", context);
+        Assert.DoesNotContain("Ya hecha", context);
+        Assert.Contains("lunes", context);
+        Assert.Contains("18:00", context);
+        Assert.Contains("Usá este contexto para resolver nombres aproximados", context);
+    }
+
+    [Fact]
+    public async Task GetVoiceContextAsync_EmptyStore_DoesNotFail()
+    {
+        var (registry, _) = Create();
+
+        var context = await registry.GetVoiceContextAsync();
+
+        Assert.Contains("CONTEXTO DE LA APLICACIÓN", context);
+        Assert.Contains("Fecha y hora actual", context);
+        Assert.DoesNotContain("Materias existentes:", context);
+    }
 }
 

@@ -53,6 +53,7 @@ public sealed class GeminiVoiceClient : IGeminiClient
         Stream audioStream,
         List<FunctionDeclaration> tools,
         DateTime today,
+        string? voiceContext = null,
         CancellationToken ct = default)
     {
         string? key = await _apiKeyStore.GetGeminiApiKeyAsync();
@@ -64,7 +65,7 @@ public sealed class GeminiVoiceClient : IGeminiClient
         byte[] audioBytes = await ReadAudioBytesAsync(audioStream, ct);
         string audioBase64 = Convert.ToBase64String(audioBytes);
         string json = JsonSerializer.Serialize(
-            BuildRequest(audioBase64, tools, today),
+            BuildRequest(audioBase64, tools, today, voiceContext),
             new JsonSerializerOptions { WriteIndented = false });
 
         int attempt = 0;
@@ -117,13 +118,17 @@ public sealed class GeminiVoiceClient : IGeminiClient
         return ms.ToArray();
     }
 
-    private static object BuildRequest(string audioBase64, List<FunctionDeclaration> tools, DateTime today)
+    private static object BuildRequest(string audioBase64, List<FunctionDeclaration> tools, DateTime today, string? voiceContext = null)
     {
         string todayText = today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) +
                            " (" + today.ToString("dddd", CultureInfo.InvariantCulture) + ")";
 
+        var contextSection = string.IsNullOrWhiteSpace(voiceContext)
+            ? string.Empty
+            : $"\n\nCONTEXTO DE LA APLICACIÓN:\n{voiceContext.TrimEnd()}\n";
+
         string systemInstruction =
-            $"Hoy es {todayText}. " +
+            $"Hoy es {todayText}.{contextSection}" +
             "Eres el asistente de voz de la app 'Calendario Estudiantil'. " +
             "Solo puedes actuar llamando a las funciones disponibles; nunca respondas con texto " +
             "salvo que el audio sea ruido o no puedas ejecutar ninguna función. " +
