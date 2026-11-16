@@ -75,7 +75,7 @@
                 <RoundRectangle CornerRadius="28"/>
             </Border.StrokeShape>
             <Label x:Name="VoiceFabIcon"
-                   Text="&#xE720;"
+                   Text="&#xE815;"
                    FontFamily="FluentIcons"
                    FontSize="22"
                    TextColor="White"
