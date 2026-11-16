@@ -73,43 +73,79 @@ public sealed class GeminiVoiceClient : IGeminiClient
         {
             ct.ThrowIfCancellationRequested();
 
-            HttpResponseMessage response;
             try
             {
                 using var request = new HttpRequestMessage(HttpMethod.Post, ModelUrl);
                 request.Headers.TryAddWithoutValidation("x-goog-api-key", key);
                 request.Content = new StringContent(json, Encoding.UTF8, "application/json");
-                response = await _httpClient.SendAsync(request, ct);
+                using var response = await _httpClient.SendAsync(request, ct);
+                string body = await response.Content.ReadAsStringAsync(ct);
+
+                if (response.IsSuccessStatusCode)
+                    return GeminiResponseParser.Parse(body);
+
+                attempt++;
+                if (!IsTransient(response.StatusCode) || attempt > MaxRetries)
+                {
+                    if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                        throw new GeminiRateLimitException($"Límite de peticiones excedido (429): {body}");
+
+                    throw new GeminiRequestException($"Error de Gemini ({(int)response.StatusCode}): {body}");
+                }
             }
             catch (HttpRequestException) when (attempt < MaxRetries)
             {
                 attempt++;
-                await Task.Delay(BackoffDelay(attempt), ct);
+                await Task.Delay(RetryDelay(attempt), ct);
                 continue;
             }
             catch (TaskCanceledException) when (!ct.IsCancellationRequested)
             {
                 throw new TimeoutException("Gemini tardó demasiado en responder.");
             }
-
-            if (response.IsSuccessStatusCode)
-                return GeminiResponseParser.Parse(await response.Content.ReadAsStringAsync(ct));
-
-            attempt++;
-            if (!IsTransient(response.StatusCode) || attempt > MaxRetries)
+            catch (Exception ex) when (attempt < MaxRetries
+                && !ct.IsCancellationRequested
+                && IsTransportFailure(ex))
             {
-                string errorBody = await response.Content.ReadAsStringAsync(ct);
-                if (response.StatusCode == HttpStatusCode.TooManyRequests)
-                    throw new GeminiRateLimitException($"Límite de peticiones excedido (429): {errorBody}");
-
-                throw new GeminiRequestException($"Error de Gemini ({(int)response.StatusCode}): {errorBody}");
+                // Un reset de socket a mitad de la request es transitorio: se reintenta
+                // igual que HttpRequestException. Si se agota, la excepción llega al UI
+                // y MainPage la traduce al mensaje de "se cortó la conexión".
+                attempt++;
+                await Task.Delay(RetryDelay(attempt), ct);
+                continue;
             }
 
-            await Task.Delay(BackoffDelay(attempt), ct);
+            await Task.Delay(RetryDelay(attempt), ct);
         }
     }
 
+    /// <summary>
+    /// Clasifica fallos de transporte crudos. SocketException NO hereda de IOException,
+    /// así que sin este guard los resets ("Connection reset", "Socket closed") no se
+    /// reintentan ni se traducen en el UI. Es la fuente canónica: MainPage reutiliza
+    /// esta misma regla para mapear el error que ve el usuario.
+    /// </summary>
+    public static bool IsTransportFailure(Exception ex)
+    {
+        if (ex is System.Net.Sockets.SocketException)
+            return true;
+
+        string haystack = $"{ex.GetType().Name} {ex.Message}";
+
+        return haystack.Contains("Socket", StringComparison.OrdinalIgnoreCase)
+            || haystack.Contains("Connection reset", StringComparison.OrdinalIgnoreCase)
+            || haystack.Contains("broken pipe", StringComparison.OrdinalIgnoreCase)
+            || haystack.Contains("Connection refused", StringComparison.OrdinalIgnoreCase)
+            || haystack.Contains("Unexpected end", StringComparison.OrdinalIgnoreCase);
+    }
+
     private static int BackoffDelay(int attempt) => (int)(Math.Pow(2, attempt) * 1000);
+
+    /// <summary>
+    /// Delay entre reintentos en ms. Seam de test (internal): los tests lo ponen en 0
+    /// para no esperar el backoff real; en producción siempre usa <see cref="BackoffDelay"/>.
+    /// </summary>
+    internal Func<int, int> RetryDelay { get; set; } = BackoffDelay;
 
     private static async Task<byte[]> ReadAudioBytesAsync(Stream audioStream, CancellationToken ct)
     {

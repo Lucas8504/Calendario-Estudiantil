@@ -301,7 +301,7 @@ public partial class MainPage : ContentPage
                 "No pude conectarme al servicio de IA. Revisá tu conexión a internet.",
             IOException =>
                 "Se cortó la conexión con el servicio de IA. Revisá tu conexión e intentá de nuevo.",
-            Exception transport when IsTransportFailure(transport) =>
+            Exception transport when GeminiVoiceClient.IsTransportFailure(transport) =>
                 // SocketException no hereda de IOException, así que sin este brazo los fallos
                 // de transporte crudos ("Socket closed", "Connection reset") llegan sin traducir.
                 "Se cortó la conexión con el servicio de IA. Revisá tu conexión e intentá de nuevo.",
@@ -320,20 +320,6 @@ public partial class MainPage : ContentPage
             return value;
 
         return value[..max] + "…";
-    }
-
-    private static bool IsTransportFailure(Exception ex)
-    {
-        if (ex is System.Net.Sockets.SocketException)
-            return true;
-
-        string haystack = $"{ex.GetType().Name} {ex.Message}";
-
-        return haystack.Contains("Socket", StringComparison.OrdinalIgnoreCase)
-            || haystack.Contains("Connection reset", StringComparison.OrdinalIgnoreCase)
-            || haystack.Contains("broken pipe", StringComparison.OrdinalIgnoreCase)
-            || haystack.Contains("Connection refused", StringComparison.OrdinalIgnoreCase)
-            || haystack.Contains("Unexpected end", StringComparison.OrdinalIgnoreCase);
     }
 
     // ==================== Overlay ====================
