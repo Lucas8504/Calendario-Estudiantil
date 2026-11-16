@@ -62,12 +62,12 @@
         </Grid>
 
         <!-- FAB global del asistente de voz (encima del overlay para poder cortar la grabación) -->
-        <!-- Posicionado a la izquierda del FAB "+" de cada página para que ambos queden visibles -->
+        <!-- En la esquina inferior derecha; el FAB "+" de cada página queda a su izquierda -->
         <Border x:Name="VoiceFab"
                 Grid.Row="0"
                 WidthRequest="56" HeightRequest="56"
                 HorizontalOptions="End" VerticalOptions="End"
-                Margin="0,0,82,16"
+                Margin="0,0,16,16"
                 BackgroundColor="{x:Static config:AppConstants.Accent}"
                 StrokeThickness="0"
                 IsVisible="True">
