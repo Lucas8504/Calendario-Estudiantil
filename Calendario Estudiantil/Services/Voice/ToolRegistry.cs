@@ -733,7 +733,7 @@ public sealed class ToolRegistry : IToolRegistry
             foreach (var t in pending)
             {
                 var subj = subjectsById.TryGetValue(t.SubjectId, out var s) ? s : null;
-                sb.AppendLine($"- '{t.Title}' (materia: {(subj is null ? "desconocida" : subj.Name)}, vence {t.DueDate:yyyy-MM-dd})");
+                sb.AppendLine($"- '{t.Title}' (id {t.Id}, materia: {(subj is null ? "desconocida" : subj.Name)}, vence {t.DueDate:yyyy-MM-dd})");
             }
             sb.AppendLine();
         }
@@ -744,7 +744,7 @@ public sealed class ToolRegistry : IToolRegistry
             foreach (var sch in schedules.OrderBy(s => (int)s.Day).ThenBy(s => s.StartTime))
             {
                 var subj = subjectsById.TryGetValue(sch.SubjectId, out var s) ? s : null;
-                sb.AppendLine($"- {(subj is null ? "desconocida" : subj.Name)}: {DayLabel(sch.Day)} {sch.StartTime:hh\\:mm} a {sch.EndTime:hh\\:mm}");
+                sb.AppendLine($"- {(subj is null ? "desconocida" : subj.Name)}: {DayLabel(sch.Day)} {sch.StartTime:hh\\:mm} a {sch.EndTime:hh\\:mm} (horario id {sch.Id})");
             }
             sb.AppendLine();
         }
@@ -752,6 +752,7 @@ public sealed class ToolRegistry : IToolRegistry
         sb.AppendLine("Usá este contexto para resolver nombres aproximados de materias cuando el usuario hable.");
         sb.AppendLine("Si el usuario dice un nombre que se parece a una materia existente, usá esa materia.");
         sb.AppendLine("No inventes materias que no estén en la lista.");
+        sb.AppendLine("Los ids de tareas y horarios de este contexto se usan como task_id y schedule_id en update_task, delete_task, update_schedule y delete_schedule.");
         sb.AppendLine("Si no estás seguro de a qué materia se refiere, pedí aclaración antes de crear o modificar algo.");
 
         return sb.ToString();

@@ -420,7 +420,9 @@ public class ToolRegistryTests
         Assert.Contains("Fecha y hora actual", context);
         Assert.Contains("Físico-Química", context);
         Assert.Contains("id 1", context);
-        Assert.Contains("Informe de laboratorio", context);
+        Assert.Contains("'Informe de laboratorio' (id 1,", context);
+        Assert.Contains("(horario id 1)", context);
+        Assert.Contains("task_id y schedule_id", context);
         Assert.DoesNotContain("Ya hecha", context);
         Assert.Contains("lunes", context);
         Assert.Contains("18:00", context);
